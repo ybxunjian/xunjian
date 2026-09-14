@@ -87,7 +87,7 @@ export function AuthForm({
                 type="button"
                 disabled={disabled}
                 onClick={onForgotPassword}
-                className="-mr-2 flex min-h-11 items-center px-2 text-caption font-bold text-primary disabled:opacity-45"
+                className="-mr-2 flex min-h-11 items-start px-2 pt-3 text-caption font-bold text-primary disabled:opacity-45"
               >
                 忘记密码？
               </button>

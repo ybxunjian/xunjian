@@ -58,11 +58,11 @@ export function PasswordField({
         </span>
       </label>
       {belowAction ? (
-        <div className="flex min-h-11 items-center justify-between gap-3 px-1">
+        <div className="flex min-h-11 items-start justify-between gap-3 px-1">
           <span
             id={errorId}
             role={error ? "alert" : undefined}
-            className="text-caption font-semibold text-destructive"
+            className="pt-1.5 text-caption font-semibold text-destructive"
           >
             {error}
           </span>
