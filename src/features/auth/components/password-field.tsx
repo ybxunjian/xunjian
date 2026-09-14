@@ -57,18 +57,30 @@ export function PasswordField({
           </button>
         </span>
       </label>
-      <div className="h-6 overflow-hidden px-1 pt-1.5">
-        {error && (
+      {belowAction ? (
+        <div className="flex min-h-11 items-center justify-between gap-3 px-1">
           <span
             id={errorId}
-            role="alert"
-            className="block text-caption font-semibold text-destructive"
+            role={error ? "alert" : undefined}
+            className="text-caption font-semibold text-destructive"
           >
             {error}
           </span>
-        )}
-      </div>
-      {belowAction && <div className="flex justify-end">{belowAction}</div>}
+          {belowAction}
+        </div>
+      ) : (
+        <div className="h-6 overflow-hidden px-1 pt-1.5">
+          {error && (
+            <span
+              id={errorId}
+              role="alert"
+              className="block text-caption font-semibold text-destructive"
+            >
+              {error}
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 }
