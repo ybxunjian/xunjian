@@ -182,7 +182,7 @@ input[type="password"]::-ms-clear {
   display: none;
 }
 
-@keyframes auth-email-shake {
+@keyframes auth-field-shake {
   0%, 100% { transform: translateX(0); }
   20% { transform: translateX(-6px); }
   40% { transform: translateX(6px); }
@@ -190,11 +190,16 @@ input[type="password"]::-ms-clear {
   80% { transform: translateX(4px); }
 }
 
-.auth-email-shake {
-  animation: auth-email-shake 360ms ease-out;
+.auth-field-shake {
+  animation: auth-field-shake 360ms ease-out;
 }
 
-
+.auth-shell {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--background);
+}
 
 select option:disabled { color: var(--muted-foreground); background: var(--muted); }
 

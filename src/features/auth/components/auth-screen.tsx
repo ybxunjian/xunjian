@@ -28,7 +28,7 @@ function AuthLogo() {
       viewBox="800 850 2400 2400"
       aria-hidden="true"
       focusable="false"
-      className="mx-auto mb-4 size-14"
+      className="mx-auto mb-5 size-14"
     >
       <defs>
         <linearGradient id="auth-logo-aqua" x1="0" y1="0" x2="0.12" y2="1">
@@ -75,6 +75,8 @@ export function AuthScreen({
   const [notice, setNotice] = useState<AuthNotice>(null);
   const [alreadyRegistered, setAlreadyRegistered] = useState(false);
   const [emailShakeKey, setEmailShakeKey] = useState(0);
+  const [passwordShakeKey, setPasswordShakeKey] = useState(0);
+  const [confirmPasswordShakeKey, setConfirmPasswordShakeKey] = useState(0);
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<AuthFieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
@@ -137,7 +139,14 @@ export function AuthScreen({
         validatePasswordConfirmation(password, confirmPassword) ?? undefined;
     }
     setFieldErrors(nextErrors);
-    if (Object.values(nextErrors).some(Boolean)) return;
+    if (Object.values(nextErrors).some(Boolean)) {
+      if (nextErrors.email) setEmailShakeKey((current) => current + 1);
+      if (nextErrors.password) setPasswordShakeKey((current) => current + 1);
+      if (nextErrors.confirmPassword) {
+        setConfirmPasswordShakeKey((current) => current + 1);
+      }
+      return;
+    }
 
     const normalizedEmail = normalizeEmail(email);
     setSubmitting(true);
@@ -205,45 +214,31 @@ export function AuthScreen({
   const formDisabled = submitting || resending;
 
   return (
-    <main className="mx-auto flex min-h-svh max-w-md items-start bg-background px-page py-[max(2rem,env(safe-area-inset-top))]">
-      <div className="w-full">
-        <div className="mb-7 text-center">
+    <main className="auth-shell min-h-svh bg-background px-page pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(2.5rem,env(safe-area-inset-top))]">
+      <div className="relative z-10 mx-auto flex min-h-[calc(100svh-4rem)] w-full max-w-md flex-col">
+        <div className="mb-6 mt-8 text-center sm:mt-10">
           {mode === "reset-password" ? (
-            <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-card bg-primary text-primary-foreground shadow-primary">
+            <div className="mx-auto mb-5 flex size-14 items-center justify-center rounded-card bg-primary text-primary-foreground shadow-primary">
               <KeyRound className="size-7" />
             </div>
           ) : (
             <AuthLogo />
           )}
-          <h1 className="text-3xl font-black tracking-tight">
+          <h1 className="text-title font-black tracking-tight text-foreground-strong">
             {mode === "reset-password" ? "设置新密码" : "夜班巡检"}
           </h1>
-          <p className="mt-2 text-body text-muted-foreground">
+          <p className="mt-3 text-base tracking-wide text-muted-foreground">
             {mode === "forgot-password"
               ? "输入注册邮箱，我们会发送密码重置链接。"
               : mode === "reset-password"
                 ? "设置一个至少 8 位的新密码。"
-                : "登录后，在不同设备间安全同步巡检内容。"}
+                : "登录以同步巡检记录"}
           </p>
         </div>
 
-        <Card>
-          <CardContent className="p-5">
-            {accountMode ? (
-              <div className="mb-5 grid h-11 grid-cols-2 rounded-navigation bg-muted p-1">
-                {(["sign-in", "sign-up"] as const).map((item) => (
-                  <button
-                    key={item}
-                    type="button"
-                    disabled={formDisabled}
-                    onClick={() => changeMode(item)}
-                    className={`segmented-item rounded-navigation-item text-body font-bold transition disabled:opacity-45 ${mode === item ? "bg-card text-foreground shadow-card" : "text-muted-foreground"}`}
-                  >
-                    {item === "sign-in" ? "登录" : "注册"}
-                  </button>
-                ))}
-              </div>
-            ) : mode === "forgot-password" ? (
+        <Card className="border-0 bg-transparent shadow-none">
+          <CardContent className="p-0">
+            {!accountMode && mode === "forgot-password" ? (
               <Button
                 type="button"
                 variant="ghost"
@@ -253,6 +248,10 @@ export function AuthScreen({
               >
                 <ArrowLeft /> 返回登录
               </Button>
+            ) : mode === "reset-password" ? (
+              <p className="mb-4 text-center text-body text-muted-foreground">
+                更新后，其他设备会自动退出登录。
+              </p>
             ) : null}
 
             {notice ? (
@@ -287,6 +286,8 @@ export function AuthScreen({
                 confirmPassword={confirmPassword}
                 alreadyRegistered={alreadyRegistered}
                 emailShakeKey={emailShakeKey}
+                passwordShakeKey={passwordShakeKey}
+                confirmPasswordShakeKey={confirmPasswordShakeKey}
                 fieldErrors={fieldErrors}
                 formError={formError}
                 showResendAction={showResendAction}
@@ -314,6 +315,25 @@ export function AuthScreen({
             )}
           </CardContent>
         </Card>
+
+        <div className="mt-4 flex min-h-14 items-start justify-center">
+          {accountMode && !notice && (
+            <p className="text-center text-base text-muted-foreground">
+              {mode === "sign-in" ? "还没有账号？" : "已经有账号？"}{" "}
+              <button
+                type="button"
+                disabled={formDisabled}
+                onClick={() =>
+                  changeMode(mode === "sign-in" ? "sign-up" : "sign-in")
+                }
+                className="min-h-11 px-1 font-bold text-primary transition disabled:opacity-45"
+              >
+                {mode === "sign-in" ? "注册" : "登录"}
+              </button>
+            </p>
+          )}
+        </div>
+
       </div>
     </main>
   );

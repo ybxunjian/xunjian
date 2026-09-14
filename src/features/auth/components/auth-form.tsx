@@ -12,6 +12,8 @@ type AuthFormProps = {
   confirmPassword: string;
   alreadyRegistered: boolean;
   emailShakeKey: number;
+  passwordShakeKey: number;
+  confirmPasswordShakeKey: number;
   fieldErrors: AuthFieldErrors;
   formError: string | null;
   showResendAction: boolean;
@@ -34,6 +36,8 @@ export function AuthForm({
   confirmPassword,
   alreadyRegistered,
   emailShakeKey,
+  passwordShakeKey,
+  confirmPasswordShakeKey,
   fieldErrors,
   formError,
   showResendAction,
@@ -49,12 +53,12 @@ export function AuthForm({
   onResendConfirmation,
 }: AuthFormProps) {
   return (
-    <form onSubmit={onSubmit} noValidate className="space-y-4">
+    <form onSubmit={onSubmit} noValidate className="space-y-2">
       {mode !== "reset-password" && (
         <EmailField
           value={email}
           error={fieldErrors.email}
-          shake={alreadyRegistered}
+          shake={Boolean(fieldErrors.email)}
           shakeKey={emailShakeKey}
           showForgotPassword={mode === "sign-up" && alreadyRegistered}
           disabled={disabled}
@@ -74,6 +78,7 @@ export function AuthForm({
           value={password}
           disabled={disabled}
           error={fieldErrors.password}
+          shakeKey={passwordShakeKey}
           onChange={(event) => onPasswordChange(event.target.value)}
           placeholder="至少 8 位"
           belowAction={
@@ -101,17 +106,12 @@ export function AuthForm({
           value={confirmPassword}
           disabled={disabled}
           error={fieldErrors.confirmPassword}
+          shakeKey={confirmPasswordShakeKey}
           onChange={(event) => onConfirmPasswordChange(event.target.value)}
           placeholder={
             mode === "reset-password" ? "再次输入新密码" : "再次输入密码"
           }
         />
-      )}
-
-      {mode === "sign-up" && !fieldErrors.password && (
-        <p className="-mt-1 text-caption text-muted-foreground">
-          密码至少 8 位，两次输入需保持一致。
-        </p>
       )}
 
       {formError && (
@@ -138,7 +138,11 @@ export function AuthForm({
         </div>
       )}
 
-      <Button type="submit" className="w-full" disabled={disabled}>
+      <Button
+        type="submit"
+        className="mt-3 min-h-13 w-full text-base"
+        disabled={disabled}
+      >
         {submitting
           ? "请稍候…"
           : mode === "sign-in"
@@ -175,13 +179,19 @@ function EmailField({
   return (
     <div>
       <label className="block" htmlFor="auth-email">
-        <span className="mb-2 flex min-h-5 items-center gap-2 text-caption font-bold text-muted-foreground">
-          <Mail className="size-4" /> 邮箱
-        </span>
+        <span className="sr-only">邮箱</span>
         <span
           key={shakeKey}
-          className={shake ? "auth-email-shake block" : "block"}
+          className={
+            shake
+              ? "auth-field-shake relative block"
+              : "relative block"
+          }
         >
+          <Mail
+            className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground"
+            aria-hidden="true"
+          />
           <input
             id="auth-email"
             type="email"
@@ -195,8 +205,8 @@ function EmailField({
             aria-invalid={Boolean(error)}
             aria-describedby={error ? "auth-email-error" : undefined}
             onChange={(event) => onChange(event.target.value)}
-            placeholder="name@example.com"
-            className={`min-h-12 w-full rounded-control border bg-card px-4 text-base shadow-card outline-none transition focus:ring-4 focus:ring-primary/15 disabled:opacity-45 ${error ? "border-destructive focus:border-destructive" : "border-border focus:border-primary"}`}
+            placeholder="邮箱"
+            className={`min-h-14 w-full rounded-control border bg-card pl-13 pr-4 text-base shadow-card outline-none transition focus:ring-4 focus:ring-primary/15 disabled:opacity-45 ${error ? "border-destructive focus:border-destructive" : "border-border/80 focus:border-primary"}`}
           />
         </span>
       </label>
@@ -204,7 +214,7 @@ function EmailField({
         <div
           role="alert"
           aria-live="assertive"
-          className="flex min-h-11 items-center justify-between gap-3"
+          className="flex min-h-11 items-center justify-between gap-3 px-1"
         >
           <span
             id="auth-email-error"
@@ -221,14 +231,19 @@ function EmailField({
             忘记密码？
           </button>
         </div>
-      ) : error ? (
-        <span
-          id="auth-email-error"
-          className="mt-1.5 block text-caption font-semibold text-destructive"
-        >
-          {error}
-        </span>
-      ) : null}
+      ) : (
+        <div className="h-6 overflow-hidden px-1 pt-1.5">
+          {error && (
+            <span
+              id="auth-email-error"
+              role="alert"
+              className="block text-caption font-semibold text-destructive"
+            >
+              {error}
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 }
