@@ -214,8 +214,8 @@ export function AuthScreen({
   const formDisabled = submitting || resending;
 
   return (
-    <main className="auth-shell min-h-svh bg-background px-page pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(2.5rem,env(safe-area-inset-top))]">
-      <div className="relative z-10 mx-auto flex min-h-[calc(100svh-4rem)] w-full max-w-md flex-col">
+    <main className="auth-shell min-h-svh bg-background pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(2.5rem,env(safe-area-inset-top))]">
+      <div className="auth-content relative z-10 mx-auto flex min-h-[calc(100svh-4rem)] w-full flex-col">
         <div className="mb-6 mt-8 text-center sm:mt-10">
           {mode === "reset-password" ? (
             <div className="mx-auto mb-5 flex size-14 items-center justify-center rounded-card bg-primary text-primary-foreground shadow-primary">
@@ -232,7 +232,7 @@ export function AuthScreen({
               ? "输入注册邮箱，我们会发送密码重置链接。"
               : mode === "reset-password"
                 ? "设置一个至少 8 位的新密码。"
-                : "登录以同步巡检记录"}
+                : "让每一次巡检，清晰留在当下。"}
           </p>
         </div>
 

@@ -43,7 +43,7 @@ export function PasswordField({
             type={visible ? "text" : "password"}
             aria-invalid={Boolean(error)}
             aria-describedby={errorId}
-            className={`min-h-14 w-full rounded-control border bg-card pl-13 pr-13 text-base shadow-card outline-none transition focus:ring-4 focus:ring-primary/15 ${error ? "border-destructive focus:border-destructive" : "border-border/80 focus:border-primary"} ${className ?? ""}`}
+            className={`min-h-14 w-full rounded-full border bg-card pl-13 pr-13 text-base shadow-card outline-none transition focus:ring-4 focus:ring-primary/15 ${error ? "border-destructive focus:border-destructive" : "border-border/80 focus:border-primary"} ${className ?? ""}`}
           />
           <button
             type="button"
@@ -51,7 +51,7 @@ export function PasswordField({
             disabled={props.disabled}
             aria-label={visible ? `隐藏${label}` : `显示${label}`}
             aria-pressed={visible}
-            className="absolute inset-y-0 right-1 flex min-w-12 items-center justify-center rounded-control text-muted-foreground transition hover:text-foreground disabled:pointer-events-none disabled:opacity-45"
+            className="absolute inset-y-0 right-1 flex min-w-12 items-center justify-center rounded-full text-muted-foreground transition hover:text-foreground disabled:pointer-events-none disabled:opacity-45"
           >
             {visible ? <EyeOff className="size-[1.125rem]" /> : <Eye className="size-[1.125rem]" />}
           </button>

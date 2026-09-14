@@ -140,7 +140,7 @@ export function AuthForm({
 
       <Button
         type="submit"
-        className="mt-3 min-h-13 w-full text-base"
+        className="mt-3 min-h-13 w-full rounded-full text-base"
         disabled={disabled}
       >
         {submitting
@@ -206,7 +206,7 @@ function EmailField({
             aria-describedby={error ? "auth-email-error" : undefined}
             onChange={(event) => onChange(event.target.value)}
             placeholder="邮箱"
-            className={`min-h-14 w-full rounded-control border bg-card pl-13 pr-4 text-base shadow-card outline-none transition focus:ring-4 focus:ring-primary/15 disabled:opacity-45 ${error ? "border-destructive focus:border-destructive" : "border-border/80 focus:border-primary"}`}
+            className={`min-h-14 w-full rounded-full border bg-card pl-13 pr-4 text-base shadow-card outline-none transition focus:ring-4 focus:ring-primary/15 disabled:opacity-45 ${error ? "border-destructive focus:border-destructive" : "border-border/80 focus:border-primary"}`}
           />
         </span>
       </label>

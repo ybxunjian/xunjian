@@ -48,6 +48,8 @@
   --shadow-destructive: 0 10px 24px rgb(239 68 68 / 0.18);
 
   --space-page: 1rem;
+  --space-auth-page: 1.25rem;
+  --auth-content-max-width: 25rem;
   --space-section: 1.25rem;
   --space-compact: 0.375rem;
   --space-control-y: 0.5rem;
@@ -199,6 +201,11 @@ input[type="password"]::-ms-clear {
   overflow: hidden;
   isolation: isolate;
   background: var(--background);
+  padding-inline: var(--space-auth-page);
+}
+
+.auth-content {
+  max-width: var(--auth-content-max-width);
 }
 
 select option:disabled { color: var(--muted-foreground); background: var(--muted); }
