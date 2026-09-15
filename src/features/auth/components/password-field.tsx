@@ -27,36 +27,34 @@ export function PasswordField({
 
   return (
     <div className="block">
-      <label className="block" htmlFor={id}>
-        <span className="sr-only">{label}</span>
-        <span
-          key={shakeKey}
-          className={error ? "auth-field-shake relative block" : "relative block"}
+      <label className="sr-only" htmlFor={id}>{label}</label>
+      <span
+        key={shakeKey}
+        className={error ? "auth-field-shake relative block" : "relative block"}
+      >
+        <LockKeyhole
+          className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground"
+          aria-hidden="true"
+        />
+        <input
+          {...props}
+          id={id}
+          type={visible ? "text" : "password"}
+          aria-invalid={Boolean(error)}
+          aria-describedby={errorId}
+          className={`min-h-14 w-full rounded-full border bg-card pl-13 pr-13 text-base shadow-card outline-none transition focus:ring-4 focus:ring-primary/15 ${error ? "border-destructive focus:border-destructive" : "border-border/80 focus:border-primary"} ${className ?? ""}`}
+        />
+        <button
+          type="button"
+          onClick={() => setVisible((current) => !current)}
+          disabled={props.disabled}
+          aria-label={visible ? `隐藏${label}` : `显示${label}`}
+          aria-pressed={visible}
+          className="absolute inset-y-0 right-1 z-10 flex min-w-12 items-center justify-center rounded-full text-muted-foreground transition hover:text-foreground disabled:pointer-events-none disabled:opacity-45"
         >
-          <LockKeyhole
-            className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground"
-            aria-hidden="true"
-          />
-          <input
-            {...props}
-            id={id}
-            type={visible ? "text" : "password"}
-            aria-invalid={Boolean(error)}
-            aria-describedby={errorId}
-            className={`min-h-14 w-full rounded-full border bg-card pl-13 pr-13 text-base shadow-card outline-none transition focus:ring-4 focus:ring-primary/15 ${error ? "border-destructive focus:border-destructive" : "border-border/80 focus:border-primary"} ${className ?? ""}`}
-          />
-          <button
-            type="button"
-            onClick={() => setVisible((current) => !current)}
-            disabled={props.disabled}
-            aria-label={visible ? `隐藏${label}` : `显示${label}`}
-            aria-pressed={visible}
-            className="absolute inset-y-0 right-1 flex min-w-12 items-center justify-center rounded-full text-muted-foreground transition hover:text-foreground disabled:pointer-events-none disabled:opacity-45"
-          >
-            {visible ? <EyeOff className="size-[1.125rem]" /> : <Eye className="size-[1.125rem]" />}
-          </button>
-        </span>
-      </label>
+          {visible ? <EyeOff className="size-[1.125rem]" /> : <Eye className="size-[1.125rem]" />}
+        </button>
+      </span>
       {belowAction ? (
         <div className="flex min-h-11 items-start justify-between gap-3 px-1">
           <span
