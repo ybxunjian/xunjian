@@ -1,7 +1,20 @@
 "use client";
 
-import { useState, type InputHTMLAttributes, type ReactNode } from "react";
+import {
+  useLayoutEffect,
+  useRef,
+  useState,
+  type InputHTMLAttributes,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+} from "react";
 import { Eye, EyeOff, LockKeyhole } from "lucide-react";
+
+type TextSelection = {
+  start: number;
+  end: number;
+  direction: "forward" | "backward" | "none" | undefined;
+};
 
 type PasswordFieldProps = Omit<
   InputHTMLAttributes<HTMLInputElement>,
@@ -23,11 +36,59 @@ export function PasswordField({
   ...props
 }: PasswordFieldProps) {
   const [visible, setVisible] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const selectionRef = useRef<TextSelection | null>(null);
   const errorId = error && id ? `${id}-error` : undefined;
+
+  useLayoutEffect(() => {
+    const input = inputRef.current;
+    const selection = selectionRef.current;
+    selectionRef.current = null;
+
+    if (
+      !input ||
+      !selection ||
+      input.ownerDocument.activeElement !== input
+    ) {
+      return;
+    }
+
+    input.setSelectionRange(
+      selection.start,
+      selection.end,
+      selection.direction,
+    );
+  }, [visible]);
+
+  function preserveActiveInput(event: ReactPointerEvent<HTMLButtonElement>) {
+    // A pointer press normally focuses the button before click. Cancelling that
+    // default action keeps the input active and prevents an iOS keyboard close.
+    event.preventDefault();
+  }
+
+  function toggleVisibility() {
+    const input = inputRef.current;
+
+    selectionRef.current =
+      input &&
+      input.ownerDocument.activeElement === input &&
+      input.selectionStart !== null &&
+      input.selectionEnd !== null
+        ? {
+            start: input.selectionStart,
+            end: input.selectionEnd,
+            direction: input.selectionDirection ?? undefined,
+          }
+        : null;
+
+    setVisible((current) => !current);
+  }
 
   return (
     <div className="block">
-      <label className="sr-only" htmlFor={id}>{label}</label>
+      <label className="sr-only" htmlFor={id}>
+        {label}
+      </label>
       <span
         key={shakeKey}
         className={error ? "auth-field-shake relative block" : "relative block"}
@@ -38,6 +99,7 @@ export function PasswordField({
         />
         <input
           {...props}
+          ref={inputRef}
           id={id}
           type={visible ? "text" : "password"}
           aria-invalid={Boolean(error)}
@@ -46,13 +108,18 @@ export function PasswordField({
         />
         <button
           type="button"
-          onClick={() => setVisible((current) => !current)}
+          onPointerDown={preserveActiveInput}
+          onClick={toggleVisibility}
           disabled={props.disabled}
           aria-label={visible ? `隐藏${label}` : `显示${label}`}
           aria-pressed={visible}
-          className="absolute inset-y-0 right-1 z-10 flex min-w-12 items-center justify-center rounded-full text-muted-foreground transition hover:text-foreground disabled:pointer-events-none disabled:opacity-45"
+          className="absolute inset-y-0 right-1 z-10 flex min-w-12 touch-manipulation select-none items-center justify-center rounded-full text-muted-foreground [-webkit-tap-highlight-color:transparent] disabled:pointer-events-none disabled:opacity-45"
         >
-          {visible ? <EyeOff className="size-[1.125rem]" /> : <Eye className="size-[1.125rem]" />}
+          {visible ? (
+            <EyeOff className="size-[1.125rem]" />
+          ) : (
+            <Eye className="size-[1.125rem]" />
+          )}
         </button>
       </span>
       {belowAction ? (
