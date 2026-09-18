@@ -1,20 +1,23 @@
 "use client";
 
 import {
-  useLayoutEffect,
+  useEffect,
   useRef,
   useState,
+  useSyncExternalStore,
+  type CSSProperties,
   type InputHTMLAttributes,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from "react";
 import { Eye, EyeOff, LockKeyhole } from "lucide-react";
 
-type TextSelection = {
-  start: number;
-  end: number;
-  direction: "forward" | "backward" | "none" | undefined;
-};
+// Resolve once during hydration, before the control is enabled. Never change
+// input type as a consequence of a visibility toggle. SSR fails closed.
+const subscribe = () => () => {};
+const supportsMask = () => CSS.supports("-webkit-text-security", "disc");
+const serverMask = () => false;
+const clientReady = () => true;
 
 type PasswordFieldProps = Omit<
   InputHTMLAttributes<HTMLInputElement>,
@@ -33,32 +36,27 @@ export function PasswordField({
   belowAction,
   shakeKey = 0,
   className,
+  style,
   ...props
 }: PasswordFieldProps) {
   const [visible, setVisible] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const selectionRef = useRef<TextSelection | null>(null);
+  const maskSupported = useSyncExternalStore(subscribe, supportsMask, serverMask);
+  const ready = useSyncExternalStore(subscribe, clientReady, serverMask);
+  const wrapperRef = useRef<HTMLSpanElement>(null);
   const errorId = error && id ? `${id}-error` : undefined;
+  const inputStyle: CSSProperties & { WebkitTextSecurity: "none" | "disc" } = {
+    ...style,
+    WebkitTextSecurity: visible ? "none" : "disc",
+  };
 
-  useLayoutEffect(() => {
-    const input = inputRef.current;
-    const selection = selectionRef.current;
-    selectionRef.current = null;
-
-    if (
-      !input ||
-      !selection ||
-      input.ownerDocument.activeElement !== input
-    ) {
-      return;
-    }
-
-    input.setSelectionRange(
-      selection.start,
-      selection.end,
-      selection.direction,
+  useEffect(() => {
+    if (!error || !shakeKey || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const animation = wrapperRef.current?.animate(
+      [0, -5, 5, -3, 3, 0].map((x) => ({ transform: `translateX(${x}px)` })),
+      { duration: 360, easing: "ease-out" },
     );
-  }, [visible]);
+    return () => animation?.cancel();
+  }, [error, shakeKey]);
 
   function preserveActiveInput(event: ReactPointerEvent<HTMLButtonElement>) {
     // A pointer press normally focuses the button before click. Cancelling that
@@ -67,20 +65,7 @@ export function PasswordField({
   }
 
   function toggleVisibility() {
-    const input = inputRef.current;
-
-    selectionRef.current =
-      input &&
-      input.ownerDocument.activeElement === input &&
-      input.selectionStart !== null &&
-      input.selectionEnd !== null
-        ? {
-            start: input.selectionStart,
-            end: input.selectionEnd,
-            direction: input.selectionDirection ?? undefined,
-          }
-        : null;
-
+    if (!maskSupported || props.disabled) return;
     setVisible((current) => !current);
   }
 
@@ -90,8 +75,8 @@ export function PasswordField({
         {label}
       </label>
       <span
-        key={shakeKey}
-        className={error ? "auth-field-shake relative block" : "relative block"}
+        ref={wrapperRef}
+        className="relative block"
       >
         <LockKeyhole
           className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground"
@@ -99,9 +84,13 @@ export function PasswordField({
         />
         <input
           {...props}
-          ref={inputRef}
           id={id}
-          type={visible ? "text" : "password"}
+          type={maskSupported ? "text" : "password"}
+          disabled={props.disabled || !ready}
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          style={inputStyle}
           aria-invalid={Boolean(error)}
           aria-describedby={errorId}
           className={`min-h-14 w-full rounded-full border bg-card pl-13 pr-13 text-base shadow-card outline-none transition focus:ring-4 focus:ring-primary/15 ${error ? "border-destructive focus:border-destructive" : "border-border/80 focus:border-primary"} ${className ?? ""}`}
@@ -109,8 +98,9 @@ export function PasswordField({
         <button
           type="button"
           onPointerDown={preserveActiveInput}
+          onMouseDown={(event) => event.preventDefault()}
           onClick={toggleVisibility}
-          disabled={props.disabled}
+          disabled={props.disabled || !maskSupported}
           aria-label={visible ? `隐藏${label}` : `显示${label}`}
           aria-pressed={visible}
           className="absolute inset-y-0 right-1 z-10 flex min-w-12 touch-manipulation select-none items-center justify-center rounded-full text-muted-foreground [-webkit-tap-highlight-color:transparent] disabled:pointer-events-none disabled:opacity-45"
