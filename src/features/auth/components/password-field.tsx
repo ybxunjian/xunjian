@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  useEffect,
-  useRef,
-  useState,
-  type InputHTMLAttributes,
-  type PointerEvent as ReactPointerEvent,
-  type ReactNode,
-} from "react";
+import { useState, type InputHTMLAttributes, type ReactNode } from "react";
 import { Eye, EyeOff, LockKeyhole } from "lucide-react";
 
 type PasswordFieldProps = Omit<
@@ -30,43 +23,15 @@ export function PasswordField({
   ...props
 }: PasswordFieldProps) {
   const [visible, setVisible] = useState(false);
-  const wrapperRef = useRef<HTMLSpanElement>(null);
   const errorId = error && id ? `${id}-error` : undefined;
-
-  useEffect(() => {
-    if (
-      !error ||
-      !shakeKey ||
-      matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
-      return;
-    }
-
-    const animation = wrapperRef.current?.animate(
-      [0, -6, 6, -4, 4, 0].map((x) => ({ transform: `translateX(${x}px)` })),
-      { duration: 360, easing: "ease-out" },
-    );
-    return () => animation?.cancel();
-  }, [error, shakeKey]);
-
-  function preserveActiveInput(event: ReactPointerEvent<HTMLButtonElement>) {
-    // Cancel the pointer's focus transfer before it can blur the input. The
-    // subsequent click still toggles visibility, and keyboard clicks are
-    // unaffected because they do not start with pointerdown.
-    event.preventDefault();
-  }
-
-  function toggleVisibility() {
-    if (props.disabled) return;
-    setVisible((current) => !current);
-  }
 
   return (
     <div className="block">
-      <label className="sr-only" htmlFor={id}>
-        {label}
-      </label>
-      <span ref={wrapperRef} className="relative block">
+      <label className="sr-only" htmlFor={id}>{label}</label>
+      <span
+        key={shakeKey}
+        className={error ? "auth-field-shake relative block" : "relative block"}
+      >
         <LockKeyhole
           className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground"
           aria-hidden="true"
@@ -81,18 +46,13 @@ export function PasswordField({
         />
         <button
           type="button"
-          onPointerDown={preserveActiveInput}
-          onClick={toggleVisibility}
+          onClick={() => setVisible((current) => !current)}
           disabled={props.disabled}
           aria-label={visible ? `隐藏${label}` : `显示${label}`}
           aria-pressed={visible}
-          className="absolute inset-y-0 right-1 z-10 flex min-w-12 touch-manipulation select-none items-center justify-center rounded-full text-muted-foreground outline-none [-webkit-tap-highlight-color:transparent] focus-visible:ring-4 focus-visible:ring-primary/15 disabled:pointer-events-none disabled:opacity-45"
+          className="absolute inset-y-0 right-1 z-10 flex min-w-12 items-center justify-center rounded-full text-muted-foreground transition hover:text-foreground disabled:pointer-events-none disabled:opacity-45"
         >
-          {visible ? (
-            <EyeOff className="size-[1.125rem]" />
-          ) : (
-            <Eye className="size-[1.125rem]" />
-          )}
+          {visible ? <EyeOff className="size-[1.125rem]" /> : <Eye className="size-[1.125rem]" />}
         </button>
       </span>
       {belowAction ? (
