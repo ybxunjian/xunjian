@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { ClearButton } from "@/components/ui/clear-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { BELTS } from "../../model/config";
 import {
@@ -9,6 +9,7 @@ import {
 import type { BeltId, InspectionValues } from "../../model/types";
 import { InspectionField } from "../inspection-field";
 import { SectionHeading } from "../section-heading";
+import { BeltTabs } from "./belt-tabs";
 
 type BeltAreaProps = {
   beltTab: BeltId;
@@ -34,19 +35,7 @@ export function BeltArea({
   return (
     <>
       <SectionHeading title="皮带区域" />
-      <div className="sticky top-[calc(max(0.75rem,env(safe-area-inset-top))+3.25rem)] z-10 mb-4 grid h-11 grid-cols-3 gap-1 rounded-navigation bg-muted/95 p-1 shadow-card ring-1 ring-inset ring-border/70 backdrop-blur">
-        {BELTS.map(({ id }) => (
-          <button
-            key={id}
-            type="button"
-            onClick={() => onSelectBelt(id)}
-            aria-pressed={beltTab === id}
-            className={`segmented-item relative h-full rounded-navigation-item py-0 text-label font-bold transition duration-200 before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${beltTab === id ? "bg-card text-primary shadow-card" : "text-muted-foreground"}`}
-          >
-            {id}
-          </button>
-        ))}
-      </div>
+      <BeltTabs value={beltTab} onChange={onSelectBelt} />
       <div className="space-y-2.5">
         {getVisibleBeltItems(belt.id).map((item) => {
           const points = getBeltPoints(belt.id, belt.ends, item);
@@ -63,14 +52,7 @@ export function BeltArea({
                     )}
                     {getBeltItemTitle(belt.id, item)}
                   </b>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => onClearItem(belt.id, belt.ends, item)}
-                    className="-mr-2 min-w-11 px-2 text-xs font-normal text-subtle-foreground"
-                  >
-                    清空
-                  </Button>
+                  <ClearButton onClick={() => onClearItem(belt.id, belt.ends, item)} />
                 </div>
                 <div
                   className={`mt-2.5 grid gap-2 ${points.length === 1 ? "grid-cols-1" : "grid-cols-[repeat(2,minmax(0,1fr))]"}`}

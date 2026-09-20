@@ -17,8 +17,6 @@ import {
   useUserPreferences,
 } from "@/features/account";
 import { AuthScreen, useAuth } from "@/features/auth";
-import { INSPECTION_TABS } from "../model/config";
-import type { InspectionTab } from "../model/types";
 import {
   useInspectionController,
   type InspectionSyncStatus,
@@ -28,6 +26,7 @@ import { BackupDialog } from "./dialogs/backup-dialog";
 import { DeleteDialog } from "./dialogs/delete-dialog";
 import { SaveValidationDialog } from "./dialogs/save-validation-dialog";
 import { HistoryView } from "./history/history-view";
+import { InspectionTabs } from "./inspection-tabs";
 import { PumpArea } from "./pump/pump-area";
 
 export function NightInspectionApp() {
@@ -201,19 +200,11 @@ function InspectionAppContent({
         </div>
       </header>
 
-      <nav className="sticky top-[max(0.75rem,env(safe-area-inset-top))] z-20 my-5 grid h-11 grid-cols-4 rounded-navigation bg-card/95 p-1 shadow-card ring-1 ring-inset ring-border/70 backdrop-blur">
-        {preferences.navigationOrder.map((id) => (
-          <button
-            key={id}
-            type="button"
-            aria-current={state.tab === id ? "page" : undefined}
-            onClick={() => actions.selectTab(id)}
-            className={`segmented-item relative h-full rounded-navigation-item py-0 text-caption font-bold transition duration-200 before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${state.tab === id ? "bg-primary text-primary-foreground shadow-card" : "text-muted-foreground"}`}
-          >
-            {TAB_LABELS[id]}
-          </button>
-        ))}
-      </nav>
+      <InspectionTabs
+        order={preferences.navigationOrder}
+        value={state.tab}
+        onChange={actions.selectTab}
+      />
 
       <AnimatePresence mode="wait">
         <motion.section
@@ -282,11 +273,6 @@ function InspectionAppContent({
     </main>
   );
 }
-
-const TAB_LABELS = Object.fromEntries(INSPECTION_TABS) as Record<
-  InspectionTab,
-  string
->;
 
 function SyncIcon({ status }: { status: InspectionSyncStatus }) {
   if (status === "syncing") return <RefreshCw className="size-4 animate-spin" />;

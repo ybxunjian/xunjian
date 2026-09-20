@@ -1,3 +1,5 @@
+import { ActionTile } from "@/components/ui/action-tile";
+import { DialogHeading } from "@/components/ui/dialog-heading";
 import { useRef } from "react";
 import {
   Camera,
@@ -67,17 +69,7 @@ export function AccountMenu({
           <X />
         </Button>
       </div>
-      <div className="px-1 pb-3">
-        <h3
-          id="account-dialog-title"
-          className="text-lg font-black text-foreground-strong"
-        >
-          账号
-        </h3>
-        <p className="mt-0.5 text-caption text-muted-foreground">
-          个人资料与使用偏好
-        </p>
-      </div>
+      <DialogHeading id="account-dialog-title" title="账号" description="个人资料与使用偏好" variant="account" />
 
       <section className="rounded-card bg-muted p-4 text-center">
         <button
@@ -127,16 +119,7 @@ export function AccountMenu({
         <p className="mb-2 px-1 text-caption font-bold text-muted-foreground">
           账号安全
         </p>
-        <button
-          type="button"
-          onClick={onOpenPassword}
-          className="flex min-h-14 w-full items-center gap-3 rounded-control bg-muted px-4 text-left transition active:scale-[.98]"
-        >
-          <span className="grid size-9 place-items-center rounded-small bg-card text-primary shadow-card">
-            <KeyRound className="size-4" />
-          </span>
-          <span className="font-bold">修改密码</span>
-        </button>
+        <ActionTile icon={<KeyRound className="size-4" />} title="修改密码" onClick={onOpenPassword} />
       </section>
 
       <NavigationOrderEditor

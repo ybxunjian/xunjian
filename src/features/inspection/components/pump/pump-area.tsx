@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { ClearButton } from "@/components/ui/clear-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PUMP_AREAS, PUMP_READING_FIELDS } from "../../model/config";
 import { fieldKey } from "../../model/field-rules";
@@ -60,14 +60,7 @@ export function PumpArea({
                       ))}
                     </select>
                   </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => onClearPump(area, group, index)}
-                    className="-mr-2 min-w-11 shrink-0 px-2 text-xs font-normal text-subtle-foreground"
-                  >
-                    清空
-                  </Button>
+                  <ClearButton onClick={() => onClearPump(area, group, index)} />
                 </div>
                 <div className="pump-readings mt-2 grid grid-cols-2 gap-2">
                   {PUMP_READING_FIELDS.map(([label, field]) => {

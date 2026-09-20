@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion, useIsPresent } from "framer-motion";
+import { AnimatePresence, useIsPresent } from "framer-motion";
+import { Sheet } from "@/components/ui/sheet";
 import { toast } from "sonner";
 import { AccountConfirmationSheet } from "./account-confirmation-sheet";
 import type {
@@ -73,62 +74,42 @@ export function AccountDialog(props: AccountDialogProps) {
   };
 
   return (
-    <motion.div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-overlay px-page pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-[2px]"
-      style={{ pointerEvents: isPresent ? "auto" : "none" }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      onClick={props.onClose}
+    <Sheet labelledBy="account-dialog-title" onClose={props.onClose} layoutScroll
+      overlays={<>
+        <AnimatePresence>
+          {confirmation && (
+            <AccountConfirmationSheet
+              action={confirmation}
+              submitting={confirming}
+              onCancel={() => setConfirmation(null)}
+              onConfirm={() => void confirmAction()}
+            />
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {passwordOpen && (
+            <AccountPasswordSheet
+              onChangePassword={props.onChangePassword}
+              onClose={() => setPasswordOpen(false)}
+            />
+          )}
+        </AnimatePresence>
+      </>}
     >
-      <motion.div
-        layoutScroll
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="account-dialog-title"
-        aria-hidden={!isPresent}
-        className="max-h-[calc(100svh-2rem)] w-full max-w-md overflow-y-auto overscroll-contain rounded-sheet border border-border/80 bg-card p-4 text-card-foreground shadow-floating"
-        style={{ pointerEvents: isPresent ? "auto" : "none" }}
-        initial={{ y: 40, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 40, opacity: 0 }}
-        transition={{ type: "spring", stiffness: 420, damping: 34 }}
-        onClick={(event) => event.stopPropagation()}
-      >
-        <AccountMenu
-          email={props.email}
-          emailVerified={props.emailVerified}
-          avatarUrl={props.avatarUrl}
-          avatarBusy={props.avatarBusy}
-          navigationOrder={props.navigationOrder}
-          onAvatarChange={props.onAvatarChange}
-          onNavigationOrderChange={props.onNavigationOrderChange}
-          onClose={props.onClose}
-          onOpenPassword={() => setPasswordOpen(true)}
-          onRequestAvatarRemoval={() => setConfirmation("remove-avatar")}
-          onRequestSignOut={() => setConfirmation("sign-out")}
-        />
-      </motion.div>
-
-      <AnimatePresence>
-        {confirmation && (
-          <AccountConfirmationSheet
-            action={confirmation}
-            submitting={confirming}
-            onCancel={() => setConfirmation(null)}
-            onConfirm={() => void confirmAction()}
-          />
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {passwordOpen && (
-          <AccountPasswordSheet
-            onChangePassword={props.onChangePassword}
-            onClose={() => setPasswordOpen(false)}
-          />
-        )}
-      </AnimatePresence>
-    </motion.div>
+      <AccountMenu
+        email={props.email}
+        emailVerified={props.emailVerified}
+        avatarUrl={props.avatarUrl}
+        avatarBusy={props.avatarBusy}
+        navigationOrder={props.navigationOrder}
+        onAvatarChange={props.onAvatarChange}
+        onNavigationOrderChange={props.onNavigationOrderChange}
+        onClose={props.onClose}
+        onOpenPassword={() => setPasswordOpen(true)}
+        onRequestAvatarRemoval={() => setConfirmation("remove-avatar")}
+        onRequestSignOut={() => setConfirmation("sign-out")}
+      />
+    </Sheet>
   );
 }

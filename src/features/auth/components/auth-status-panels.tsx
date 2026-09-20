@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { CircleCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { FormError } from "@/components/ui/form-error";
 
 export function AccountNotice({
   email,
@@ -23,14 +24,7 @@ export function AccountNotice({
       title="请验证邮箱"
       description={`验证邮件已发送至 ${email}。完成验证后即可登录。`}
     >
-      {formError && (
-        <p
-          role="alert"
-          className="mt-4 rounded-small bg-destructive-soft px-3 py-2 text-caption font-semibold text-destructive"
-        >
-          {formError}
-        </p>
-      )}
+      <FormError className="mt-4">{formError}</FormError>
       <div className="mt-5 grid gap-3">
         <Button
           type="button"

@@ -7,6 +7,7 @@ import {
   getVisibleBeltItems,
 } from "../../model/field-rules";
 import type { InspectionRecord, PumpAreaId } from "../../model/types";
+import { SectionHeading } from "../section-heading";
 
 export function InspectionSummary({ record }: { record: InspectionRecord }) {
   const snapshot = record.values;
@@ -24,9 +25,7 @@ export function InspectionSummary({ record }: { record: InspectionRecord }) {
 
   return (
     <>
-      <div className="mb-4 flex h-8 items-center px-1">
-        <h2 className="text-title font-black tracking-tight">巡检汇总</h2>
-      </div>
+      <SectionHeading title="巡检汇总" />
       <Card className="mb-3">
         <CardContent className="p-4">
           <b className="text-base">皮带区域</b>

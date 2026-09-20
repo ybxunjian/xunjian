@@ -184,7 +184,7 @@ input[type="password"]::-ms-clear {
   display: none;
 }
 
-@keyframes auth-field-shake {
+@keyframes field-shake {
   0%, 100% { transform: translateX(0); }
   20% { transform: translateX(-6px); }
   40% { transform: translateX(6px); }
@@ -192,8 +192,8 @@ input[type="password"]::-ms-clear {
   80% { transform: translateX(4px); }
 }
 
-.auth-field-shake {
-  animation: auth-field-shake 360ms ease-out;
+.field-shake {
+  animation: field-shake 360ms ease-out;
 }
 
 .auth-shell {

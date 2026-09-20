@@ -1,4 +1,6 @@
-import { motion, useIsPresent } from "framer-motion";
+import { DialogHeading } from "@/components/ui/dialog-heading";
+import { useIsPresent } from "framer-motion";
+import { Sheet } from "@/components/ui/sheet";
 import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { SaveValidation } from "../../model/types";
@@ -17,75 +19,39 @@ export function SaveValidationDialog({
   const isPresent = useIsPresent();
 
   return (
-    <motion.div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-overlay px-page pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-[2px]"
-      style={{ pointerEvents: isPresent ? "auto" : "none" }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      onClick={onCancel}
-    >
-      <motion.div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="save-validation-title"
-        aria-hidden={!isPresent}
-        className="w-full max-w-md rounded-sheet border border-border/80 bg-card p-4 text-card-foreground shadow-floating"
-        style={{ pointerEvents: isPresent ? "auto" : "none" }}
-        initial={{ y: 40, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 40, opacity: 0 }}
-        transition={{ type: "spring", stiffness: 420, damping: 34 }}
-        onClick={(event) => event.stopPropagation()}
-      >
-        <div className="flex items-start gap-3 px-1 pb-3 pt-1">
-          <span className="grid size-11 shrink-0 place-items-center rounded-control bg-warning-soft text-warning">
-            <AlertTriangle size={20} />
-          </span>
-          <div>
-            <h3
-              id="save-validation-title"
-              className="text-lg font-black text-foreground-strong"
-            >
-              记录尚未填写完整
-            </h3>
-            <p className="mt-1 text-body text-muted-foreground">
-              请检查以下内容，是否仍要保存？
-            </p>
-          </div>
-        </div>
-        <div className="max-h-[46svh] space-y-3 overflow-y-auto py-1">
-          {validation.unselectedPumps.length > 0 && (
-            <MissingGroup
-              title="未选择泵号"
-              items={validation.unselectedPumps}
-              tone="amber"
-            />
-          )}
-          {validation.emptyInputs.length > 0 && (
-            <MissingGroup
-              title="未填写数值"
-              items={validation.emptyInputs}
-              tone="rose"
-            />
-          )}
-        </div>
-        <div className="mt-4 grid grid-cols-2 gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            disabled={!isPresent}
-            onClick={onSave}
-            className="bg-muted text-foreground"
-          >
-            仍然保存
-          </Button>
-          <Button type="button" disabled={!isPresent} onClick={onCancel}>
-            返回补充
-          </Button>
-        </div>
-      </motion.div>
-    </motion.div>
+    <Sheet labelledBy="save-validation-title" onClose={onCancel}>
+      <DialogHeading id="save-validation-title" title="记录尚未填写完整" description="请检查以下内容，是否仍要保存？" icon={<AlertTriangle size={20} />} tone="warning" className="pb-3" />
+      <div className="max-h-[46svh] space-y-3 overflow-y-auto py-1">
+        {validation.unselectedPumps.length > 0 && (
+          <MissingGroup
+            title="未选择泵号"
+            items={validation.unselectedPumps}
+            tone="amber"
+          />
+        )}
+        {validation.emptyInputs.length > 0 && (
+          <MissingGroup
+            title="未填写数值"
+            items={validation.emptyInputs}
+            tone="rose"
+          />
+        )}
+      </div>
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <Button
+          type="button"
+          variant="ghost"
+          disabled={!isPresent}
+          onClick={onSave}
+          className="bg-muted text-foreground"
+        >
+          仍然保存
+        </Button>
+        <Button type="button" disabled={!isPresent} onClick={onCancel}>
+          返回补充
+        </Button>
+      </div>
+    </Sheet>
   );
 }
 

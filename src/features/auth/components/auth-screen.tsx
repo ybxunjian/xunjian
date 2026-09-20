@@ -16,6 +16,8 @@ import {
   validatePasswordConfirmation,
   type AuthFieldErrors,
 } from "../model/auth-validation";
+import { CredentialHeading } from "./credential-heading";
+import { useFieldFeedback } from "@/hooks/use-field-feedback";
 import { AuthForm } from "./auth-form";
 import type { AuthMode, AuthScreenProps } from "./auth-screen-types";
 import { AccountNotice, StatusPanel } from "./auth-status-panels";
@@ -74,11 +76,9 @@ export function AuthScreen({
   const [confirmPassword, setConfirmPassword] = useState("");
   const [notice, setNotice] = useState<AuthNotice>(null);
   const [alreadyRegistered, setAlreadyRegistered] = useState(false);
-  const [emailShakeKey, setEmailShakeKey] = useState(0);
-  const [passwordShakeKey, setPasswordShakeKey] = useState(0);
-  const [confirmPasswordShakeKey, setConfirmPasswordShakeKey] = useState(0);
   const [resetEmailSent, setResetEmailSent] = useState(false);
-  const [fieldErrors, setFieldErrors] = useState<AuthFieldErrors>({});
+  const { errors: fieldErrors, shakeKeys, report, clear, reset } =
+    useFieldFeedback<keyof AuthFieldErrors>();
   const [formError, setFormError] = useState<string | null>(null);
   const [showResendAction, setShowResendAction] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -101,25 +101,21 @@ export function AuthScreen({
     setNotice(null);
     setAlreadyRegistered(false);
     setResetEmailSent(false);
-    setFieldErrors({});
+    reset();
     setFormError(null);
     setShowResendAction(false);
   };
 
   const clearFieldError = (field: keyof AuthFieldErrors) => {
-    setFieldErrors((current) => ({ ...current, [field]: undefined }));
+    clear(field);
     setFormError(null);
   };
 
   const showAlreadyRegistered = () => {
     setAlreadyRegistered(true);
-    setFieldErrors((current) => ({
-      ...current,
-      email: "该邮箱已注册",
-    }));
+    report({ ...fieldErrors, email: "该邮箱已注册" });
     setPassword("");
     setConfirmPassword("");
-    setEmailShakeKey((current) => current + 1);
   };
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
@@ -138,15 +134,7 @@ export function AuthScreen({
       nextErrors.confirmPassword =
         validatePasswordConfirmation(password, confirmPassword) ?? undefined;
     }
-    setFieldErrors(nextErrors);
-    if (Object.values(nextErrors).some(Boolean)) {
-      if (nextErrors.email) setEmailShakeKey((current) => current + 1);
-      if (nextErrors.password) setPasswordShakeKey((current) => current + 1);
-      if (nextErrors.confirmPassword) {
-        setConfirmPasswordShakeKey((current) => current + 1);
-      }
-      return;
-    }
+    if (report(nextErrors)) return;
 
     const normalizedEmail = normalizeEmail(email);
     setSubmitting(true);
@@ -192,7 +180,7 @@ export function AuthScreen({
   const resendConfirmation = async () => {
     const emailError = validateEmail(email);
     if (emailError) {
-      setFieldErrors((current) => ({ ...current, email: emailError }));
+      report({ ...fieldErrors, email: emailError });
       return;
     }
     if (resendCooldown > 0) return;
@@ -224,16 +212,14 @@ export function AuthScreen({
           ) : (
             <AuthLogo />
           )}
-          <h1 className="text-title font-black tracking-tight text-foreground-strong">
-            {mode === "reset-password" ? "设置新密码" : "夜班巡检"}
-          </h1>
-          <p className="mt-3 text-base tracking-wide text-muted-foreground">
-            {mode === "forgot-password"
+          <CredentialHeading
+            title={mode === "reset-password" ? "设置新密码" : "夜班巡检"}
+            description={mode === "forgot-password"
               ? "输入注册邮箱，我们会发送密码重置链接。"
               : mode === "reset-password"
                 ? "设置一个至少 8 位的新密码。"
                 : "让每一次巡检，清晰留在当下。"}
-          </p>
+          />
         </div>
 
         <Card className="border-0 bg-transparent shadow-none">
@@ -285,9 +271,9 @@ export function AuthScreen({
                 password={password}
                 confirmPassword={confirmPassword}
                 alreadyRegistered={alreadyRegistered}
-                emailShakeKey={emailShakeKey}
-                passwordShakeKey={passwordShakeKey}
-                confirmPasswordShakeKey={confirmPasswordShakeKey}
+                emailShakeKey={shakeKeys.email ?? 0}
+                passwordShakeKey={shakeKeys.password ?? 0}
+                confirmPasswordShakeKey={shakeKeys.confirmPassword ?? 0}
                 fieldErrors={fieldErrors}
                 formError={formError}
                 showResendAction={showResendAction}

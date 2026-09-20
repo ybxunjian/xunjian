@@ -1,5 +1,7 @@
+import { ActionTile } from "@/components/ui/action-tile";
+import { DialogHeading } from "@/components/ui/dialog-heading";
 import { useRef, useState } from "react";
-import { motion, useIsPresent } from "framer-motion";
+import { Sheet } from "@/components/ui/sheet";
 import {
   ArchiveRestore,
   CheckCircle2,
@@ -27,37 +29,14 @@ type BackupDialogProps = {
 };
 
 export function BackupDialog(props: BackupDialogProps) {
-  const isPresent = useIsPresent();
-
   return (
-    <motion.div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-overlay px-page pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-[2px]"
-      style={{ pointerEvents: isPresent ? "auto" : "none" }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      onClick={props.onClose}
-    >
-      <motion.div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="backup-dialog-title"
-        aria-hidden={!isPresent}
-        className="w-full max-w-md rounded-sheet border border-border/80 bg-card p-4 text-card-foreground shadow-floating"
-        style={{ pointerEvents: isPresent ? "auto" : "none" }}
-        initial={{ y: 40, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 40, opacity: 0 }}
-        transition={{ type: "spring", stiffness: 420, damping: 34 }}
-        onClick={(event) => event.stopPropagation()}
-      >
-        {props.importPreview ? (
-          <ImportPreviewPanel {...props} />
-        ) : (
-          <BackupMenu {...props} />
-        )}
-      </motion.div>
-    </motion.div>
+    <Sheet labelledBy="backup-dialog-title" onClose={props.onClose}>
+      {props.importPreview ? (
+        <ImportPreviewPanel {...props} />
+      ) : (
+        <BackupMenu {...props} />
+      )}
+    </Sheet>
   );
 }
 
@@ -75,44 +54,19 @@ function BackupMenu({
   return (
     <>
       <DialogHeading
+        id="backup-dialog-title"
+        truncate
         icon={<ArchiveRestore size={21} />}
         title="备份与恢复"
         description="保存备份，方便在其他设备恢复历史记录"
       />
 
       <div className="mt-4 space-y-2">
-        <button
-          type="button"
-          disabled={recordCount === 0}
-          onClick={onExport}
-          className="flex min-h-16 w-full items-center gap-3 rounded-control bg-secondary px-4 text-left text-secondary-foreground transition active:scale-[.98] disabled:cursor-default disabled:opacity-45"
-        >
-          <span className="grid size-11 shrink-0 place-items-center rounded-control bg-card text-primary shadow-card">
-            <Upload size={19} />
-          </span>
-          <span className="min-w-0 flex-1">
-            <b className="block text-card-title">导出备份</b>
-            <span className="mt-0.5 block text-caption opacity-75">
-              {recordCount > 0 ? `保存或发送 ${recordCount} 条记录` : "暂无可导出的记录"}
-            </span>
-          </span>
-        </button>
+        <ActionTile icon={<Upload size={19} />} title="导出备份" tone="primary"
+          description={recordCount > 0 ? `保存或发送 ${recordCount} 条记录` : "暂无可导出的记录"}
+          disabled={recordCount === 0} onClick={onExport} />
 
-        <button
-          type="button"
-          onClick={() => inputRef.current?.click()}
-          className="flex min-h-16 w-full items-center gap-3 rounded-control bg-muted px-4 text-left text-foreground transition active:scale-[.98]"
-        >
-          <span className="grid size-11 shrink-0 place-items-center rounded-control bg-card text-primary shadow-card">
-            <Download size={19} />
-          </span>
-          <span>
-            <b className="block text-card-title">导入备份</b>
-            <span className="mt-0.5 block text-caption text-muted-foreground">
-              选择 JSON 备份文件
-            </span>
-          </span>
-        </button>
+        <ActionTile icon={<Download size={19} />} title="导入备份" description="选择 JSON 备份文件" onClick={() => inputRef.current?.click()} />
         <input
           ref={inputRef}
           type="file"
@@ -163,10 +117,12 @@ function ImportPreviewPanel({
   return (
     <>
       <DialogHeading
+        id="backup-dialog-title"
+        truncate
         icon={<CheckCircle2 size={21} />}
         title="备份可以恢复"
         description={preview.fileName}
-        success
+        tone="success"
       />
 
       <div className="mt-4 rounded-control bg-muted p-3">
@@ -239,34 +195,6 @@ function ImportPreviewPanel({
         重新选择
       </Button>
     </>
-  );
-}
-
-function DialogHeading({
-  icon,
-  title,
-  description,
-  success = false,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  success?: boolean;
-}) {
-  return (
-    <div className="flex items-start gap-3 px-1 pt-1">
-      <span
-        className={`grid size-11 shrink-0 place-items-center rounded-control ${success ? "bg-success-soft text-success" : "bg-secondary text-primary"}`}
-      >
-        {icon}
-      </span>
-      <div className="min-w-0">
-        <h3 id="backup-dialog-title" className="text-lg font-black text-foreground-strong">
-          {title}
-        </h3>
-        <p className="mt-1 truncate text-body text-muted-foreground">{description}</p>
-      </div>
-    </div>
   );
 }
 

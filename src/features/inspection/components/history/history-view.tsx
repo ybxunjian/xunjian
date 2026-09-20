@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useStickyEdgeState } from "../../hooks/use-sticky-edge-state";
 import { Card, CardContent } from "@/components/ui/card";
 import type { DeleteRequest, InspectionRecord } from "../../model/types";
+import { SectionHeading } from "../section-heading";
 import { InspectionSummary } from "./inspection-summary";
 
 const HISTORY_VIEW_VARIANTS = {
@@ -92,9 +93,9 @@ export function HistoryView({
               transition: reduceMotion
                 ? { duration: 0 }
                 : {
-                    ...HISTORY_VIEW_TRANSITION,
-                    delay: HISTORY_VIEW_TRANSITION.duration,
-                  },
+                  ...HISTORY_VIEW_TRANSITION,
+                  delay: HISTORY_VIEW_TRANSITION.duration,
+                },
             }}
             exit={{
               opacity: 0,
@@ -157,30 +158,32 @@ function HistoryList({
 
   return (
     <>
-      <div className="mb-4 flex min-h-8 items-center justify-between px-1">
-        <h2 className="text-title font-black tracking-tight">历史记录</h2>
-        <div className="-mr-2 flex items-center">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={onOpenBackup}
-            className="px-2 text-primary"
-          >
-            <ArchiveRestore size={16} />
-            备份
-          </Button>
-          {records.length > 0 && (
+      <SectionHeading
+        title="历史记录"
+        actions={
+          <>
             <Button
               type="button"
               variant="ghost"
-              onClick={onToggleManage}
+              onClick={onOpenBackup}
               className="px-2 text-primary"
             >
-              {manageHistory ? "完成" : "管理"}
+              <ArchiveRestore size={16} />
+              备份
             </Button>
-          )}
-        </div>
-      </div>
+            {records.length > 0 && (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={onToggleManage}
+                className="px-2 text-primary"
+              >
+                {manageHistory ? "完成" : "管理"}
+              </Button>
+            )}
+          </>
+        }
+      />
       {records.length ? (
         records.map((record) => (
           <Card className="mb-2" key={record.id}>
