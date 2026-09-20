@@ -8,6 +8,18 @@ import { CredentialForm } from "../src/features/auth/components/credential-form.
 import { AccountPasswordSheet } from "../src/features/account/components/account-password-sheet.tsx";
 import { InspectionTabs } from "../src/features/inspection/components/inspection-tabs.tsx";
 import { BeltTabs } from "../src/features/inspection/components/belt/belt-tabs.tsx";
+import { cn } from "../src/lib/utils.ts";
+
+test("custom type scales survive class merging with text colors", () => {
+  assert.equal(
+    cn("block text-caption font-semibold text-destructive"),
+    "block text-caption font-semibold text-destructive",
+  );
+  assert.equal(
+    cn("text-muted-foreground", "mt-2 text-caption"),
+    "text-muted-foreground mt-2 text-caption",
+  );
+});
 
 test("field errors retain help associations and label the invalid input", () => {
   const html = renderToStaticMarkup(h(TextField, {
