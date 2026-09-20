@@ -30,6 +30,7 @@ test("field errors retain help associations and label the invalid input", () => 
   assert.match(html, /aria-invalid="true"/);
   assert.match(html, /aria-describedby="password-help password-error"/);
   assert.match(html, /id="password-error" role="alert"/);
+  assert.match(html, /left-4 top-1\/2 z-10/);
 });
 
 test("primary navigation and belt tabs remain separate component groups", () => {
@@ -56,6 +57,7 @@ test("nested sheets keep confirmation outside the parent scrolling dialog", () =
     overlays: h(Sheet, { labelledBy: "child", onClose() {}, nested: true, role: "alertdialog", children: h("h3", { id: "child" }, "确认") }),
   }));
   assert.equal((html.match(/aria-modal="true"/g) ?? []).length, 2);
+  assert.equal((html.match(/tabindex="-1"/g) ?? []).length, 2);
   assert.match(html, /<\/h3><\/div><div[^>]*z-\[60\]/);
   assert.match(html, /role="alertdialog"/);
 });

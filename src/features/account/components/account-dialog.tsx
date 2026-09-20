@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { AnimatePresence, useIsPresent } from "framer-motion";
+import { useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import { Sheet } from "@/components/ui/sheet";
 import { toast } from "sonner";
 import { AccountConfirmationSheet } from "./account-confirmation-sheet";
@@ -13,43 +13,10 @@ import { AccountMenu } from "./account-menu";
 import { AccountPasswordSheet } from "./account-password-sheet";
 
 export function AccountDialog(props: AccountDialogProps) {
-  const isPresent = useIsPresent();
   const [confirmation, setConfirmation] =
     useState<ConfirmationAction | null>(null);
   const [confirming, setConfirming] = useState(false);
   const [passwordOpen, setPasswordOpen] = useState(false);
-
-  useEffect(() => {
-    if (!isPresent) return;
-
-    const scrollY = window.scrollY;
-    const bodyStyle = document.body.style;
-    const previousStyles = {
-      position: bodyStyle.position,
-      top: bodyStyle.top,
-      left: bodyStyle.left,
-      right: bodyStyle.right,
-      width: bodyStyle.width,
-      overflow: bodyStyle.overflow,
-    };
-
-    bodyStyle.position = "fixed";
-    bodyStyle.top = `-${scrollY}px`;
-    bodyStyle.left = "0";
-    bodyStyle.right = "0";
-    bodyStyle.width = "100%";
-    bodyStyle.overflow = "hidden";
-
-    return () => {
-      bodyStyle.position = previousStyles.position;
-      bodyStyle.top = previousStyles.top;
-      bodyStyle.left = previousStyles.left;
-      bodyStyle.right = previousStyles.right;
-      bodyStyle.width = previousStyles.width;
-      bodyStyle.overflow = previousStyles.overflow;
-      window.scrollTo(0, scrollY);
-    };
-  }, [isPresent]);
 
   const confirmAction = async () => {
     if (!confirmation) return;

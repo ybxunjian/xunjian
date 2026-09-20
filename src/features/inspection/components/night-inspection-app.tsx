@@ -21,6 +21,7 @@ import {
   useInspectionController,
   type InspectionSyncStatus,
 } from "../hooks/use-inspection-controller";
+import type { InspectionTab } from "../model/types";
 import { BeltArea } from "./belt/belt-area";
 import { BackupDialog } from "./dialogs/backup-dialog";
 import { DeleteDialog } from "./dialogs/delete-dialog";
@@ -98,6 +99,13 @@ function InspectionAppContent({
     startupTabApplied.current = true;
     actions.selectTab(preferences.navigationOrder[0]);
   }, [actions, preferences.navigationOrder, preferences.ready]);
+
+  const selectTab = (nextTab: InspectionTab) => {
+    // A choice made while preferences are loading must win over the delayed
+    // startup default applied when synchronization finishes.
+    startupTabApplied.current = true;
+    actions.selectTab(nextTab);
+  };
 
   const signOut = async () => {
     if (!onSignOut) return;
@@ -203,7 +211,7 @@ function InspectionAppContent({
       <InspectionTabs
         order={preferences.navigationOrder}
         value={state.tab}
-        onChange={actions.selectTab}
+        onChange={selectTab}
       />
 
       <AnimatePresence mode="wait">

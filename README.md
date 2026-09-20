@@ -28,7 +28,7 @@ design/brand/                    # 品牌矢量母版、规范与历史设计归
 tests/                           # 纯业务规则测试
 ```
 
-更详细的依赖关系和数据流见 [`ARCHITECTURE.md`](./ARCHITECTURE.md)，当前业务规则与交接基线见 [`PROJECT_HANDOFF.md`](./PROJECT_HANDOFF.md)，界面规范见 [`DESIGN.md`](./DESIGN.md)，品牌图标的母版、色值、导出矩阵与验收规则见 [`design/brand/README.md`](./design/brand/README.md)。
+重复 UI 与交互的公共组件清单、复用边界和修改约定见 [`docs/ui-components.md`](./docs/ui-components.md)。更详细的依赖关系和数据流见 [`ARCHITECTURE.md`](./ARCHITECTURE.md)，当前业务规则与交接基线见 [`PROJECT_HANDOFF.md`](./PROJECT_HANDOFF.md)，界面规范见 [`DESIGN.md`](./DESIGN.md)，品牌图标的母版、色值、导出矩阵与验收规则见 [`design/brand/README.md`](./design/brand/README.md)。
 
 ## 品牌图标与 PWA 资源
 
@@ -101,7 +101,7 @@ npm run build
 
 首页右上角头像打开账号面板。头像存放在私有 Supabase Storage bucket 中，客户端缓存短期签名 URL，并在图片实际加载成功后才替换当前显示；失败后会在启动、恢复联网或回到前台时重试。邮箱状态、修改密码、导航拖动排序和退出登录均集中在此。导航第一项作为启动页面，偏好本地缓存并同步到 `user_preferences`，换设备登录后自动恢复。导航顺序和头像路径按字段分别提交，并通过更新时间条件和本地修订号防止旧请求覆盖另一设备或后续操作的新值。
 
-登录与注册使用统一的移动端表单布局，密码输入支持显隐，注册和重置密码都需要二次确认。注册后可重发验证邮件；登录未验证邮箱时也会提供重发入口。
+登录与注册使用统一的移动端表单布局，密码输入使用原生密码框并通过 `password` / `text` 类型切换显隐，不使用 CSS 密码遮罩。注册和重置密码都需要二次确认。注册后可重发验证邮件；登录未验证邮箱时也会提供重发入口。
 
 登录页支持“忘记密码”：用户提交邮箱后，Supabase 会发送重置邮件；打开邮件链接会回到应用并显示设置新密码界面。要让生产环境的验证和重置链接正确返回 GitHub Pages，请在 Authentication → URL Configuration 中将 Site URL 设为 `https://ybxunjian.github.io/xunjian/`，并把该完整地址加入 Redirect URLs。本地调试时再额外加入 `http://localhost:3000/`。
 

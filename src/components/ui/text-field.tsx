@@ -21,7 +21,7 @@ export function TextField({
     <div className="block">
       <label className="sr-only" htmlFor={id}>{label}</label>
       <span key={shakeKey} className={cn("relative block", error && "field-shake")}>
-        <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" aria-hidden="true">{icon}</span>
+        <span className="pointer-events-none absolute left-4 top-1/2 z-10 -translate-y-1/2 text-muted-foreground" aria-hidden="true">{icon}</span>
         <input
           {...props} id={id} aria-invalid={Boolean(error)}
           aria-describedby={[describedBy, errorId].filter(Boolean).join(" ") || undefined}
