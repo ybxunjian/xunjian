@@ -1,10 +1,16 @@
+import { useState } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArchiveRestore, Check, ChevronRight, History, Trash2 } from "lucide-react";
+import { Check, ChevronRight, History, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useStickyEdgeState } from "../../hooks/use-sticky-edge-state";
 import { Card, CardContent } from "@/components/ui/card";
+import { getLatestHistoryDate } from "../../model/history-filter";
 import type { DeleteRequest, InspectionRecord } from "../../model/types";
 import { SectionHeading } from "../section-heading";
+import { HistoryCalendar } from "./history-calendar";
+import { BackupView, type BackupViewProps } from "./backup-view";
+import { HistoryQuickMenu } from "./history-quick-menu";
 import { InspectionSummary } from "./inspection-summary";
 
 const HISTORY_VIEW_VARIANTS = {
@@ -25,6 +31,7 @@ const HISTORY_VIEW_TRANSITION = {
 };
 
 type HistoryViewProps = {
+  menuContainer: HTMLDivElement | null;
   records: InspectionRecord[];
   selectedRecord: InspectionRecord | null;
   direction: 1 | -1;
@@ -37,9 +44,13 @@ type HistoryViewProps = {
   onToggleRecord: (id: string) => void;
   onDeleteRequest: (request: DeleteRequest) => void;
   onOpenBackup: () => void;
+  onCloseBackup: () => void;
+  backupOpen: boolean;
+  backupProps: BackupViewProps;
 };
 
 export function HistoryView({
+  menuContainer,
   records,
   selectedRecord,
   direction,
@@ -52,12 +63,49 @@ export function HistoryView({
   onToggleRecord,
   onDeleteRequest,
   onOpenBackup,
+  onCloseBackup,
+  backupOpen,
+  backupProps,
 }: HistoryViewProps) {
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [calendarMonth, setCalendarMonth] = useState("");
+
+  const openCalendar = () => {
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    const latest = getLatestHistoryDate(records) ?? today;
+    setCalendarMonth(latest.slice(0, 7));
+    setCalendarOpen(true);
+  };
+
   return (
     <>
+      {menuContainer && createPortal(
+        // An empty propagated presence cannot finish the parent tab's exit.
+        <AnimatePresence propagate={!selectedRecord}>
+          {!selectedRecord && (
+            <HistoryQuickMenu
+              key="history-menu"
+              recordCount={records.length}
+              reduceMotion={reduceMotion}
+              manageHistory={manageHistory}
+              showBack={calendarOpen || backupOpen}
+              onCalendar={openCalendar}
+              onBatchDelete={onToggleManage}
+              onBackup={onOpenBackup}
+              onDone={onToggleManage}
+              onBack={() => {
+                if (backupOpen) onCloseBackup();
+                else setCalendarOpen(false);
+              }}
+            />
+          )}
+        </AnimatePresence>,
+        menuContainer,
+      )}
       <AnimatePresence initial={false} mode="wait" custom={direction}>
         <motion.div
-          key={selectedRecord ? `detail-${selectedRecord.id}` : "list"}
+          key={selectedRecord ? `detail-${selectedRecord.id}` : backupOpen ? "backup" : calendarOpen ? "calendar" : "list"}
           custom={direction}
           variants={HISTORY_VIEW_VARIANTS}
           initial="initial"
@@ -67,16 +115,23 @@ export function HistoryView({
         >
           {selectedRecord ? (
             <InspectionSummary record={selectedRecord} />
+          ) : backupOpen ? (
+            <BackupView {...backupProps} />
+          ) : calendarOpen ? (
+            <HistoryCalendar
+              records={records}
+              month={calendarMonth}
+              onMonthChange={setCalendarMonth}
+              onSelectRecord={onSelectRecord}
+            />
           ) : (
             <HistoryList
               records={records}
               manageHistory={manageHistory}
               selectedRecordIds={selectedRecordIds}
               onSelectRecord={onSelectRecord}
-              onToggleManage={onToggleManage}
               onToggleRecord={onToggleRecord}
               onDeleteRequest={onDeleteRequest}
-              onOpenBackup={onOpenBackup}
             />
           )}
         </motion.div>
@@ -106,7 +161,7 @@ export function HistoryView({
             }}
           >
             <Button type="button" onClick={onReturnToList} className="w-full">
-              返回历史记录
+              {calendarOpen ? "返回巡检日历" : "返回历史记录"}
             </Button>
             <Button
               type="button"
@@ -136,10 +191,8 @@ type HistoryListProps = Pick<
   | "manageHistory"
   | "selectedRecordIds"
   | "onSelectRecord"
-  | "onToggleManage"
   | "onToggleRecord"
   | "onDeleteRequest"
-  | "onOpenBackup"
 >;
 
 function HistoryList({
@@ -147,10 +200,8 @@ function HistoryList({
   manageHistory,
   selectedRecordIds,
   onSelectRecord,
-  onToggleManage,
   onToggleRecord,
   onDeleteRequest,
-  onOpenBackup,
 }: HistoryListProps) {
   const { elementRef: selectionActionsRef, isStuck } = useStickyEdgeState(
     manageHistory && records.length > 0,
@@ -158,42 +209,18 @@ function HistoryList({
 
   return (
     <>
-      <SectionHeading
-        title="历史记录"
-        actions={
-          <>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={onOpenBackup}
-              className="px-2 text-primary"
-            >
-              <ArchiveRestore size={16} />
-              备份
-            </Button>
-            {records.length > 0 && (
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={onToggleManage}
-                className="px-2 text-primary"
-              >
-                {manageHistory ? "完成" : "管理"}
-              </Button>
-            )}
-          </>
-        }
-      />
+      <SectionHeading title="历史记录" />
       {records.length ? (
         records.map((record) => (
           <Card className="mb-2" key={record.id}>
-            <CardContent className="flex min-h-18 items-center gap-3">
-              {manageHistory ? (
-                <button
-                  type="button"
-                  onClick={() => onToggleRecord(record.id)}
-                  className="flex flex-1 items-center gap-3 text-left"
-                >
+            <CardContent className="p-0">
+              {manageHistory ? <button
+                type="button"
+                onClick={() => onToggleRecord(record.id)}
+                aria-label={`选择 ${record.date} ${record.time} 的巡检记录`}
+                aria-pressed={selectedRecordIds.includes(record.id)}
+                className="flex min-h-18 w-full items-center gap-3 rounded-card p-4 text-left"
+              >
                   <span
                     className={`grid size-6 shrink-0 place-items-center rounded-full border-2 ${selectedRecordIds.includes(record.id) ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}
                   >
@@ -201,24 +228,26 @@ function HistoryList({
                       <Check size={14} strokeWidth={3} />
                     )}
                   </span>
+                <span className="flex-1">
                   <RecordDate record={record} />
-                </button>
-              ) : (
-                <>
-                  <div className="flex-1">
+                </span>
+              </button> : (
+                <div className="flex min-h-18 w-full items-center gap-3 rounded-card p-4 text-left">
+                  <span className="flex-1">
                     <RecordDate record={record} />
-                  </div>
+                  </span>
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    aria-label={`查看 ${record.date} 的巡检记录`}
+                    aria-label={`查看 ${record.date} ${record.time} 的巡检详情`}
+                    data-history-detail-trigger
                     onClick={() => onSelectRecord(record)}
                     className="bg-muted text-muted-foreground"
                   >
                     <ChevronRight size={18} />
                   </Button>
-                </>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -252,7 +281,7 @@ function HistoryList({
                   label: `${selectedRecordIds.length} 条历史记录`,
                 })
               }
-              className="ml-auto"
+              className="ml-auto px-3"
             >
               <Trash2 size={16} />
               删除

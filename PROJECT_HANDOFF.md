@@ -166,7 +166,16 @@ tests/inspection-sync-queue.test.mjs     # 队列迁移、确认和并发追加�
 
 ### 历史记录管理区
 
-- 历史详情底部“返回历史记录 / 删除”操作栏是 `fixed`，相对视口和 Safe Area 定位。
+- 历史标题右侧是向左展开的圆形图标菜单，依次提供巡检日历、备份与恢复、批量删除；点击外部或按 `Esc` 可收起。菜单按钮位于吸顶导航下方的图层，滚动重叠时由导航遮盖；不显示悬停说明文字，按钮保留无障碍名称，标题行本身不承担层级调整。
+- 菜单切换图标以同一组 SVG 线条在三横线、叉、勾和左箭头之间变形；进入批量删除后只保留勾作为完成入口。三个功能按钮保持圆形，使用公共 `Button` 和 Lucide 图标。
+- 进入巡检日历时，原菜单按钮在同一位置用同一组线条变成黑色左箭头，替代“返回列表”文字入口；点击箭头返回后变回三条横线，变形为 300ms 并遵从减少动态效果设置。
+- 备份与恢复使用历史记录内的独立页面，不再弹出底部窗口；复用日历的切页和返回箭头变形。导出、文件选择、导入预览、合并恢复、覆盖二次确认及一次撤销仍由原备份流程处理；退出该页面清除导入预览，恢复成功后返回列表。
+- 菜单通过 Portal 渲染到一级页面动画容器外的静态位置，不参与页面切换位移或淡入淡出；菜单自身展开和图标变形仍保留动画。
+- 从历史列表进入详情时，菜单当前线条在原位向图标中心收缩并淡出：收起时三条横线，展开时叉号两条线，不先切回三横线。详情入口跳过菜单的外部点击收起逻辑；返回列表时统一从中心展开为三条横线并显现。两方向均为 300ms，退场期间菜单不可交互，减少动态效果时立即切换。
+- 巡检日历按月展示，周一为首日；有记录的日期使用加粗深色文字，无记录的日期淡化且不可点击，今天使用浅蓝底。点击有记录的日期直接进入当天第一条记录的详情，日历下方不另列记录；同日其他记录可从历史列表进入。翻到最早有记录的月份时隐藏上个月箭头。
+- 批量删除时逐条点选历史卡片，底部操作区显示已选数量和删除按钮；不显示“全选结果”入口。点击勾退出选择模式。
+- 普通历史列表仅右侧箭头按钮进入详情，日期文字和卡片背景不触发跳转；只有批量删除模式下整张卡片可点击选择。
+- 历史详情底部“返回 / 删除”操作栏是 `fixed`，相对视口和 Safe Area 定位；从日历打开时返回巡检日历，从列表打开时返回历史记录。
 - 历史列表的批量删除区不是 `fixed`，而是列表内的 `sticky` 操作区。
 - 管理模式下，删除区与末张卡片保持约 8px 间距。`.history-selection-actions` 仅在 `sticky` 实际吸到视口底部时显示顶部 32px 的滚动边缘渐隐；短列表中删除区正常排在最后一张卡片之后，不使末张卡片渐隐。
 - 当前渐隐为约 32px 的纯透明度过渡，不使用整片背景模糊；操作区背景不拦截卡片选择点击，按钮自身正常可点。
@@ -176,7 +185,8 @@ tests/inspection-sync-queue.test.mjs     # 队列迁移、确认和并发追加�
 ### 视觉与触控约束
 
 - 品牌图形只修改 `design/brand/night-inspection-master.svg`，并按 `design/brand/README.md` 同步导出生产资源。不要把 `design/brand/archive/` 中的历史版本接入页面或 manifest。
-- 登录页内嵌品牌图形属于装饰内容，紧邻文字标题时使用 `aria-hidden`；功能图标继续使用 Lucide 并提供对应语义。
+- 登录页内嵌品牌图形属于装饰内容，紧邻文字标题时使用 `aria-hidden`；功能图标继续使用 Lucide 并提供对应语义。历史菜单切换按钮为满足三横线、叉、勾和左箭头连续变形的单一特例，使用自绘 SVG，按钮通过 `aria-label` 提供无障碍名称，SVG 使用 `aria-hidden`。
+- 历史菜单的 `AnimatePresence` 仅在未选中详情记录时开启 `propagate`。详情页菜单为空时，不参与一级导航的退场等待，避免切换导航后内容区停留在空白状态。
 
 - 只做手机端：浅灰页面、白色圆角卡片、蓝色主要操作、适度阴影。
 - 首页头部保持深色渐变：`from-slate-950 via-slate-900 to-blue-950`。
@@ -218,6 +228,7 @@ type InspectionRecord = {
 
 - 历史记录键：`night-inspection`，存储 `InspectionRecord[]`。
 - 草稿键：`night-inspection-draft`，当前格式为 `{ values, beltTab, updatedAt? }`。
+- 离线账号标识键：`night-inspection-offline-identity`，仅保存上次已验证账号的 ID、邮箱和邮箱验证时间；由 `src/features/auth/storage/offline-identity.ts` 管理，显式退出时清除。
 - 草稿读取必须兼容旧版只保存 `values` 对象的格式。
 - `StoredInspectionState.hasDraft` 必须保留：它用于区分“存在一个内容为空的草稿”和“根本没有草稿”，不能再用 `Object.keys(values).length` 推断。
 - 巡检数据的 localStorage 访问只能放在 `src/features/inspection/storage/inspection-storage.ts`；账号偏好缓存只能放在 `src/features/account/storage/`，组件和领域模型不得直接访问 `localStorage`。
@@ -234,7 +245,7 @@ type InspectionRecord = {
 - `supabase/migrations/20260831101013_protect_drafts_and_add_recorded_at.sql` 为历史记录增加 `recorded_at`，并提供受 Auth 与参数校验保护的草稿条件写入 RPC。新环境必须按文件名顺序执行到该迁移。
 - `supabase/migrations/20260901043209_revoke_rls_auto_enable_api_execution.sql` 撤销 `PUBLIC`、`anon`、`authenticated`、`service_role` 对 `public.rls_auto_enable()` 的直接执行权。`ensure_rls` 事件触发器继续由 `postgres` 自动执行；不要为消除告警而删除该触发器或改成 `SECURITY INVOKER`。
 - `supabase/migrations/20260906170915_reliable_inspection_sync.sql` 创建 `replace_inspection_records(uuid, jsonb)` 事务 RPC，对载荷和重复 ID 做校验，并把 `inspection_records`、`inspection_drafts` 加入 `supabase_realtime` publication。生产 Supabase 已执行并登记为 `20260906172820_reliable_inspection_sync`；新环境必须执行仓库中的迁移文件，不能依赖客户端滚动发布回退。
-- 当前只有 manifest，没有可靠 Service Worker 离线缓存；不要宣称“完全离线”。
+- PWA manifest 配合构建生成的 Service Worker 缓存首页和静态资源；首次在线访问后可断网重开。Supabase 请求不缓存，浏览器清理站点数据后仍需重新在线访问。
 
 ## 6. 架构与部署约束
 
@@ -273,12 +284,11 @@ allowedDevOrigins: ["127.0.0.1", "localhost"]
 1. 快速连续点击一级导航时，选中标签和内容偶尔错位。根因与带退出等待的 `AnimatePresence mode="wait"` 有关；不能简单删除动画，必须同时保留细腻切换体验。
 2. 一级板块切换及保存/删除 Dialog 尚未完整遵从“减少动态效果”。
 3. 生产 Supabase 已完成包括 `20260906170915_reliable_inspection_sync.sql` 在内的全部迁移；新建或更换 Supabase 项目时仍需按文件名顺序执行 `supabase/migrations/`，并配置环境变量和 Authentication URL。仓库本身不包含凭据。
-4. PWA manifest 不等于完整离线能力，尚未实现 Service Worker 静态资源缓存。
+4. 离线资源依赖浏览器保留站点缓存；首次访问、账号首次登录和浏览器清理站点数据后仍需要网络。
 
 ### 尚未实现
 
 - APK：可用 Capacitor 包装当前静态导出，无需引入 Ionic UI；当前未安装或配置。
-- Service Worker 静态资源缓存与真正的完整离线安装体验。
 
 ## 8. 开发与验证
 
@@ -313,6 +323,7 @@ npm run build
 - 两台设备新增、删除记录或修改草稿时，另一台由 Realtime 触发重新拉取；断线重连和回到前台后也能补齐变化。
 - 保存校验能区分未选泵号与空数值；保存后汇总顺序、日期时间与历史持久化正确。
 - 历史列表到详情及返回方向正确；详情底部操作栏始终相对视口稳定。
+- 历史菜单可向左展开并收起，图标在三横线、叉、勾和左箭头之间连续变形；滚动重叠时位于吸顶导航下方。巡检日历只显示月份网格，有记录日期可打开详情，无记录日期不可点击，最早记录月份不显示上个月箭头。
 - 历史管理模式下，删除区为列表内吸底；末张卡片只在靠近删除区时轻微渐隐，删除按钮不遮挡或抢占卡片点击。
 - GitHub Pages 构建时 `/xunjian` 子路径资源正确。
 - 两台设备登录同一账号，在其中一台修改密码后，当前设备保持登录；另一台在线时及时退出，离线或后台时在恢复联网/回到前台后退出。

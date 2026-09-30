@@ -14,8 +14,8 @@
 
 | 类型 | 公共实现 | 当前使用位置 |
 | --- | --- | --- |
-| 底部弹窗 | `src/components/ui/sheet.tsx` | 账号、修改密码、账号确认、备份、删除、保存校验 |
-| 弹窗标题 | `src/components/ui/dialog-heading.tsx` | 账号、账号确认、备份、删除、保存校验 |
+| 底部弹窗 | `src/components/ui/sheet.tsx` | 账号、修改密码、账号确认、删除、保存校验 |
+| 标题与说明 | `src/components/ui/dialog-heading.tsx` | 账号、账号确认、备份页面、删除、保存校验 |
 | 凭据标题 | `src/features/auth/components/credential-heading.tsx` | 登录/注册/重置入口、修改密码 |
 | 内容区标题 | `src/features/inspection/components/section-heading.tsx` | 8#、9#、皮带、历史、巡检汇总 |
 | 凭据表单 | `src/features/auth/components/credential-form.tsx` | 登录/注册/重置表单、修改密码 |
@@ -36,6 +36,7 @@
 - `PasswordField` 保留原生密码输入语义，通过 `type="password"` / `type="text"` 切换显隐。当前不采用 `-webkit-text-security` CSS 遮罩方案；该方案无法保证密码管理器、iOS 安全键盘和辅助功能与原生密码框一致，未完成真机验收前不得重新引入。
 - `useFieldFeedback.report(errors)` 替换字段错误，递增出错字段的动画序号，并返回是否存在错误。输入变化调用 `clear(field)`；切换表单模式调用 `reset()`。通用密码校验仍使用 `auth-validation.ts`。
 - `InspectionTabs` 统一顶部 4 个主导航项，使用蓝色选中态和 `aria-current`。`BeltTabs` 统一下方 3 个皮带选项，使用白色选中态、项间距和 `aria-pressed`。两组视觉与交互独立维护。
+- 历史管理菜单属于巡检业务组件 `HistoryQuickMenu`：日历、备份与恢复、批量删除复用公共 `Button` 的 `outline` / `icon` 组合，切换入口复用 `ghost` / `icon`。只有切换入口的三横线 / 叉 / 勾 / 左箭头连续线条动画使用业务内 SVG；其余功能图标使用 Lucide。
 - 样式继续消费 `src/app/globals.css` 的设计变量。`field-shake` 的动画和减少动态效果规则只在这里定义一次。
 - 组合 Tailwind 类名统一使用 `src/lib/utils.ts` 的 `cn()`。项目自定义字号 `text-label`、`text-caption`、`text-body`、`text-card-title` 和 `text-title` 已注册为字号类，必须与 `text-destructive`、`text-muted-foreground` 等颜色类同时保留。新增 `--text-*` 字号变量时，必须同步扩展 `cn()` 的 `font-size` 分组并补充回归测试，避免字号类被 `tailwind-merge` 误判为颜色类后删除。
 - 巡检数据规则、存储、云同步、密码提交、导入导出和具体确认动作保留在各业务模块中。

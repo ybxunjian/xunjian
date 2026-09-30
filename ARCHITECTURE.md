@@ -41,6 +41,7 @@ components → hooks → model
 - `features/account` 独立管理用户偏好缓存、私有头像和账号面板，不把账号设置混入巡检控制器。
 - `components/ui` 不得依赖 `features`，避免基础组件与业务反向耦合。
 - `features/inspection/index.ts` 是业务模块对外公开入口；模块内部直接引用具体文件。
+- 历史记录的日期解析与日历分组放在 `model/history-filter.ts`，巡检日历和管理菜单留在 `features/inspection/components/history/`；菜单复用公共 `Button`，不把业务状态放进基础组件。
 - `design/brand/night-inspection-master.svg` 是品牌图形的唯一设计母版；`src/app`、`src/assets` 和 `public/icons` 中的图标均为面向具体运行场景的生产派生资源。
 
 ## 数据兼容约束
@@ -89,6 +90,10 @@ type InspectionRecord = {
 同步期间如果本地历史发生保存、删除或导入，控制器拒绝应用这次请求返回的旧列表并立即重新同步。在线账号订阅 `inspection_records` 和 `inspection_drafts` 的 Postgres Changes，其他设备写入后触发重新拉取；重连和回到前台仍会完整补查，实时通知不作为唯一数据来源。
 
 失败的历史同步按 1、3、10、30 秒退避重试，恢复联网或回到前台时立即重新启动。页面显示当前账号的队列待处理数量以及最近一次成功同步时间；草稿使用独立的版本仲裁流程，因此不计入历史操作队列数量。
+
+生产构建在静态导出后由 `scripts/generate-service-worker.mjs` 为首页和 `_next/static` 等必要资源生成版本化缓存。`src/app/service-worker-registration.tsx` 按构建时的 `PAGES_BASE_PATH` 注册，导航请求在线优先、断网回退到已缓存首页；Supabase 请求不由 Service Worker 处理。新缓存完整安装后才替换旧缓存。账号离线重开时只读取上次已验证账号的本地标识，显式退出即清除；恢复联网后重新检查 Supabase 会话。
+
+离线账号标识由 `features/auth/storage/offline-identity.ts` 独立保存到 `night-inspection-offline-identity`，仅包含用户 ID、邮箱和邮箱验证时间；它不替代 Supabase 会话，也不改变巡检记录和草稿的既有存储键。
 
 用户偏好的导航顺序和头像路径分别更新，避免修改导航时把另一设备的新头像路径写回旧值。离线导航变更在缓存中记录具体待同步字段；较旧请求返回时通过本地修订号阻止它覆盖后续操作。
 

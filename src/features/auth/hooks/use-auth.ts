@@ -6,11 +6,19 @@ import {
   getSupabaseClient,
   isSupabaseConfigured,
 } from "@/lib/supabase/client";
+import {
+  clearOfflineIdentity,
+  isRetryableAuthFailure,
+  loadOfflineIdentity,
+  saveOfflineIdentity,
+  type OfflineIdentity,
+} from "../storage/offline-identity";
 
 type AuthStatus =
   | "loading"
   | "signed-out"
   | "signed-in"
+  | "offline"
   | "password-recovery"
   | "local";
 
@@ -20,6 +28,7 @@ export function useAuth() {
     configured ? "loading" : "local",
   );
   const [user, setUser] = useState<User | null>(null);
+  const [offlineIdentity, setOfflineIdentity] = useState<OfflineIdentity | null>(null);
   const passwordRecovery = useRef(false);
   const userId = user?.id;
 
@@ -28,26 +37,54 @@ export function useAuth() {
     if (!supabase) return;
 
     let active = true;
+    let revision = 0;
     passwordRecovery.current = new URLSearchParams(
       window.location.hash.slice(1),
     ).get("type") === "recovery";
 
-    void supabase.auth.getSession().then(({ data }) => {
-      if (!active) return;
-      setUser(data.session?.user ?? null);
-      setStatus(
-        data.session
-          ? passwordRecovery.current
-            ? "password-recovery"
-            : "signed-in"
-          : "signed-out",
-      );
-    });
+    const acceptUser = (nextUser: User) => {
+      saveOfflineIdentity(nextUser);
+      setOfflineIdentity(null);
+      setUser(nextUser);
+      setStatus(passwordRecovery.current ? "password-recovery" : "signed-in");
+    };
+    const clearUser = () => {
+      clearOfflineIdentity();
+      setOfflineIdentity(null);
+      setUser(null);
+      setStatus("signed-out");
+    };
+    const restoreOfflineUser = () => {
+      const identity = loadOfflineIdentity();
+      if (!identity) return false;
+      setUser(null);
+      setOfflineIdentity(identity);
+      setStatus("offline");
+      return true;
+    };
+    const checkSession = async () => {
+      const checkRevision = ++revision;
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        if (!active || checkRevision !== revision) return;
+        if (data.session) acceptUser(data.session.user);
+        else if (isRetryableAuthFailure(error) && restoreOfflineUser()) return;
+        else clearUser();
+      } catch (error) {
+        if (!active || checkRevision !== revision) return;
+        if (isRetryableAuthFailure(error) && restoreOfflineUser()) return;
+        clearUser();
+      }
+    };
+
+    if (!navigator.onLine) restoreOfflineUser();
+    void checkSession();
 
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
       if (!active) return;
 
       if (event === "PASSWORD_RECOVERY") {
+        revision += 1;
         passwordRecovery.current = true;
         setUser(session?.user ?? null);
         setStatus("password-recovery");
@@ -55,19 +92,24 @@ export function useAuth() {
       }
 
       if (event === "SIGNED_OUT") {
+        revision += 1;
         passwordRecovery.current = false;
-        setUser(null);
-        setStatus("signed-out");
+        clearUser();
         return;
       }
 
+      if (event === "INITIAL_SESSION") return;
       if (passwordRecovery.current) return;
-      setUser(session?.user ?? null);
-      setStatus(session ? "signed-in" : "signed-out");
+      revision += 1;
+      if (session) acceptUser(session.user);
+      else clearUser();
     });
+    const handleOnline = () => void checkSession();
+    window.addEventListener("online", handleOnline);
 
     return () => {
       active = false;
+      window.removeEventListener("online", handleOnline);
       data.subscription.unsubscribe();
     };
   }, []);
@@ -214,6 +256,7 @@ export function useAuth() {
     configured,
     status,
     user,
+    offlineIdentity,
     signIn,
     signUp,
     resendSignUpConfirmation,

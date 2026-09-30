@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Toaster } from "sonner";
+import { ServiceWorkerRegistration } from "./service-worker-registration";
 
 const basePath = process.env.PAGES_BASE_PATH ?? "";
 
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="zh-CN">
       <body>
+        <ServiceWorkerRegistration basePath={basePath} />
         {children}
         <Toaster position="top-center" richColors />
       </body>

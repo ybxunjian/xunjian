@@ -23,7 +23,6 @@ import {
 } from "../hooks/use-inspection-controller";
 import type { InspectionTab } from "../model/types";
 import { BeltArea } from "./belt/belt-area";
-import { BackupDialog } from "./dialogs/backup-dialog";
 import { DeleteDialog } from "./dialogs/delete-dialog";
 import { SaveValidationDialog } from "./dialogs/save-validation-dialog";
 import { HistoryView } from "./history/history-view";
@@ -32,6 +31,7 @@ import { PumpArea } from "./pump/pump-area";
 
 export function NightInspectionApp() {
   const auth = useAuth();
+  const account = auth.user ?? auth.offlineIdentity;
 
   if (auth.status === "loading") {
     return (
@@ -60,10 +60,10 @@ export function NightInspectionApp() {
 
   return (
     <InspectionAppContent
-      key={auth.user?.id ?? "local"}
-      userId={auth.user?.id}
-      email={auth.user?.email}
-      emailVerified={Boolean(auth.user?.email_confirmed_at)}
+      key={account?.id ?? "local"}
+      userId={account?.id}
+      email={account?.email}
+      emailVerified={Boolean(account?.email_confirmed_at)}
       onChangePassword={auth.user ? auth.changePassword : undefined}
       onSignOut={auth.user ? auth.signOut : undefined}
     />
@@ -92,6 +92,7 @@ function InspectionAppContent({
   const { state, actions } = useInspectionController(userId);
   const preferences = useUserPreferences(userId);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [historyMenuContainer, setHistoryMenuContainer] = useState<HTMLDivElement | null>(null);
   const startupTabApplied = useRef(false);
 
   useEffect(() => {
@@ -104,6 +105,7 @@ function InspectionAppContent({
     // A choice made while preferences are loading must win over the delayed
     // startup default applied when synchronization finishes.
     startupTabApplied.current = true;
+    if (nextTab !== "history") actions.closeBackup();
     actions.selectTab(nextTab);
   };
 
@@ -145,6 +147,7 @@ function InspectionAppContent({
       />
     ) : (
       <HistoryView
+        menuContainer={historyMenuContainer}
         records={state.records}
         selectedRecord={state.selectedRecord}
         direction={state.historyDirection}
@@ -157,6 +160,20 @@ function InspectionAppContent({
         onToggleRecord={actions.toggleRecord}
         onDeleteRequest={actions.setDeleteRequest}
         onOpenBackup={actions.openBackup}
+        onCloseBackup={actions.closeBackup}
+        backupOpen={state.backupOpen}
+        backupProps={{
+          recordCount: state.records.length,
+          lastBackupAt: state.lastBackupAt,
+          importPreview: state.importPreview,
+          canUndoImport: state.canUndoImport,
+          onExport: actions.exportBackup,
+          onImportFile: actions.previewImportFile,
+          onMergeImport: actions.mergeImport,
+          onReplaceImport: actions.replaceImport,
+          onCancelPreview: actions.cancelImportPreview,
+          onUndoImport: actions.undoImport,
+        }}
       />
     );
 
@@ -214,17 +231,23 @@ function InspectionAppContent({
         onChange={selectTab}
       />
 
-      <AnimatePresence mode="wait">
-        <motion.section
-          key={state.tab}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -6 }}
-          transition={{ duration: 0.18 }}
-        >
-          {content}
-        </motion.section>
-      </AnimatePresence>
+      <div className="relative">
+        <div
+          ref={setHistoryMenuContainer}
+          className="absolute -right-1 top-0 z-10"
+        />
+        <AnimatePresence mode="wait">
+          <motion.section
+            key={state.tab}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.18 }}
+          >
+            {content}
+          </motion.section>
+        </AnimatePresence>
+      </div>
 
       <AnimatePresence>
         {state.saveValidation && (
@@ -241,23 +264,6 @@ function InspectionAppContent({
             request={state.deleteRequest}
             onConfirm={actions.confirmDeleteRecords}
             onCancel={actions.cancelDeleteRequest}
-          />
-        )}
-      </AnimatePresence>
-      <AnimatePresence>
-        {state.backupOpen && (
-          <BackupDialog
-            recordCount={state.records.length}
-            lastBackupAt={state.lastBackupAt}
-            importPreview={state.importPreview}
-            canUndoImport={state.canUndoImport}
-            onExport={actions.exportBackup}
-            onImportFile={actions.previewImportFile}
-            onMergeImport={actions.mergeImport}
-            onReplaceImport={actions.replaceImport}
-            onCancelPreview={actions.cancelImportPreview}
-            onUndoImport={actions.undoImport}
-            onClose={actions.closeBackup}
           />
         )}
       </AnimatePresence>

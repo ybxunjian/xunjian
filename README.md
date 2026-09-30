@@ -5,11 +5,13 @@
 - 8#冲渣区域
 - SZ101、SZ201、SZ201-N 皮带区域
 - 9#冲渣区域
-- 本地历史记录、巡检汇总与 JSON 备份恢复
+- 本地历史记录、按月巡检日历、巡检汇总与 JSON 备份恢复
 - 邮箱账号、私有头像和可排序导航
 - localStorage 本地优先缓存与 Supabase 跨设备同步
 
 应用始终先把巡检数据保存在当前浏览器。配置 Supabase 后，登录用户的数据会同时同步到云端；未配置时仍可纯本地使用。
+
+历史记录标题右侧的菜单向左展开，可打开巡检日历、备份与恢复，或进入批量删除。日历仅显示月份网格：有记录的日期可直接打开当天记录详情；无记录的日期不可点击。批量删除时逐条选择，再用底部操作区删除。
 
 ## 代码结构
 
@@ -22,6 +24,7 @@ src/features/inspection/sync/    # 云端同步、持久化离线队列和冲突
 src/features/auth/               # 登录、注册、验证、密码恢复和会话撤销
 src/features/account/            # 账号面板、头像和导航偏好
 src/lib/supabase/                # 浏览器 Supabase 客户端
+scripts/                         # 静态导出后的离线资源清单与 Service Worker
 supabase/migrations/             # 数据表、RPC、Storage、RLS 和 Realtime 迁移
 public/icons/                    # PWA 普通与 Maskable 图标
 design/brand/                    # 品牌矢量母版、规范与历史设计归档
@@ -51,6 +54,8 @@ npm run dev
 ```bash
 npm run build
 ```
+
+构建会在 `out/sw.js` 生成带版本的离线缓存清单。用户首次在线打开生产站点后，浏览器会缓存首页、必要的脚本和样式、manifest 与图标；之后断网重开可继续使用当前浏览器中的巡检数据。Supabase 请求和账号数据不会进入 Service Worker 缓存。登录账号的令牌在离线时无法刷新时，应用只使用上次已验证账号的本地标识；恢复联网后重新检查会话，明确退出登录会清除此标识。首次访问仍需要网络，浏览器清理站点数据也会移除离线资源和本地巡检数据。
 
 ## 质量检查
 

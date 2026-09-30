@@ -1,7 +1,7 @@
 import { ActionTile } from "@/components/ui/action-tile";
 import { DialogHeading } from "@/components/ui/dialog-heading";
 import { useRef, useState } from "react";
-import { Sheet } from "@/components/ui/sheet";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   ArchiveRestore,
   CheckCircle2,
@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import type { InspectionImportPreview } from "../../model/types";
 
-type BackupDialogProps = {
+export type BackupViewProps = {
   recordCount: number;
   lastBackupAt: string | null;
   importPreview: InspectionImportPreview | null;
@@ -25,18 +25,24 @@ type BackupDialogProps = {
   onReplaceImport: () => void;
   onCancelPreview: () => void;
   onUndoImport: () => void;
-  onClose: () => void;
 };
 
-export function BackupDialog(props: BackupDialogProps) {
+export function BackupView(props: BackupViewProps) {
   return (
-    <Sheet labelledBy="backup-dialog-title" onClose={props.onClose}>
-      {props.importPreview ? (
-        <ImportPreviewPanel {...props} />
-      ) : (
-        <BackupMenu {...props} />
-      )}
-    </Sheet>
+    <>
+      <div className="mb-3 flex min-h-11 items-center">
+        <h2 className="text-title font-black">备份与恢复</h2>
+      </div>
+      <Card>
+        <CardContent>
+          {props.importPreview ? (
+            <ImportPreviewPanel {...props} />
+          ) : (
+            <BackupMenu {...props} />
+          )}
+        </CardContent>
+      </Card>
+    </>
   );
 }
 
@@ -47,17 +53,16 @@ function BackupMenu({
   onExport,
   onImportFile,
   onUndoImport,
-  onClose,
-}: BackupDialogProps) {
+}: BackupViewProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   return (
     <>
       <DialogHeading
-        id="backup-dialog-title"
+        id="backup-view-title"
         truncate
         icon={<ArchiveRestore size={21} />}
-        title="备份与恢复"
+        title="历史记录备份"
         description="保存备份，方便在其他设备恢复历史记录"
       />
 
@@ -97,9 +102,6 @@ function BackupMenu({
         </Button>
       )}
 
-      <Button type="button" variant="ghost" onClick={onClose} className="mt-1 w-full">
-        关闭
-      </Button>
     </>
   );
 }
@@ -109,7 +111,7 @@ function ImportPreviewPanel({
   onMergeImport,
   onReplaceImport,
   onCancelPreview,
-}: BackupDialogProps) {
+}: BackupViewProps) {
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [confirmReplace, setConfirmReplace] = useState(false);
   const preview = importPreview!;
@@ -117,7 +119,7 @@ function ImportPreviewPanel({
   return (
     <>
       <DialogHeading
-        id="backup-dialog-title"
+        id="backup-view-title"
         truncate
         icon={<CheckCircle2 size={21} />}
         title="备份可以恢复"
