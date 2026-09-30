@@ -7,8 +7,6 @@ import { Button } from "@/components/ui/button";
 
 const MotionButton = motion.create(Button);
 const SPLIT_WIDTH = "calc(50% - 0.25rem)";
-// A small overshoot in the split distance, followed by settling at the target.
-const OVERSHOOT_WIDTH = "calc(49.1% - 0.2545rem)";
 
 export function AccountSignOutControls({
   open, busy, onRequest, onCancel, onConfirm,
@@ -30,12 +28,8 @@ export function AccountSignOutControls({
   const ready = reduceMotion || (!animating && settledOpen === open);
   const disabled = busy || !isPresent || !ready;
   const transition = {
-    duration: reduceMotion ? 0 : open ? 0.39 : 0.28,
+    duration: reduceMotion ? 0 : open ? 0.28 : 0.22,
     ease: open ? [0.22, 0.72, 0.2, 1] as const : [0.42, 0, 0.72, 0.35] as const,
-  };
-  const splitTransition = {
-    ...transition,
-    times: open ? [0, 0.88, 1] : undefined,
   };
 
   useEffect(() => {
@@ -72,10 +66,10 @@ export function AccountSignOutControls({
         variant="ghost"
         initial={false}
         animate={{
-          x: open ? reduceMotion ? "0%" : [null, "-0.9%", "0%"] : "50%",
+          x: open ? "0%" : "50%",
           opacity: open ? 1 : 0,
         }}
-        transition={{ x: splitTransition, opacity: transition }}
+        transition={transition}
         disabled={disabled || !open}
         aria-hidden={!open}
         tabIndex={open ? 0 : -1}
@@ -89,8 +83,8 @@ export function AccountSignOutControls({
         type="button"
         variant="destructive"
         initial={false}
-        animate={{ width: open ? reduceMotion ? SPLIT_WIDTH : [null, OVERSHOOT_WIDTH, SPLIT_WIDTH] : "calc(100% - 0rem)" }}
-        transition={splitTransition}
+        animate={{ width: open ? SPLIT_WIDTH : "calc(100% - 0rem)" }}
+        transition={transition}
         onAnimationStart={() => setAnimating(true)}
         onAnimationComplete={() => { setSettledOpen(open); setAnimating(false); }}
         disabled={disabled}
