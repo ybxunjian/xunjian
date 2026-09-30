@@ -90,6 +90,8 @@ test("calendar adjacent pages stay out of focus and stop at the earliest record 
   assert.match(html, /data-calendar-month="2026-08" aria-hidden="true" inert=""/);
   assert.match(html, /data-calendar-month="2026-09" aria-hidden="false"/);
   assert.match(html, /data-calendar-month="2026-10" aria-hidden="true" inert=""/);
+  assert.match(html, /data-calendar-month="2026-12" aria-hidden="true" inert=""/);
+  assert.equal((html.match(/data-calendar-month=/g) ?? []).length, 5);
   const earliest = renderToStaticMarkup(h(HistoryCalendar, { ...props, month: "2026-08" }));
   assert.doesNotMatch(earliest, /data-calendar-month="2026-07"/);
   assert.doesNotMatch(earliest, /aria-label="上一个月"/);
