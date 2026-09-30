@@ -29,8 +29,9 @@ export function AccountSignOutControls({
   const disabled = busy || !isPresent || !ready;
   const transition = {
     duration: reduceMotion ? 0 : open ? 0.28 : 0.22,
-    ease: open ? [0.22, 0.72, 0.2, 1] as const : [0.42, 0, 0.72, 0.35] as const,
+    ease: open ? [0.25, 0.1, 0.25, 1] as const : [0.25, 0.1, 0.35, 1] as const,
   };
+  const textTransition = { duration: transition.duration, ease: "easeInOut" as const };
 
   useEffect(() => {
     if (!open || busy || !isPresent) return;
@@ -96,7 +97,7 @@ export function AccountSignOutControls({
           <motion.span
             key={busy ? "busy" : open ? "confirm" : "request"}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            transition={transition}
+            transition={textTransition}
             className="absolute inset-0 flex items-center justify-center gap-2 whitespace-nowrap"
           >
             {!open && <LogOut className="size-4" />}
