@@ -1,8 +1,31 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
-import { AnimatePresence, motion, useIsPresent, useReducedMotion } from "framer-motion";
+import { useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
+import { AnimatePresence, usePresence, useReducedMotion } from "framer-motion";
 import { Button } from "./button";
+
+const TRANSFORM_ORIGIN = "50% -8.5px";
+const OPEN_DURATION = 390;
+const CLOSE_DURATION = 210;
+const OPEN_EASING = "cubic-bezier(.22,.72,.20,1)";
+const CLOSE_EASING = "cubic-bezier(.42,0,.72,.35)";
+
+const OPEN_KEYFRAMES: Keyframe[] = [
+  { transform: "translateX(-50%) scale(.16)", opacity: 0.12, offset: 0 },
+  { transform: "translateX(-50%) scale(.27)", opacity: 0.32, offset: 0.2 },
+  { transform: "translateX(-50%) scale(.50)", opacity: 0.65, offset: 0.42 },
+  { transform: "translateX(-50%) scale(.78)", opacity: 0.91, offset: 0.64 },
+  { transform: "translateX(-50%) scale(1.018)", opacity: 1, offset: 0.88 },
+  { transform: "translateX(-50%) scale(1)", opacity: 1, offset: 1 },
+];
+
+const CLOSE_KEYFRAMES: Keyframe[] = [
+  { transform: "translateX(-50%) scale(1)", opacity: 1, offset: 0 },
+  { transform: "translateX(-50%) scale(.96)", opacity: 1, offset: 0.2 },
+  { transform: "translateX(-50%) scale(.73)", opacity: 0.96, offset: 0.46 },
+  { transform: "translateX(-50%) scale(.39)", opacity: 0.68, offset: 0.72 },
+  { transform: "translateX(-50%) scale(.16)", opacity: 0, offset: 1 },
+];
 
 type ConfirmationPopoverProps = {
   id: string;
@@ -53,16 +76,56 @@ export function ConfirmationPopover(props: ConfirmationPopoverProps) {
 }
 
 function ConfirmationBubble({ id, busy, title, confirmLabel, busyLabel = "正在处理…", onClose, onConfirm }: ConfirmationPopoverProps) {
-  const isPresent = useIsPresent();
+  const [isPresent, safeToRemove] = usePresence();
+  const bubbleRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
   const cancelRef = useRef<HTMLButtonElement>(null);
+
+  useLayoutEffect(() => {
+    const element = bubbleRef.current;
+    if (!element) return;
+    element.style.transformOrigin = TRANSFORM_ORIGIN;
+
+    const finish = () => {
+      element.style.transform = isPresent
+        ? "translateX(-50%) scale(1)"
+        : "translateX(-50%) scale(.16)";
+      element.style.opacity = isPresent ? "1" : "0";
+    };
+
+    if (reduceMotion) {
+      finish();
+      return;
+    }
+
+    // Each bubble owns its animation; the easing applies to the full timeline.
+    const animation = element.animate(isPresent ? OPEN_KEYFRAMES : CLOSE_KEYFRAMES, {
+      duration: isPresent ? OPEN_DURATION : CLOSE_DURATION,
+      easing: isPresent ? OPEN_EASING : CLOSE_EASING,
+      fill: "forwards",
+    });
+    animation.onfinish = () => {
+      finish();
+      animation.cancel();
+      if (!isPresent) safeToRemove?.();
+    };
+    return () => {
+      animation.onfinish = null;
+      animation.cancel();
+    };
+  }, [isPresent, reduceMotion, safeToRemove]);
+
+  useEffect(() => {
+    if (reduceMotion && !isPresent) safeToRemove?.();
+  }, [isPresent, reduceMotion, safeToRemove]);
 
   useEffect(() => {
     cancelRef.current?.focus({ preventScroll: true });
   }, []);
 
   return (
-    <motion.div
+    <div
+      ref={bubbleRef}
       id={id}
       role="dialog"
       aria-labelledby={`${id}-title`}
@@ -70,39 +133,10 @@ function ConfirmationBubble({ id, busy, title, confirmLabel, busyLabel = "正在
       aria-hidden={!isPresent || undefined}
       inert={!isPresent}
       className="absolute left-1/2 top-full z-30 mt-2 w-48 rounded-confirmation-popover border border-border bg-card p-2 shadow-floating"
-      style={{ x: "-50%", transformOrigin: "50% -8.5px" }}
-      initial={{ scale: reduceMotion ? 1 : 0.16, opacity: reduceMotion ? 1 : 0.12 }}
-      animate={{
-        scale: reduceMotion ? 1 : [null, 0.27, 0.5, 0.78, 1.018, 1],
-        opacity: reduceMotion ? 1 : [null, 0.32, 0.65, 0.91, 1, 1],
-      }}
-      transition={{
-        scale: {
-          duration: reduceMotion ? 0 : 0.39,
-          times: [0, 0.2, 0.42, 0.64, 0.88, 1],
-          ease: [0.22, 0.72, 0.2, 1],
-        },
-        opacity: {
-          duration: reduceMotion ? 0 : 0.39,
-          times: [0, 0.2, 0.42, 0.64, 0.88, 1],
-          ease: [0.22, 0.72, 0.2, 1],
-        },
-      }}
-      exit={{
-        scale: reduceMotion ? 1 : [1, 0.96, 0.73, 0.39, 0.16],
-        opacity: reduceMotion ? 0 : [1, 1, 0.96, 0.68, 0],
-        transition: {
-          scale: {
-            duration: reduceMotion ? 0 : 0.21,
-            times: [0, 0.2, 0.46, 0.72, 1],
-            ease: [0.42, 0, 0.72, 0.35],
-          },
-          opacity: {
-            duration: reduceMotion ? 0 : 0.21,
-            times: [0, 0.2, 0.46, 0.72, 1],
-            ease: [0.42, 0, 0.72, 0.35],
-          },
-        },
+      style={{
+        transformOrigin: TRANSFORM_ORIGIN,
+        transform: "translateX(-50%) scale(.16)",
+        opacity: 0,
       }}
     >
       <span aria-hidden="true" className="absolute -top-1.5 left-1/2 size-3 -translate-x-1/2 rotate-45 border-l border-t border-border bg-card" />
@@ -115,6 +149,6 @@ function ConfirmationBubble({ id, busy, title, confirmLabel, busyLabel = "正在
           取消
         </Button>
       </div>
-    </motion.div>
+    </div>
   );
 }
