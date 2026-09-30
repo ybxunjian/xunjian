@@ -41,12 +41,11 @@ export function AccountDialog(props: AccountDialogProps) {
   };
 
   return (
-    <Sheet labelledBy="account-dialog-title" onClose={props.onClose} layoutScroll
+    <Sheet labelledBy="account-dialog-title" onClose={props.onClose} layoutScroll busy={confirming}
       overlays={<>
         <AnimatePresence>
-          {confirmation && (
+          {confirmation === "sign-out" && (
             <AccountConfirmationSheet
-              action={confirmation}
               submitting={confirming}
               onCancel={() => setConfirmation(null)}
               onConfirm={() => void confirmAction()}
@@ -75,6 +74,12 @@ export function AccountDialog(props: AccountDialogProps) {
         onClose={props.onClose}
         onOpenPassword={() => setPasswordOpen(true)}
         onRequestAvatarRemoval={() => setConfirmation("remove-avatar")}
+        avatarRemovalOpen={confirmation === "remove-avatar"}
+        confirmingAvatarRemoval={confirming && confirmation === "remove-avatar"}
+        onCancelAvatarRemoval={() => {
+          if (!confirming) setConfirmation(null);
+        }}
+        onConfirmAvatarRemoval={() => void confirmAction()}
         onRequestSignOut={() => setConfirmation("sign-out")}
       />
     </Sheet>

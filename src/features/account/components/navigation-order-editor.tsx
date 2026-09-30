@@ -202,7 +202,7 @@ function NavigationReorderItem({
       <span className="flex-1 font-bold">{TAB_LABELS[tab]}</span>
       {index === 0 && (
         <span className="rounded-full bg-secondary px-2 py-1 text-label font-bold text-secondary-foreground">
-          启动
+          首页
         </span>
       )}
     </Reorder.Item>

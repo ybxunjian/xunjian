@@ -1,6 +1,7 @@
 import { ActionTile } from "@/components/ui/action-tile";
 import { DialogHeading } from "@/components/ui/dialog-heading";
-import { useRef } from "react";
+import { useId, useRef } from "react";
+import { ConfirmationPopover } from "@/components/ui/confirmation-popover";
 import {
   Camera,
   CheckCircle2,
@@ -28,6 +29,10 @@ type AccountMenuProps = Pick<
 > & {
   onOpenPassword: () => void;
   onRequestAvatarRemoval: () => void;
+  avatarRemovalOpen: boolean;
+  confirmingAvatarRemoval: boolean;
+  onCancelAvatarRemoval: () => void;
+  onConfirmAvatarRemoval: () => void;
   onRequestSignOut: () => void;
 };
 
@@ -42,9 +47,14 @@ export function AccountMenu({
   onClose,
   onOpenPassword,
   onRequestAvatarRemoval,
+  avatarRemovalOpen,
+  confirmingAvatarRemoval,
+  onCancelAvatarRemoval,
+  onConfirmAvatarRemoval,
   onRequestSignOut,
 }: AccountMenuProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const removalId = useId();
 
   const chooseAvatar = async (file: File) => {
     try {
@@ -103,15 +113,30 @@ export function AccountMenu({
           {emailVerified ? "邮箱已验证" : "邮箱待验证"}
         </p>
         {avatarUrl && (
-          <button
+          <ConfirmationPopover
+            id={removalId}
+            open={avatarRemovalOpen}
+            busy={confirmingAvatarRemoval}
+            title="确认移除头像"
+            confirmLabel="确认移除"
+            busyLabel="正在移除…"
+            onClose={onCancelAvatarRemoval}
+            onConfirm={onConfirmAvatarRemoval}
+          >
+          <Button
             type="button"
+            variant="ghost"
             disabled={avatarBusy}
-            onClick={onRequestAvatarRemoval}
-            className="mx-auto mt-2 flex min-h-11 items-center gap-1.5 px-3 text-caption font-bold text-destructive disabled:opacity-45"
+            onClick={avatarRemovalOpen ? onCancelAvatarRemoval : onRequestAvatarRemoval}
+            aria-haspopup="dialog"
+            aria-expanded={avatarRemovalOpen}
+            aria-controls={avatarRemovalOpen ? removalId : undefined}
+            className="gap-1.5 px-3 text-caption font-bold text-destructive hover:bg-transparent"
           >
             <Trash2 className="size-4" />
             移除头像
-          </button>
+          </Button>
+          </ConfirmationPopover>
         )}
       </section>
 

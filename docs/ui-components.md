@@ -28,6 +28,7 @@
 | 图标操作项 | `src/components/ui/action-tile.tsx` | 修改密码入口、导出/导入备份 |
 | 清空按钮 | `src/components/ui/clear-button.tsx` | 泵区域、皮带区域 |
 | 基础按钮与卡片 | `src/components/ui/button.tsx`、`card.tsx` | 全项目通用 |
+| 锚定确认气泡 | `src/components/ui/confirmation-popover.tsx` | 账号面板移除头像 |
 
 ## 调用约定
 
@@ -40,6 +41,7 @@
 - 样式继续消费 `src/app/globals.css` 的设计变量。`field-shake` 的动画和减少动态效果规则只在这里定义一次。
 - 组合 Tailwind 类名统一使用 `src/lib/utils.ts` 的 `cn()`。项目自定义字号 `text-label`、`text-caption`、`text-body`、`text-card-title` 和 `text-title` 已注册为字号类，必须与 `text-destructive`、`text-muted-foreground` 等颜色类同时保留。新增 `--text-*` 字号变量时，必须同步扩展 `cn()` 的 `font-size` 分组并补充回归测试，避免字号类被 `tailwind-merge` 误判为颜色类后删除。
 - 巡检数据规则、存储、云同步、密码提交、导入导出和具体确认动作保留在各业务模块中。
+- `ConfirmationPopover` 在触发入口下方显示带尖角的非模态确认气泡，复用公共 `Button`，上方为危险确认、下方为灰色取消，均为胶囊形且至少 44px 高。外圆角使用 `globals.css` 的 `radius-confirmation-popover`：22px 按钮圆角 + 8px 内边距 + 1px 边框 = 31px，保持内外轮廓平行。外部点击和 `Esc` 收起，`Esc` 优先处理气泡而不关闭父 `Sheet`；打开时聚焦取消按钮，退场时禁用气泡交互，提交期间禁用操作。头像移除的请求与反馈仍由 `AccountDialog` 处理，退出登录继续使用确认 `Sheet`。
 
 ## 验证
 

@@ -234,7 +234,7 @@ function InspectionAppContent({
       <div className="relative">
         <div
           ref={setHistoryMenuContainer}
-          className="absolute -right-1 top-0 z-10"
+          className="absolute right-[calc(1rem+1px)] top-0 z-10"
         />
         <AnimatePresence mode="wait">
           <motion.section
