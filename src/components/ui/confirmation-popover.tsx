@@ -70,11 +70,40 @@ function ConfirmationBubble({ id, busy, title, confirmLabel, busyLabel = "正在
       aria-hidden={!isPresent || undefined}
       inert={!isPresent}
       className="absolute left-1/2 top-full z-30 mt-2 w-48 rounded-confirmation-popover border border-border bg-card p-2 shadow-floating"
-      style={{ x: "-50%" }}
-      initial={{ opacity: 0, y: reduceMotion ? 0 : -4 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: reduceMotion ? 0 : -4 }}
-      transition={{ duration: reduceMotion ? 0 : 0.16 }}
+      style={{ x: "-50%", transformOrigin: "50% -8.5px" }}
+      initial={{ scale: reduceMotion ? 1 : 0.16, opacity: reduceMotion ? 1 : 0.12 }}
+      animate={{
+        scale: reduceMotion ? 1 : [null, 0.27, 0.5, 0.78, 1.018, 1],
+        opacity: reduceMotion ? 1 : [null, 0.32, 0.65, 0.91, 1, 1],
+      }}
+      transition={{
+        scale: {
+          duration: reduceMotion ? 0 : 0.39,
+          times: [0, 0.2, 0.42, 0.64, 0.88, 1],
+          ease: [0.22, 0.72, 0.2, 1],
+        },
+        opacity: {
+          duration: reduceMotion ? 0 : 0.39,
+          times: [0, 0.2, 0.42, 0.64, 0.88, 1],
+          ease: [0.22, 0.72, 0.2, 1],
+        },
+      }}
+      exit={{
+        scale: reduceMotion ? 1 : [1, 0.96, 0.73, 0.39, 0.16],
+        opacity: reduceMotion ? 0 : [1, 1, 0.96, 0.68, 0],
+        transition: {
+          scale: {
+            duration: reduceMotion ? 0 : 0.21,
+            times: [0, 0.2, 0.46, 0.72, 1],
+            ease: [0.42, 0, 0.72, 0.35],
+          },
+          opacity: {
+            duration: reduceMotion ? 0 : 0.21,
+            times: [0, 0.2, 0.46, 0.72, 1],
+            ease: [0.42, 0, 0.72, 0.35],
+          },
+        },
+      }}
     >
       <span aria-hidden="true" className="absolute -top-1.5 left-1/2 size-3 -translate-x-1/2 rotate-45 border-l border-t border-border bg-card" />
       <h3 id={`${id}-title`} className="sr-only">{title}</h3>
