@@ -32,8 +32,9 @@ export function HistoryQuickMenu({
     if (!open || manageHistory || showBack || !isPresent) return;
 
     const closeOnOutsideClick = (event: PointerEvent) => {
-      // Detail entry owns the exit animation; preserve the current X until it collapses.
-      if (event.target instanceof Element && event.target.closest("[data-history-detail-trigger]")) return;
+      // A transition action owns the final state and its existing animation.
+      // Do not start a separate menu-close animation before that action runs.
+      if (event.target instanceof Element && event.target.closest("[data-history-menu-transition]")) return;
       if (event.target instanceof Node && !menuRef.current?.contains(event.target)) {
         setOpen(false);
       }

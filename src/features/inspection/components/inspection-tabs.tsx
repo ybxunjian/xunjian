@@ -28,6 +28,7 @@ export function InspectionTabs({
           key={id}
           type="button"
           aria-current={value === id ? "page" : undefined}
+          data-history-menu-transition={value !== id ? "exit" : undefined}
           onClick={() => onChange(id)}
           className={`segmented-item relative h-full rounded-navigation-item py-0 text-caption font-bold transition duration-200 before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${value === id ? "bg-primary text-primary-foreground shadow-card" : "text-muted-foreground"}`}
         >

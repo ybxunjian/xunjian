@@ -241,7 +241,7 @@ function HistoryList({
                     variant="ghost"
                     size="icon"
                     aria-label={`查看 ${record.date} ${record.time} 的巡检详情`}
-                    data-history-detail-trigger
+                    data-history-menu-transition="exit"
                     onClick={() => onSelectRecord(record)}
                     className="bg-muted text-muted-foreground"
                   >
