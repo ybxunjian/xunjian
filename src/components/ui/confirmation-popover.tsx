@@ -80,6 +80,13 @@ function ConfirmationBubble({ id, busy, title, confirmLabel, busyLabel = "正在
   const bubbleRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
   const cancelRef = useRef<HTMLButtonElement>(null);
+  const safeToRemoveRef = useRef(safeToRemove);
+
+  // Presence callbacks can change when a sibling sheet opens; keep that update
+  // separate from the animation so an in-progress timeline isn't restarted.
+  useLayoutEffect(() => {
+    safeToRemoveRef.current = safeToRemove;
+  }, [safeToRemove]);
 
   useLayoutEffect(() => {
     const element = bubbleRef.current;
@@ -107,17 +114,17 @@ function ConfirmationBubble({ id, busy, title, confirmLabel, busyLabel = "正在
     animation.onfinish = () => {
       finish();
       animation.cancel();
-      if (!isPresent) safeToRemove?.();
+      if (!isPresent) safeToRemoveRef.current?.();
     };
     return () => {
       animation.onfinish = null;
       animation.cancel();
     };
-  }, [isPresent, reduceMotion, safeToRemove]);
+  }, [isPresent, reduceMotion]);
 
   useEffect(() => {
-    if (reduceMotion && !isPresent) safeToRemove?.();
-  }, [isPresent, reduceMotion, safeToRemove]);
+    if (reduceMotion && !isPresent) safeToRemoveRef.current?.();
+  }, [isPresent, reduceMotion]);
 
   useEffect(() => {
     cancelRef.current?.focus({ preventScroll: true });
