@@ -6,7 +6,6 @@ import {
   Camera,
   CheckCircle2,
   KeyRound,
-  LogOut,
   Trash2,
   X,
 } from "lucide-react";
@@ -15,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import type { AccountDialogProps } from "./account-dialog-types";
 import { AvatarVisual } from "./avatar-visual";
 import { NavigationOrderEditor } from "./navigation-order-editor";
+import { AccountSignOutControls } from "./account-sign-out-controls";
 
 type AccountMenuProps = Pick<
   AccountDialogProps,
@@ -34,6 +34,10 @@ type AccountMenuProps = Pick<
   onCancelAvatarRemoval: () => void;
   onConfirmAvatarRemoval: () => void;
   onRequestSignOut: () => void;
+  signOutOpen: boolean;
+  signingOut: boolean;
+  onCancelSignOut: () => void;
+  onConfirmSignOut: () => void;
 };
 
 export function AccountMenu({
@@ -52,6 +56,10 @@ export function AccountMenu({
   onCancelAvatarRemoval,
   onConfirmAvatarRemoval,
   onRequestSignOut,
+  signOutOpen,
+  signingOut,
+  onCancelSignOut,
+  onConfirmSignOut,
 }: AccountMenuProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const removalId = useId();
@@ -152,15 +160,8 @@ export function AccountMenu({
         onNavigationOrderChange={onNavigationOrderChange}
       />
 
-      <Button
-        type="button"
-        variant="destructive"
-        onClick={onRequestSignOut}
-        className="mt-5 w-full"
-      >
-        <LogOut />
-        退出登录
-      </Button>
+      <AccountSignOutControls open={signOutOpen} busy={signingOut}
+        onRequest={onRequestSignOut} onCancel={onCancelSignOut} onConfirm={onConfirmSignOut} />
     </>
   );
 }

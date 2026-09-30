@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Sheet } from "@/components/ui/sheet";
 import { toast } from "sonner";
-import { AccountConfirmationSheet } from "./account-confirmation-sheet";
 import type {
   AccountDialogProps,
   ConfirmationAction,
@@ -16,10 +15,12 @@ export function AccountDialog(props: AccountDialogProps) {
   const [confirmation, setConfirmation] =
     useState<ConfirmationAction | null>(null);
   const [confirming, setConfirming] = useState(false);
+  const confirmingRef = useRef(false);
   const [passwordOpen, setPasswordOpen] = useState(false);
 
   const confirmAction = async () => {
-    if (!confirmation) return;
+    if (!confirmation || confirmingRef.current) return;
+    confirmingRef.current = true;
     setConfirming(true);
     try {
       if (confirmation === "remove-avatar") {
@@ -36,6 +37,7 @@ export function AccountDialog(props: AccountDialogProps) {
           : "退出登录失败，请稍后重试",
       );
     } finally {
+      confirmingRef.current = false;
       setConfirming(false);
     }
   };
@@ -43,16 +45,6 @@ export function AccountDialog(props: AccountDialogProps) {
   return (
     <Sheet labelledBy="account-dialog-title" onClose={props.onClose} layoutScroll busy={confirming}
       overlays={<>
-        <AnimatePresence>
-          {confirmation === "sign-out" && (
-            <AccountConfirmationSheet
-              submitting={confirming}
-              onCancel={() => setConfirmation(null)}
-              onConfirm={() => void confirmAction()}
-            />
-          )}
-        </AnimatePresence>
-
         <AnimatePresence>
           {passwordOpen && (
             <AccountPasswordSheet
@@ -71,16 +63,20 @@ export function AccountDialog(props: AccountDialogProps) {
         navigationOrder={props.navigationOrder}
         onAvatarChange={props.onAvatarChange}
         onNavigationOrderChange={props.onNavigationOrderChange}
-        onClose={props.onClose}
-        onOpenPassword={() => setPasswordOpen(true)}
-        onRequestAvatarRemoval={() => setConfirmation("remove-avatar")}
+        onClose={() => { if (!confirmingRef.current) props.onClose(); }}
+        onOpenPassword={() => { if (!confirmingRef.current) setPasswordOpen(true); }}
+        onRequestAvatarRemoval={() => { if (!confirmingRef.current) setConfirmation("remove-avatar"); }}
         avatarRemovalOpen={confirmation === "remove-avatar"}
         confirmingAvatarRemoval={confirming && confirmation === "remove-avatar"}
         onCancelAvatarRemoval={() => {
           if (!confirming) setConfirmation(null);
         }}
         onConfirmAvatarRemoval={() => void confirmAction()}
-        onRequestSignOut={() => setConfirmation("sign-out")}
+        onRequestSignOut={() => { if (!confirmingRef.current) setConfirmation("sign-out"); }}
+        signOutOpen={confirmation === "sign-out"}
+        signingOut={confirming && confirmation === "sign-out"}
+        onCancelSignOut={() => { if (!confirming) setConfirmation(null); }}
+        onConfirmSignOut={() => void confirmAction()}
       />
     </Sheet>
   );

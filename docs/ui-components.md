@@ -14,8 +14,8 @@
 
 | 类型 | 公共实现 | 当前使用位置 |
 | --- | --- | --- |
-| 底部弹窗 | `src/components/ui/sheet.tsx` | 账号、修改密码、账号确认、删除、保存校验 |
-| 标题与说明 | `src/components/ui/dialog-heading.tsx` | 账号、账号确认、备份页面、删除、保存校验 |
+| 底部弹窗 | `src/components/ui/sheet.tsx` | 账号、修改密码、删除、保存校验 |
+| 标题与说明 | `src/components/ui/dialog-heading.tsx` | 账号、备份页面、删除、保存校验 |
 | 凭据标题 | `src/features/auth/components/credential-heading.tsx` | 登录/注册/重置入口、修改密码 |
 | 内容区标题 | `src/features/inspection/components/section-heading.tsx` | 8#、9#、皮带、历史、巡检汇总 |
 | 凭据表单 | `src/features/auth/components/credential-form.tsx` | 登录/注册/重置表单、修改密码 |
@@ -41,7 +41,7 @@
 - 样式继续消费 `src/app/globals.css` 的设计变量。`field-shake` 的动画和减少动态效果规则只在这里定义一次。
 - 组合 Tailwind 类名统一使用 `src/lib/utils.ts` 的 `cn()`。项目自定义字号 `text-label`、`text-caption`、`text-body`、`text-card-title` 和 `text-title` 已注册为字号类，必须与 `text-destructive`、`text-muted-foreground` 等颜色类同时保留。新增 `--text-*` 字号变量时，必须同步扩展 `cn()` 的 `font-size` 分组并补充回归测试，避免字号类被 `tailwind-merge` 误判为颜色类后删除。
 - 巡检数据规则、存储、云同步、密码提交、导入导出和具体确认动作保留在各业务模块中。
-- `ConfirmationPopover` 在触发入口下方显示带尖角的非模态确认气泡，复用公共 `Button`，上方为危险确认、下方为灰色取消，均为胶囊形且至少 44px 高。外圆角使用 `globals.css` 的 `radius-confirmation-popover`：22px 按钮圆角 + 8px 内边距 + 1px 边框 = 31px，保持内外轮廓平行。外部点击和 `Esc` 收起，`Esc` 优先处理气泡而不关闭父 `Sheet`；打开时聚焦取消按钮，退场时禁用气泡交互，提交期间禁用操作。头像移除的请求与反馈仍由 `AccountDialog` 处理，退出登录继续使用确认 `Sheet`。
+- `ConfirmationPopover` 在触发入口下方显示带尖角的非模态确认气泡，复用公共 `Button`，上方为危险确认、下方为灰色取消，均为胶囊形且至少 44px 高。外圆角使用 `globals.css` 的 `radius-confirmation-popover`：22px 按钮圆角 + 8px 内边距 + 1px 边框 = 31px，保持内外轮廓平行。外部点击和 `Esc` 收起，`Esc` 优先处理气泡而不关闭父 `Sheet`；打开时聚焦取消按钮，退场时禁用气泡交互，提交期间禁用操作。头像移除的请求与反馈仍由 `AccountDialog` 处理，退出登录使用账号内的原位分列按钮。
 
 ## 移除头像确认气泡动画
 
@@ -52,6 +52,14 @@
 - 每个气泡独立持有并取消自身动画。完成时先固化最终样式，再取消动画层；收回完成后才通过 `AnimatePresence` 的移除回调卸载。卸载或切换方向时清理当前动画，不取消同元素上的其他动画。
 - 动画只随显示/退出状态或减少动态效果设置变化而启动；父组件重渲染、其他弹层打开及移除回调更新不得重启当前动画。完成时调用最新移除回调。
 - 系统开启减少动态效果时，直接显示或隐藏；外部点击、Escape、焦点、提交与退出交互禁用仍沿用原实现。
+
+## 退出登录原位确认
+
+- `AccountSignOutControls` 位于账号业务组件内，复用公共 `Button`；第一次点击只展开确认，不提交退出请求。
+- 原按钮区域保持总宽度与 44px 高度，220ms 内分列为左侧灰色“取消”和右侧红色“确认退出”，间距 8px；取消沿原路径合回，文字同步淡入淡出，不移动账号面板。
+- 展开与合回期间禁用两侧交互，动画完成后才允许确认；打开后聚焦取消，合回后聚焦退出入口。Escape 优先取消确认，外部点击也取消；系统减少动态效果时立即切换。
+- 退出请求期间两侧禁用，右侧显示“正在退出…”；请求由 `AccountDialog` 处理并防止重复提交，失败保留确认状态以便重试。
+- 头像确认气泡展开时点击退出入口，气泡按原有动画收回，退出按钮同时分列。头像气泡的动画参数不变。
 
 ## 验证
 
