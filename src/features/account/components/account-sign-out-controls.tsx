@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { AnimatePresence, motion, useIsPresent, useReducedMotion } from "framer-motion";
 import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,14 +19,11 @@ export function AccountSignOutControls({
 }) {
   const isPresent = useIsPresent();
   const reduceMotion = useReducedMotion();
-  const [settledOpen, setSettledOpen] = useState(open);
-  const [animating, setAnimating] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const cancelRef = useRef<HTMLButtonElement>(null);
   const confirmRef = useRef<HTMLButtonElement>(null);
   const wasOpenRef = useRef(false);
-  const ready = reduceMotion || (!animating && settledOpen === open);
-  const disabled = busy || !isPresent || !ready;
+  const disabled = busy || !isPresent;
   const transition = {
     duration: reduceMotion ? 0 : open ? 0.28 : 0.22,
     ease: open ? [0.25, 0.1, 0.25, 1] as const : [0.25, 0.1, 0.35, 1] as const,
@@ -35,29 +32,53 @@ export function AccountSignOutControls({
 
   useEffect(() => {
     if (!open || busy || !isPresent) return;
-    const outside = (event: PointerEvent) => {
-      if (event.target instanceof Node && !rootRef.current?.contains(event.target)) onCancel();
+    let press: { id: number; x: number; y: number; moved: boolean } | null = null;
+    const outside = (target: EventTarget | null) =>
+      target instanceof Node && !rootRef.current?.contains(target);
+    const pointerDown = (event: PointerEvent) => {
+      if (!event.isPrimary || event.button !== 0 || !outside(event.target)) return;
+      press = { id: event.pointerId, x: event.clientX, y: event.clientY, moved: false };
     };
+    const pointerMove = (event: PointerEvent) => {
+      if (press?.id !== event.pointerId) return;
+      if (Math.hypot(event.clientX - press.x, event.clientY - press.y) > 8) press.moved = true;
+    };
+    const pointerUp = (event: PointerEvent) => {
+      if (press?.id !== event.pointerId) return;
+      const tappedOutside = !press.moved && outside(event.target) &&
+        Math.hypot(event.clientX - press.x, event.clientY - press.y) <= 8;
+      press = null;
+      if (tappedOutside) onCancel();
+    };
+    const clearPress = () => { press = null; };
     const escape = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
       event.preventDefault();
       event.stopPropagation();
       onCancel();
     };
-    document.addEventListener("pointerdown", outside, true);
+    document.addEventListener("pointerdown", pointerDown, true);
+    document.addEventListener("pointermove", pointerMove, true);
+    document.addEventListener("pointerup", pointerUp, true);
+    document.addEventListener("pointercancel", clearPress, true);
+    document.addEventListener("scroll", clearPress, true);
     window.addEventListener("keydown", escape, true);
     return () => {
-      document.removeEventListener("pointerdown", outside, true);
+      document.removeEventListener("pointerdown", pointerDown, true);
+      document.removeEventListener("pointermove", pointerMove, true);
+      document.removeEventListener("pointerup", pointerUp, true);
+      document.removeEventListener("pointercancel", clearPress, true);
+      document.removeEventListener("scroll", clearPress, true);
       window.removeEventListener("keydown", escape, true);
     };
   }, [open, busy, isPresent, onCancel]);
 
   useEffect(() => {
-    if (!ready || busy || !isPresent) return;
+    if (busy || !isPresent) return;
     if (open) cancelRef.current?.focus({ preventScroll: true });
     else if (wasOpenRef.current) confirmRef.current?.focus({ preventScroll: true });
     wasOpenRef.current = open;
-  }, [open, ready, busy, isPresent]);
+  }, [open, busy, isPresent]);
 
   return (
     <div ref={rootRef} className="relative mt-5 h-11 w-full" role="group" aria-label={open ? "确认退出登录" : "退出登录"} aria-busy={busy}>
@@ -86,8 +107,6 @@ export function AccountSignOutControls({
         initial={false}
         animate={{ width: open ? SPLIT_WIDTH : "calc(100% - 0rem)" }}
         transition={transition}
-        onAnimationStart={() => setAnimating(true)}
-        onAnimationComplete={() => { setSettledOpen(open); setAnimating(false); }}
         disabled={disabled}
         aria-label={busy ? "正在退出…" : open ? "确认退出" : "退出登录"}
         onClick={() => { if (!disabled) (open ? onConfirm : onRequest)(); }}
