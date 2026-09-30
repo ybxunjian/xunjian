@@ -8,6 +8,7 @@ import { CredentialForm } from "../src/features/auth/components/credential-form.
 import { AccountPasswordSheet } from "../src/features/account/components/account-password-sheet.tsx";
 import { InspectionTabs } from "../src/features/inspection/components/inspection-tabs.tsx";
 import { BeltTabs } from "../src/features/inspection/components/belt/belt-tabs.tsx";
+import { HistoryCalendar } from "../src/features/inspection/components/history/history-calendar.tsx";
 import { cn } from "../src/lib/utils.ts";
 
 test("custom type scales survive class merging with text colors", () => {
@@ -77,4 +78,20 @@ test("password sheet keeps all three password fields inside one shared form", ()
   assert.equal((html.match(/type="password"/g) ?? []).length, 3);
   assert.equal((html.match(/type="submit"/g) ?? []).length, 1);
   assert.match(html, /aria-labelledby="password-dialog-title"/);
+});
+
+
+test("calendar adjacent pages stay out of focus and stop at the earliest record month", () => {
+  const props = {
+    records: [{ id: "old", date: "2026/8/31", values: {} }, { id: "new", date: "2026/9/25", values: {} }],
+    month: "2026-09", onMonthChange() {}, onSelectRecord() {},
+  };
+  const html = renderToStaticMarkup(h(HistoryCalendar, props));
+  assert.match(html, /data-calendar-month="2026-08" aria-hidden="true" inert=""/);
+  assert.match(html, /data-calendar-month="2026-09" aria-hidden="false"/);
+  assert.match(html, /data-calendar-month="2026-10" aria-hidden="true" inert=""/);
+  const earliest = renderToStaticMarkup(h(HistoryCalendar, { ...props, month: "2026-08" }));
+  assert.doesNotMatch(earliest, /data-calendar-month="2026-07"/);
+  assert.doesNotMatch(earliest, /aria-label="上一个月"/);
+  assert.match(earliest, /aria-label="下一个月"/);
 });
