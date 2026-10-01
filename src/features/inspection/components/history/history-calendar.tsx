@@ -247,7 +247,7 @@ export function HistoryCalendar({
               return (
                 <div key={pageMonth} data-calendar-month={pageMonth}
                   aria-hidden={pageMonth !== visibleMonth} inert={pageMonth !== visibleMonth}
-                  className="grid w-full shrink-0 snap-start snap-always grid-cols-7 gap-y-1"
+                  className="grid w-full shrink-0 snap-start snap-normal grid-cols-7 gap-y-1"
                   style={{ gridTemplateRows: "repeat(6, minmax(44px, auto))" }}>
                   {Array.from({ length: renderDates ? 42 : 0 }, (_, index) => dates[index] ?? null).map((date, index) => {
                     if (!date) return <span key={`empty-${index}`} className="min-h-11" />;
