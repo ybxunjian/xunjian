@@ -14,6 +14,7 @@ import { AvatarVisual } from "./avatar-visual";
 import { NavigationOrderEditor } from "./navigation-order-editor";
 import { motion, useIsPresent, useReducedMotion } from "framer-motion";
 import { AccountPasswordControls } from "./account-password-controls";
+import { PASSWORD_EXPAND_DURATION, PASSWORD_COLLAPSE_DURATION, PASSWORD_EASING } from "./account-password-motion";
 import { AccountSignOutControls } from "./account-sign-out-controls";
 
 type AccountMenuProps = Pick<
@@ -180,8 +181,8 @@ export function AccountMenu({
       <motion.div initial={false} inert={passwordOpen || !isPresent} aria-hidden={passwordOpen || !isPresent}
         animate={{ height: passwordOpen ? 0 : "auto", opacity: passwordOpen ? 0 : 1 }}
         transition={{
-          height: { duration: reduceMotion ? 0 : passwordOpen ? 0.28 : 0.22, ease: [0.25, 0.1, 0.25, 1] },
-          opacity: { duration: reduceMotion ? 0 : 0.12, delay: reduceMotion || passwordOpen ? 0 : 0.1 },
+          height: { duration: reduceMotion ? 0 : passwordOpen ? PASSWORD_EXPAND_DURATION : PASSWORD_COLLAPSE_DURATION, ease: PASSWORD_EASING },
+          opacity: { duration: reduceMotion ? 0 : 0.16, delay: reduceMotion || passwordOpen ? 0 : 0.12 },
         }} className="overflow-hidden">
         <NavigationOrderEditor
           navigationOrder={navigationOrder}

@@ -6,6 +6,7 @@ import { KeyRound } from "lucide-react";
 import { ActionTile } from "@/components/ui/action-tile";
 import type { AccountDialogProps } from "./account-dialog-types";
 import { AccountPasswordForm } from "./account-password-form";
+import { PASSWORD_EXPAND_DURATION, PASSWORD_COLLAPSE_DURATION, PASSWORD_EASING } from "./account-password-motion";
 
 type PasswordControlsProps = Pick<AccountDialogProps, "onChangePassword"> & {
   open: boolean;
@@ -37,7 +38,7 @@ export function AccountPasswordControls(props: PasswordControlsProps) {
   return (
     <div className="rounded-control bg-muted">
       <div ref={triggerRef}>
-        <ActionTile icon={<KeyRound className="size-4" />} title="修改密码" pressFeedback="subtle"
+        <ActionTile icon={<KeyRound className="size-4" />} title="修改密码" pressFeedback="none"
           expanded={props.open} controls={props.open ? "account-password-form" : undefined}
           disabled={props.busy || props.disabled}
           onClick={props.open ? props.onClose : props.onOpen} />
@@ -72,14 +73,14 @@ function PasswordExpansion(props: PasswordControlsProps) {
     <motion.div id="account-password-form" role="region" aria-label="修改密码表单"
       inert={!isPresent} aria-hidden={!isPresent}
       initial={{ height: 0 }} animate={{ height }} exit={{ height: 0 }}
-      transition={{ duration: reduceMotion ? 0 : isPresent ? 0.28 : 0.22,
-        delay: reduceMotion || isPresent ? 0 : 0.04, ease: [0.25, 0.1, 0.25, 1] }}
+      transition={{ duration: reduceMotion ? 0 : isPresent ? PASSWORD_EXPAND_DURATION : PASSWORD_COLLAPSE_DURATION,
+        delay: reduceMotion || isPresent ? 0 : 0.04, ease: PASSWORD_EASING }}
       className="overflow-hidden">
       <motion.div ref={contentRef}
-        initial={{ opacity: 0, y: reduceMotion ? 0 : 6 }} animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, y: reduceMotion ? 0 : 4 }} animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 0 }}
-        transition={{ duration: reduceMotion ? 0 : isPresent ? 0.18 : 0.1,
-          delay: reduceMotion || !isPresent ? 0 : 0.06, ease: "easeInOut" }}>
+        transition={{ duration: reduceMotion ? 0 : isPresent ? 0.22 : 0.14,
+          delay: reduceMotion || !isPresent ? 0 : 0.09, ease: "easeInOut" }}>
         <AccountPasswordForm onChangePassword={props.onChangePassword}
           onBusyChange={props.onBusyChange} onClose={props.onClose} disabled={props.disabled} />
       </motion.div>
