@@ -90,7 +90,6 @@ export function AccountPasswordForm({
 
   return (
     <div ref={formRef} className="px-4 pb-4">
-      <p id="account-password-help" className="mb-3 text-caption text-muted-foreground">设置一个至少 8 位的新密码。</p>
       <CredentialForm
         disabled={disabled || submitting || !isPresent}
         error={formError ?? undefined}
@@ -104,7 +103,6 @@ export function AccountPasswordForm({
           id="account-current-password"
           label="当前密码"
           autoComplete="current-password"
-          aria-describedby="account-password-help"
           required
           value={currentPassword}
           disabled={disabled || submitting || !isPresent}
@@ -120,7 +118,6 @@ export function AccountPasswordForm({
           id="account-new-password"
           label="新密码"
           autoComplete="new-password"
-          aria-describedby="account-password-help"
           required
           minLength={8}
           value={password}
@@ -137,7 +134,6 @@ export function AccountPasswordForm({
           id="account-confirm-password"
           label="确认新密码"
           autoComplete="new-password"
-          aria-describedby="account-password-help"
           required
           minLength={8}
           value={confirmPassword}

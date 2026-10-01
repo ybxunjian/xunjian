@@ -80,7 +80,7 @@ test("inline password editor keeps three password fields inside one shared form"
   assert.equal((html.match(/type="submit"/g) ?? []).length, 1);
   assert.doesNotMatch(html, /role="dialog"|aria-modal/);
   assert.match(html, /type="button"[^>]*>取消<\/button>/);
-  assert.match(html, /aria-describedby="account-password-help"/);
+  assert.doesNotMatch(html, /account-password-help/);
 });
 
 

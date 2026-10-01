@@ -10,22 +10,38 @@ const CLOSE_DURATION = 210;
 const OPEN_EASING = "cubic-bezier(.22,.72,.20,1)";
 const CLOSE_EASING = "cubic-bezier(.42,0,.72,.35)";
 
-const OPEN_KEYFRAMES: Keyframe[] = [
-  { transform: "translateX(-50%) scale(.16)", opacity: 0.12, offset: 0 },
-  { transform: "translateX(-50%) scale(.27)", opacity: 0.32, offset: 0.2 },
-  { transform: "translateX(-50%) scale(.50)", opacity: 0.65, offset: 0.42 },
-  { transform: "translateX(-50%) scale(.78)", opacity: 0.91, offset: 0.64 },
-  { transform: "translateX(-50%) scale(1.018)", opacity: 1, offset: 0.88 },
-  { transform: "translateX(-50%) scale(1)", opacity: 1, offset: 1 },
+type BubblePose = { scale: number; opacity: number };
+type BubbleFrame = BubblePose & { offset: number };
+
+const OPEN_FRAMES: BubbleFrame[] = [
+  { scale: 0.16, opacity: 0.12, offset: 0 },
+  { scale: 0.27, opacity: 0.32, offset: 0.2 },
+  { scale: 0.50, opacity: 0.65, offset: 0.42 },
+  { scale: 0.78, opacity: 0.91, offset: 0.64 },
+  { scale: 1.018, opacity: 1, offset: 0.88 },
+  { scale: 1, opacity: 1, offset: 1 },
 ];
 
-const CLOSE_KEYFRAMES: Keyframe[] = [
-  { transform: "translateX(-50%) scale(1)", opacity: 1, offset: 0 },
-  { transform: "translateX(-50%) scale(.96)", opacity: 1, offset: 0.2 },
-  { transform: "translateX(-50%) scale(.73)", opacity: 0.96, offset: 0.46 },
-  { transform: "translateX(-50%) scale(.39)", opacity: 0.68, offset: 0.72 },
-  { transform: "translateX(-50%) scale(.16)", opacity: 0, offset: 1 },
+const CLOSE_FRAMES: BubbleFrame[] = [
+  { scale: 1, opacity: 1, offset: 0 },
+  { scale: 0.96, opacity: 1, offset: 0.2 },
+  { scale: 0.73, opacity: 0.96, offset: 0.46 },
+  { scale: 0.39, opacity: 0.68, offset: 0.72 },
+  { scale: 0.16, opacity: 0, offset: 1 },
 ];
+
+function bubbleKeyframes(frames: BubbleFrame[], interrupted?: BubblePose): Keyframe[] {
+  const first = frames[0];
+  const last = frames[frames.length - 1];
+  const start = interrupted ?? first;
+  return frames.map((frame) => {
+    const scaleProgress = (frame.scale - first.scale) / (last.scale - first.scale);
+    const opacityProgress = (frame.opacity - first.opacity) / (last.opacity - first.opacity);
+    const scale = start.scale + (last.scale - start.scale) * scaleProgress;
+    const opacity = start.opacity + (last.opacity - start.opacity) * opacityProgress;
+    return { transform: `translateX(-50%) scale(${scale})`, opacity, offset: frame.offset };
+  });
+}
 
 type ConfirmationPopoverProps = {
   id: string;
@@ -81,6 +97,7 @@ function ConfirmationBubble({ id, busy, title, confirmLabel, busyLabel = "正在
   const reduceMotion = useReducedMotion();
   const cancelRef = useRef<HTMLButtonElement>(null);
   const safeToRemoveRef = useRef(safeToRemove);
+  const interruptedPoseRef = useRef<BubblePose | undefined>(undefined);
 
   // Presence callbacks can change when a sibling sheet opens; keep that update
   // separate from the animation so an in-progress timeline isn't restarted.
@@ -93,7 +110,12 @@ function ConfirmationBubble({ id, busy, title, confirmLabel, busyLabel = "正在
     if (!element) return;
     element.style.transformOrigin = TRANSFORM_ORIGIN;
 
+    const interruptedPose = interruptedPoseRef.current;
+    interruptedPoseRef.current = undefined;
+    let completed = false;
+
     const finish = () => {
+      completed = true;
       element.style.transform = isPresent
         ? "translateX(-50%) scale(1)"
         : "translateX(-50%) scale(.16)";
@@ -106,7 +128,7 @@ function ConfirmationBubble({ id, busy, title, confirmLabel, busyLabel = "正在
     }
 
     // Each bubble owns its animation; the easing applies to the full timeline.
-    const animation = element.animate(isPresent ? OPEN_KEYFRAMES : CLOSE_KEYFRAMES, {
+    const animation = element.animate(bubbleKeyframes(isPresent ? OPEN_FRAMES : CLOSE_FRAMES, interruptedPose), {
       duration: isPresent ? OPEN_DURATION : CLOSE_DURATION,
       easing: isPresent ? OPEN_EASING : CLOSE_EASING,
       fill: "forwards",
@@ -118,6 +140,17 @@ function ConfirmationBubble({ id, busy, title, confirmLabel, busyLabel = "正在
     };
     return () => {
       animation.onfinish = null;
+      if (!completed) {
+        // Freeze the rendered pose before removing the animation layer. The
+        // next direction uses this pose as its first frame instead of resetting.
+        const style = getComputedStyle(element);
+        interruptedPoseRef.current = {
+          scale: new DOMMatrixReadOnly(style.transform).a,
+          opacity: Number(style.opacity),
+        };
+        element.style.transform = style.transform;
+        element.style.opacity = style.opacity;
+      }
       animation.cancel();
     };
   }, [isPresent, reduceMotion]);
