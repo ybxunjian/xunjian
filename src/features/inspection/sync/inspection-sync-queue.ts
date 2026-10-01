@@ -16,14 +16,14 @@ export type InspectionSyncOperation =
     }
   | {
       operationId: string;
-      type: "merge" | "replace";
+      type: "merge" | "replace" | "restore";
       records: InspectionRecord[];
     };
 
 type NewInspectionSyncOperation =
   | { type: "upsert"; record: InspectionRecord }
   | { type: "delete"; ids: string[] }
-  | { type: "merge" | "replace"; records: InspectionRecord[] };
+  | { type: "merge" | "replace" | "restore"; records: InspectionRecord[] };
 
 const flushes = new Map<string, Promise<void>>();
 
@@ -133,7 +133,7 @@ function parseInspectionSyncOperation(
     return { operationId, type: "delete", ids: candidate.ids };
   }
   if (
-    (candidate.type === "merge" || candidate.type === "replace") &&
+    (candidate.type === "merge" || candidate.type === "replace" || candidate.type === "restore") &&
     Array.isArray(candidate.records) &&
     candidate.records.every(isInspectionRecord)
   ) {

@@ -85,6 +85,14 @@ export async function mergeCloudInspectionRecords(
   await flushSyncQueue(userId);
 }
 
+export async function restoreCloudInspectionRecords(
+  userId: string,
+  records: InspectionRecord[],
+) {
+  enqueueInspectionSyncOperation(userId, { type: "restore", records });
+  await flushSyncQueue(userId);
+}
+
 export async function replaceCloudInspectionRecords(
   userId: string,
   records: InspectionRecord[],
@@ -162,6 +170,10 @@ async function applyOperation(
   }
   if (operation.type === "merge") {
     await upsertRecords(userId, operation.records);
+    return;
+  }
+  if (operation.type === "restore") {
+    await restoreRecords(userId, operation.records);
     return;
   }
   await applyReplacement(userId, operation.records);

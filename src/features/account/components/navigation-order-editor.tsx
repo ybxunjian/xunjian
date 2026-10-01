@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type PointerEvent } from "react";
-import { Reorder, useDragControls } from "framer-motion";
+import { motion, Reorder, useDragControls, useReducedMotion } from "framer-motion";
 import { GripVertical, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,8 @@ export function NavigationOrderEditor({
 }: Pick<AccountDialogProps, "navigationOrder" | "onNavigationOrderChange">) {
   const draftOrderRef = useRef(navigationOrder);
   const [draftOrder, setDraftOrder] = useState(navigationOrder);
+  const [resetRotation, setResetRotation] = useState(0);
+  const reduceMotion = useReducedMotion();
 
   const updateOrder = (order: InspectionTab[]) => {
     draftOrderRef.current = order;
@@ -32,6 +34,7 @@ export function NavigationOrderEditor({
   };
 
   const resetOrder = async () => {
+    if (!reduceMotion) setResetRotation((rotation) => rotation - 360);
     const next = [...DEFAULT_NAVIGATION_ORDER];
     draftOrderRef.current = next;
     setDraftOrder(next);
@@ -56,7 +59,11 @@ export function NavigationOrderEditor({
           size="compact"
           onClick={() => void resetOrder()}
         >
-          <RotateCcw className="size-3.5" />
+          <motion.span aria-hidden="true" className="inline-flex shrink-0"
+            animate={{ rotate: resetRotation }}
+            transition={{ duration: reduceMotion ? 0 : 0.45, ease: [0.25, 0.1, 0.25, 1] }}>
+            <RotateCcw className="size-3.5" />
+          </motion.span>
           恢复默认
         </Button>
       </div>

@@ -92,3 +92,40 @@ test("legacy operations receive a stable id when loaded", () => {
   assert.equal(typeof first.operationId, "string");
   assert.equal(second.operationId, first.operationId);
 });
+
+test("undo queued during deletion runs after the delete and preserves other records", async () => {
+  const userId = "delete-undo-race";
+  const deletedRecord = record("deleted");
+  const cloud = new Map([["deleted", deletedRecord], ["new", record("new")]]);
+  enqueueInspectionSyncOperation(userId, { type: "delete", ids: ["deleted"] });
+  const applied = [];
+  await flushInspectionSyncQueue(userId, async (operation) => {
+    applied.push(operation.type);
+    if (operation.type === "delete") {
+      enqueueInspectionSyncOperation(userId, { type: "restore", records: [deletedRecord] });
+      cloud.delete("deleted");
+    } else if (operation.type === "restore") {
+      operation.records.forEach((item) => cloud.set(item.id, item));
+    }
+  });
+  assert.deepEqual(applied, ["delete", "restore"]);
+  assert.deepEqual([...cloud.keys()].sort(), ["deleted", "new"]);
+  assert.equal(getPendingInspectionSyncCount(userId), 0);
+});
+
+test("offline undo survives queue reload and retries with its original record", async () => {
+  const userId = "offline-delete-undo";
+  const restoredRecord = record("restored");
+  enqueueInspectionSyncOperation(userId, { type: "restore", records: [restoredRecord] });
+  const before = loadInspectionSyncQueue(userId)[0];
+  await assert.rejects(flushInspectionSyncQueue(userId, async () => {
+    throw new Error("offline");
+  }), /offline/);
+  const pending = loadInspectionSyncQueue(userId)[0];
+  assert.equal(pending.operationId, before.operationId);
+  assert.deepEqual(pending.records, [restoredRecord]);
+  const retried = [];
+  await flushInspectionSyncQueue(userId, async (operation) => { retried.push(operation); });
+  assert.deepEqual(retried, [before]);
+  assert.equal(getPendingInspectionSyncCount(userId), 0);
+});

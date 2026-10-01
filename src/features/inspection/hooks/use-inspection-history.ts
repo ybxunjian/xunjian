@@ -1,4 +1,4 @@
-import { useState, type Dispatch, type SetStateAction } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { toast } from "sonner";
 import type {
   DeleteRequest,
@@ -10,7 +10,9 @@ import { validateInspection } from "../model/validation";
 import {
   deleteCloudInspectionRecords,
   pushInspectionRecord,
+  restoreCloudInspectionRecords,
 } from "../sync/inspection-cloud-sync";
+import { mergeInspectionRecords } from "../storage/inspection-backup";
 
 type UseInspectionHistoryOptions = {
   userId?: string;
@@ -31,6 +33,25 @@ export function useInspectionHistory({
   runCloudChange,
   showHistory,
 }: UseInspectionHistoryOptions) {
+  const recordsRef = useRef(records);
+  const activeRef = useRef(true);
+  const deleteToastIds = useRef(new Set<string | number>());
+  useLayoutEffect(() => { recordsRef.current = records; }, [records]);
+  useEffect(() => {
+    activeRef.current = true;
+    const ids = deleteToastIds.current;
+    return () => {
+      activeRef.current = false;
+      ids.forEach((id) => toast.dismiss(id));
+      ids.clear();
+    };
+  }, []);
+
+  const commitRecords = (next: InspectionRecord[]) => {
+    persistRecords(next);
+    recordsRef.current = next;
+    setRecords(next);
+  };
   const [selectedRecord, setSelectedRecord] =
     useState<InspectionRecord | null>(null);
   const [historyDirection, setHistoryDirection] = useState<1 | -1>(1);
@@ -79,9 +100,9 @@ export function useInspectionHistory({
   const confirmDeleteRecords = () => {
     if (!deleteRequest) return;
     const deleting = new Set(deleteRequest.ids);
-    const next = records.filter((record) => !deleting.has(record.id));
-    persistRecords(next);
-    setRecords(next);
+    const deletedRecords = recordsRef.current.filter((record) => deleting.has(record.id));
+    const next = recordsRef.current.filter((record) => !deleting.has(record.id));
+    commitRecords(next);
     if (selectedRecord && deleting.has(selectedRecord.id)) {
       setHistoryDirection(-1);
       setSelectedRecord(null);
@@ -94,11 +115,34 @@ export function useInspectionHistory({
         deleteCloudInspectionRecords(userId, deleteRequest.ids),
       );
     }
-    toast.success(
+    let restored = false;
+    const toastId = toast.success(
       deleteRequest.ids.length > 1
         ? `已删除 ${deleteRequest.ids.length} 条记录`
         : "已删除历史记录",
+      {
+        action: {
+          label: "撤销",
+          onClick: () => {
+            if (restored || !activeRef.current) return;
+            try {
+              commitRecords(mergeInspectionRecords(recordsRef.current, deletedRecords));
+              restored = true;
+              deleteToastIds.current.delete(toastId);
+              if (userId) {
+                void runCloudChange(restoreCloudInspectionRecords(userId, deletedRecords));
+              }
+              toast.success("已撤销删除");
+            } catch {
+              toast.error("撤销失败，请稍后重试");
+            }
+          },
+        },
+        onDismiss: () => deleteToastIds.current.delete(toastId),
+        onAutoClose: () => deleteToastIds.current.delete(toastId),
+      },
     );
+    deleteToastIds.current.add(toastId);
   };
 
   const commitSave = () => {
@@ -110,9 +154,8 @@ export function useInspectionHistory({
       createdAt: now.toISOString(),
       values,
     };
-    const next = [record, ...records];
-    persistRecords(next);
-    setRecords(next);
+    const next = [record, ...recordsRef.current];
+    commitRecords(next);
     resetAfterRecordsChanged();
     setSaveValidation(null);
     showHistory();

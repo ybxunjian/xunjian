@@ -77,8 +77,8 @@ function PasswordExpansion(props: PasswordControlsProps) {
         ease: isPresent ? PASSWORD_EASING : PASSWORD_COLLAPSE_EASING }}
       className="overflow-hidden">
       <motion.div ref={contentRef}
-        initial={{ opacity: 0, y: reduceMotion ? 0 : 4 }} animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 0 }}
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
         transition={{ duration: reduceMotion ? 0 : 0.22,
           delay: reduceMotion || !isPresent ? 0 : 0.09, ease: "easeInOut" }}>
         <AccountPasswordForm onChangePassword={props.onChangePassword}
