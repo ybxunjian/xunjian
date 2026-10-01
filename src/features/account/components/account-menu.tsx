@@ -1,11 +1,9 @@
-import { ActionTile } from "@/components/ui/action-tile";
 import { DialogHeading } from "@/components/ui/dialog-heading";
 import { useId, useRef } from "react";
 import { ConfirmationPopover } from "@/components/ui/confirmation-popover";
 import {
   Camera,
   CheckCircle2,
-  KeyRound,
   Trash2,
   X,
 } from "lucide-react";
@@ -14,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import type { AccountDialogProps } from "./account-dialog-types";
 import { AvatarVisual } from "./avatar-visual";
 import { NavigationOrderEditor } from "./navigation-order-editor";
+import { motion, useIsPresent, useReducedMotion } from "framer-motion";
+import { AccountPasswordControls } from "./account-password-controls";
 import { AccountSignOutControls } from "./account-sign-out-controls";
 
 type AccountMenuProps = Pick<
@@ -27,7 +27,13 @@ type AccountMenuProps = Pick<
   | "onNavigationOrderChange"
   | "onClose"
 > & {
-  onOpenPassword: () => void;
+  passwordOpen: boolean;
+  passwordBusy: boolean;
+  onChangePassword: AccountDialogProps["onChangePassword"];
+  onPasswordBusyChange: (busy: boolean) => void;
+  onPasswordCollapsed: () => void;
+  onClosePassword: () => void;
+  onOpenPassword: (top: number) => void;
   onRequestAvatarRemoval: () => void;
   avatarRemovalOpen: boolean;
   confirmingAvatarRemoval: boolean;
@@ -49,7 +55,7 @@ export function AccountMenu({
   onAvatarChange,
   onNavigationOrderChange,
   onClose,
-  onOpenPassword,
+  onOpenPassword, passwordOpen, passwordBusy, onChangePassword, onPasswordBusyChange, onPasswordCollapsed, onClosePassword,
   onRequestAvatarRemoval,
   avatarRemovalOpen,
   confirmingAvatarRemoval,
@@ -62,6 +68,9 @@ export function AccountMenu({
   onConfirmSignOut,
 }: AccountMenuProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const passwordSectionRef = useRef<HTMLElement>(null);
+  const isPresent = useIsPresent();
+  const reduceMotion = useReducedMotion();
   const removalId = useId();
 
   const chooseAvatar = async (file: File) => {
@@ -81,6 +90,7 @@ export function AccountMenu({
           variant="ghost"
           size="icon"
           onClick={onClose}
+          disabled={passwordBusy || !isPresent}
           aria-label="关闭账号面板"
           className="pointer-events-auto"
         >
@@ -92,7 +102,7 @@ export function AccountMenu({
       <section className="rounded-card bg-muted p-4 text-center">
         <button
           type="button"
-          disabled={avatarBusy}
+          disabled={avatarBusy || passwordBusy || !isPresent}
           onClick={() => inputRef.current?.click()}
           className="relative mx-auto block size-20 rounded-full bg-primary text-xl font-black text-primary-foreground shadow-primary disabled:opacity-60"
           aria-label={avatarUrl ? "更换头像" : "设置头像"}
@@ -134,7 +144,7 @@ export function AccountMenu({
           <Button
             type="button"
             variant="ghost"
-            disabled={avatarBusy}
+            disabled={avatarBusy || passwordBusy || !isPresent}
             onClick={avatarRemovalOpen ? onCancelAvatarRemoval : onRequestAvatarRemoval}
             aria-haspopup="dialog"
             aria-expanded={avatarRemovalOpen}
@@ -148,20 +158,34 @@ export function AccountMenu({
         )}
       </section>
 
-      <section className="mt-4">
+      <section ref={passwordSectionRef} className="mt-4">
         <p className="mb-2 px-1 text-caption font-bold text-muted-foreground">
           账号安全
         </p>
-        <ActionTile icon={<KeyRound className="size-4" />} title="修改密码" onClick={onOpenPassword} />
+        <AccountPasswordControls open={passwordOpen} busy={passwordBusy}
+          disabled={signingOut || confirmingAvatarRemoval || avatarBusy || !isPresent}
+          onOpen={() => {
+            const panel = passwordSectionRef.current?.closest('[role="dialog"]');
+            onOpenPassword(Math.max(16, panel?.getBoundingClientRect().top ?? 16));
+          }}
+          onClose={onClosePassword} onCollapsed={onPasswordCollapsed}
+          onBusyChange={onPasswordBusyChange} onChangePassword={onChangePassword} />
       </section>
 
-      <NavigationOrderEditor
-        navigationOrder={navigationOrder}
-        onNavigationOrderChange={onNavigationOrderChange}
-      />
+      <motion.div initial={false} inert={passwordOpen || !isPresent} aria-hidden={passwordOpen || !isPresent}
+        animate={{ height: passwordOpen ? 0 : "auto", opacity: passwordOpen ? 0 : 1 }}
+        transition={{
+          height: { duration: reduceMotion ? 0 : passwordOpen ? 0.28 : 0.22, ease: [0.25, 0.1, 0.25, 1] },
+          opacity: { duration: reduceMotion ? 0 : 0.12, delay: reduceMotion || passwordOpen ? 0 : 0.1 },
+        }} className="overflow-hidden">
+        <NavigationOrderEditor
+          navigationOrder={navigationOrder}
+          onNavigationOrderChange={onNavigationOrderChange}
+        />
 
-      <AccountSignOutControls open={signOutOpen} busy={signingOut}
-        onRequest={onRequestSignOut} onCancel={onCancelSignOut} onConfirm={onConfirmSignOut} />
+        <AccountSignOutControls open={signOutOpen} busy={signingOut}
+          onRequest={onRequestSignOut} onCancel={onCancelSignOut} onConfirm={onConfirmSignOut} />
+      </motion.div>
     </>
   );
 }

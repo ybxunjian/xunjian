@@ -14,9 +14,9 @@
 
 | 类型 | 公共实现 | 当前使用位置 |
 | --- | --- | --- |
-| 底部弹窗 | `src/components/ui/sheet.tsx` | 账号、修改密码、删除、保存校验 |
+| 底部弹窗 | `src/components/ui/sheet.tsx` | 账号、删除、保存校验 |
 | 标题与说明 | `src/components/ui/dialog-heading.tsx` | 账号、备份页面、删除、保存校验 |
-| 凭据标题 | `src/features/auth/components/credential-heading.tsx` | 登录/注册/重置入口、修改密码 |
+| 凭据标题 | `src/features/auth/components/credential-heading.tsx` | 登录/注册/重置入口 |
 | 内容区标题 | `src/features/inspection/components/section-heading.tsx` | 8#、9#、皮带、历史、巡检汇总 |
 | 凭据表单 | `src/features/auth/components/credential-form.tsx` | 登录/注册/重置表单、修改密码 |
 | 带图标输入框 | `src/components/ui/text-field.tsx` | 邮箱、所有密码输入框 |
@@ -62,6 +62,14 @@
 - 展开与合回期间不禁用交互，按当前逻辑状态立即响应操作，可在动画中途取消、重新展开或确认；打开后聚焦取消，合回时聚焦退出入口。Escape 优先取消确认，外部轻点抬起时取消；外部滑动、滚动或被取消的触摸手势保持展开，不在按下时收回。系统减少动态效果时立即切换。
 - 退出请求期间两侧禁用，右侧显示“正在退出…”；请求由 `AccountDialog` 处理并防止重复提交，失败保留确认状态以便重试。
 - 头像确认气泡展开时点击退出入口，气泡按原有动画收回，退出按钮同时分列。头像气泡的动画参数不变。
+
+## 修改密码原位展开
+
+- `AccountPasswordControls` 在账号安全区复用原 `ActionTile` 入口，标题与钥匙图标留在原位；不再打开嵌套 Sheet。`AccountPasswordForm` 保留原密码校验、当前密码验证、错误映射与其他设备会话撤销流程。
+- 卡片内容高度展开 280ms，无回弹；表单在 60ms 后由下方 6px 淡入，持续 180ms。取消时内容 100ms 淡出，高度延迟 40ms 后用 220ms 收回；重新展开从当前位置接续。减少动态效果时立即切换。
+- 导航排序与退出区域在展开时 120ms 淡出并收起，立即进入 inert；收回时恢复。展开前记录账号面板顶部位置，表单期间保持该位置，超出屏幕在面板内部滚动；收回结束恢复普通底部对齐。只在用户点击输入框后打开键盘。
+- 三个密码框复用 `PasswordField`；`CredentialForm` 的可选取消操作提供灰色取消与蓝色保存两个胶囊。字段保留独立错误与抖动，整体请求错误出现时平滑调整展开高度。
+- 请求期间禁用表单、取消、账号关闭和头像操作；同步 ref 防止重复提交。成功收回并提示，失败保留输入供重试。Escape 优先收回密码表单并保留账号面板。取消或成功时取消输入焦点，退出后的表单不参与点击或键盘焦点。
 
 ## 巡检日历滑动切月
 

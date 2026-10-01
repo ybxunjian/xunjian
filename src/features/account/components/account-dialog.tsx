@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { AnimatePresence } from "framer-motion";
 import { Sheet } from "@/components/ui/sheet";
 import { toast } from "sonner";
 import type {
@@ -9,7 +8,6 @@ import type {
   ConfirmationAction,
 } from "./account-dialog-types";
 import { AccountMenu } from "./account-menu";
-import { AccountPasswordSheet } from "./account-password-sheet";
 
 export function AccountDialog(props: AccountDialogProps) {
   const [confirmation, setConfirmation] =
@@ -17,6 +15,9 @@ export function AccountDialog(props: AccountDialogProps) {
   const [confirming, setConfirming] = useState(false);
   const confirmingRef = useRef(false);
   const [passwordOpen, setPasswordOpen] = useState(false);
+  const [passwordBusy, setPasswordBusy] = useState(false);
+  const passwordBusyRef = useRef(false);
+  const [passwordTop, setPasswordTop] = useState<number>();
 
   const confirmAction = async () => {
     if (!confirmation || confirmingRef.current) return;
@@ -43,18 +44,8 @@ export function AccountDialog(props: AccountDialogProps) {
   };
 
   return (
-    <Sheet labelledBy="account-dialog-title" onClose={props.onClose} layoutScroll busy={confirming}
-      overlays={<>
-        <AnimatePresence>
-          {passwordOpen && (
-            <AccountPasswordSheet
-              onChangePassword={props.onChangePassword}
-              onClose={() => setPasswordOpen(false)}
-            />
-          )}
-        </AnimatePresence>
-      </>}
-    >
+    <Sheet labelledBy="account-dialog-title" onClose={props.onClose} layoutScroll
+      busy={confirming || passwordBusy} topOffset={passwordTop}>
       <AccountMenu
         email={props.email}
         emailVerified={props.emailVerified}
@@ -63,8 +54,24 @@ export function AccountDialog(props: AccountDialogProps) {
         navigationOrder={props.navigationOrder}
         onAvatarChange={props.onAvatarChange}
         onNavigationOrderChange={props.onNavigationOrderChange}
-        onClose={() => { if (!confirmingRef.current) props.onClose(); }}
-        onOpenPassword={() => { if (!confirmingRef.current) setPasswordOpen(true); }}
+        onClose={() => { if (!confirmingRef.current && !passwordBusyRef.current) props.onClose(); }}
+        passwordOpen={passwordOpen}
+        passwordBusy={passwordBusy}
+        onChangePassword={props.onChangePassword}
+        onPasswordBusyChange={(busy) => { passwordBusyRef.current = busy; setPasswordBusy(busy); }}
+        onPasswordCollapsed={() => setPasswordTop(undefined)}
+        onClosePassword={() => {
+          if (passwordBusyRef.current) return;
+          const active = document.activeElement;
+          if (active instanceof HTMLInputElement && active.id.startsWith("account-")) active.blur();
+          setPasswordOpen(false);
+        }}
+        onOpenPassword={(top) => {
+          if (confirmingRef.current || passwordBusyRef.current) return;
+          setConfirmation(null);
+          setPasswordTop(top);
+          setPasswordOpen(true);
+        }}
         onRequestAvatarRemoval={() => { if (!confirmingRef.current) setConfirmation("remove-avatar"); }}
         avatarRemovalOpen={confirmation === "remove-avatar"}
         confirmingAvatarRemoval={confirming && confirmation === "remove-avatar"}

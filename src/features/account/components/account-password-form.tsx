@@ -1,13 +1,9 @@
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { useIsPresent } from "framer-motion";
-import { Sheet } from "@/components/ui/sheet";
-import { X } from "lucide-react";
 import { toast } from "sonner";
 import { useFieldFeedback } from "@/hooks/use-field-feedback";
-import { Button } from "@/components/ui/button";
 import {
   CredentialForm,
-  CredentialHeading,
   PasswordField,
   validatePassword,
   validatePasswordConfirmation,
@@ -21,10 +17,13 @@ type ChangePasswordError = {
   message: string;
 };
 
-export function AccountPasswordSheet({
-  onChangePassword,
-  onClose,
-}: Pick<AccountDialogProps, "onChangePassword"> & { onClose: () => void }) {
+export function AccountPasswordForm({
+  onChangePassword, onClose, onBusyChange, disabled = false,
+}: Pick<AccountDialogProps, "onChangePassword"> & {
+  onClose: () => void;
+  onBusyChange: (busy: boolean) => void;
+  disabled?: boolean;
+}) {
   const isPresent = useIsPresent();
   const [currentPassword, setCurrentPassword] = useState("");
   const [password, setPassword] = useState("");
@@ -33,6 +32,15 @@ export function AccountPasswordSheet({
     useFieldFeedback<PasswordFieldName>();
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
+  const formRef = useRef<HTMLDivElement>(null);
+
+  const close = () => {
+    if (submittingRef.current) return;
+    const active = document.activeElement;
+    if (active instanceof HTMLElement && formRef.current?.contains(active)) active.blur();
+    onClose();
+  };
 
   const clearFieldError = (field: PasswordFieldName) => {
     clear(field);
@@ -41,6 +49,7 @@ export function AccountPasswordSheet({
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
+    if (submittingRef.current || disabled || !isPresent) return;
     setFormError(null);
 
     const nextErrors: PasswordFieldErrors = {
@@ -55,11 +64,15 @@ export function AccountPasswordSheet({
 
     if (report(nextErrors)) return;
 
+    submittingRef.current = true;
     setSubmitting(true);
+    onBusyChange(true);
     try {
       await onChangePassword(currentPassword, password);
       toast.success("密码已修改，其他设备已退出");
-      onClose();
+      submittingRef.current = false;
+      onBusyChange(false);
+      close();
     } catch (caught) {
       const nextError = getChangePasswordError(caught);
       if (nextError.field) {
@@ -69,30 +82,21 @@ export function AccountPasswordSheet({
         setFormError(nextError.message);
       }
     } finally {
+      submittingRef.current = false;
       setSubmitting(false);
+      onBusyChange(false);
     }
   };
 
   return (
-    <Sheet labelledBy="password-dialog-title" onClose={onClose} nested busy={submitting} size="credential">
-      <div className="relative pb-5 text-center">
-        <CredentialHeading id="password-dialog-title" level="h3" title="修改密码" description="设置一个至少 8 位的新密码。" />
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          disabled={submitting || !isPresent}
-          onClick={onClose}
-          aria-label="关闭修改密码"
-          className="absolute -right-2 -top-2"
-        >
-          <X />
-        </Button>
-      </div>
+    <div ref={formRef} className="px-4 pb-4">
+      <p id="account-password-help" className="mb-3 text-caption text-muted-foreground">设置一个至少 8 位的新密码。</p>
       <CredentialForm
-        disabled={submitting || !isPresent}
+        disabled={disabled || submitting || !isPresent}
         error={formError ?? undefined}
-        submitLabel="保存新密码"
+        submitLabel="保存密码"
+        submittingLabel="正在保存…"
+        onCancel={close}
         submitting={submitting}
         onSubmit={submit}
       >
@@ -100,9 +104,10 @@ export function AccountPasswordSheet({
           id="account-current-password"
           label="当前密码"
           autoComplete="current-password"
+          aria-describedby="account-password-help"
           required
           value={currentPassword}
-          disabled={submitting || !isPresent}
+          disabled={disabled || submitting || !isPresent}
           error={fieldErrors.currentPassword}
           shakeKey={shakeKeys.currentPassword}
           onChange={(event) => {
@@ -115,10 +120,11 @@ export function AccountPasswordSheet({
           id="account-new-password"
           label="新密码"
           autoComplete="new-password"
+          aria-describedby="account-password-help"
           required
           minLength={8}
           value={password}
-          disabled={submitting || !isPresent}
+          disabled={disabled || submitting || !isPresent}
           error={fieldErrors.password}
           shakeKey={shakeKeys.password}
           onChange={(event) => {
@@ -131,10 +137,11 @@ export function AccountPasswordSheet({
           id="account-confirm-password"
           label="确认新密码"
           autoComplete="new-password"
+          aria-describedby="account-password-help"
           required
           minLength={8}
           value={confirmPassword}
-          disabled={submitting || !isPresent}
+          disabled={disabled || submitting || !isPresent}
           error={fieldErrors.confirmPassword}
           shakeKey={shakeKeys.confirmPassword}
           onChange={(event) => {
@@ -144,7 +151,7 @@ export function AccountPasswordSheet({
           placeholder="再次输入新密码"
         />
       </CredentialForm>
-    </Sheet>
+    </div>
   );
 }
 

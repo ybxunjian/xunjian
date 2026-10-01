@@ -115,12 +115,13 @@ type SheetProps = {
   role?: "dialog" | "alertdialog";
   size?: "default" | "compact" | "credential";
   layoutScroll?: boolean;
+  topOffset?: number;
 };
 
 /** Shared bottom-sheet shell. Keep nested overlays outside the scrolling panel. */
 export function Sheet({
   children, overlays, labelledBy, onClose, busy = false, nested = false,
-  role = "dialog", size = "default", layoutScroll = false,
+  role = "dialog", size = "default", layoutScroll = false, topOffset,
 }: SheetProps) {
   const isPresent = useIsPresent();
   const reduceMotion = useReducedMotion();
@@ -234,7 +235,7 @@ export function Sheet({
         "fixed inset-0 flex items-end justify-center px-page pb-[max(1rem,env(safe-area-inset-bottom))]",
         nested ? "z-[60] bg-overlay/35" : "z-50 bg-overlay backdrop-blur-[2px]",
       )}
-      style={{ pointerEvents: isPresent ? "auto" : "none" }}
+      style={{ pointerEvents: isPresent ? "auto" : "none", ...(topOffset === undefined ? {} : { alignItems: "flex-start", paddingTop: topOffset }) }}
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       transition={reduceMotion ? { duration: 0 } : undefined}
       onClick={(event) => {
@@ -244,6 +245,7 @@ export function Sheet({
     >
       <motion.div
         ref={panelRef}
+        style={topOffset === undefined ? undefined : { maxHeight: `calc(100svh - ${topOffset}px - max(1rem, env(safe-area-inset-bottom)))` }}
         layoutScroll={layoutScroll}
         role={role} aria-modal={interactive ? "true" : undefined}
         aria-labelledby={labelledBy} aria-hidden={!interactive}

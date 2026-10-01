@@ -10,6 +10,7 @@ type CredentialFormProps = {
   submitting: boolean;
   submittingLabel?: string;
   onSubmit: FormEventHandler<HTMLFormElement>;
+  onCancel?: () => void;
 };
 
 export function CredentialForm({
@@ -20,18 +21,26 @@ export function CredentialForm({
   submitting,
   submittingLabel = "请稍候…",
   onSubmit,
+  onCancel,
 }: CredentialFormProps) {
+  const submitButton = (
+    <Button type="submit"
+      className={onCancel ? "w-full rounded-full" : "mt-3 min-h-13 w-full rounded-full text-base"}
+      disabled={disabled}>
+      {submitting ? submittingLabel : submitLabel}
+    </Button>
+  );
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-2">
       {children}
       <FormError>{error}</FormError>
-      <Button
-        type="submit"
-        className="mt-3 min-h-13 w-full rounded-full text-base"
-        disabled={disabled}
-      >
-        {submitting ? submittingLabel : submitLabel}
-      </Button>
+      {onCancel ? (
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <Button type="button" variant="ghost" disabled={disabled} onClick={onCancel}
+            className="w-full rounded-full bg-background hover:bg-background">取消</Button>
+          {submitButton}
+        </div>
+      ) : submitButton}
     </form>
   );
 }

@@ -5,7 +5,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { TextField } from "../src/components/ui/text-field.tsx";
 import { Sheet } from "../src/components/ui/sheet.tsx";
 import { CredentialForm } from "../src/features/auth/components/credential-form.tsx";
-import { AccountPasswordSheet } from "../src/features/account/components/account-password-sheet.tsx";
+import { AccountPasswordForm } from "../src/features/account/components/account-password-form.tsx";
+import { AccountPasswordControls } from "../src/features/account/components/account-password-controls.tsx";
 import { InspectionTabs } from "../src/features/inspection/components/inspection-tabs.tsx";
 import { BeltTabs } from "../src/features/inspection/components/belt/belt-tabs.tsx";
 import { HistoryCalendar } from "../src/features/inspection/components/history/history-calendar.tsx";
@@ -72,12 +73,14 @@ test("credential forms disable submit during pending requests and show one error
   assert.equal((html.match(/role="alert"/g) ?? []).length, 1);
 });
 
-test("password sheet keeps all three password fields inside one shared form", () => {
-  const html = renderToStaticMarkup(h(AccountPasswordSheet, { onChangePassword: async () => {}, onClose() {} }));
+test("inline password editor keeps three password fields inside one shared form", () => {
+  const html = renderToStaticMarkup(h(AccountPasswordForm, { onChangePassword: async () => {}, onClose() {}, onBusyChange() {} }));
   assert.equal((html.match(/<form/g) ?? []).length, 1);
   assert.equal((html.match(/type="password"/g) ?? []).length, 3);
   assert.equal((html.match(/type="submit"/g) ?? []).length, 1);
-  assert.match(html, /aria-labelledby="password-dialog-title"/);
+  assert.doesNotMatch(html, /role="dialog"|aria-modal/);
+  assert.match(html, /type="button"[^>]*>取消<\/button>/);
+  assert.match(html, /aria-describedby="account-password-help"/);
 });
 
 
@@ -96,4 +99,26 @@ test("calendar adjacent pages stay out of focus and stop at the earliest record 
   assert.doesNotMatch(earliest, /data-calendar-month="2026-07"/);
   assert.doesNotMatch(earliest, /aria-label="上一个月"/);
   assert.match(earliest, /aria-label="下一个月"/);
+});
+
+
+test("inline password form disables cancellation and all inputs when unavailable", () => {
+  const html = renderToStaticMarkup(h(AccountPasswordForm, {
+    onChangePassword: async () => {}, onClose() {}, onBusyChange() {}, disabled: true,
+  }));
+  assert.equal((html.match(/<input[^>]*disabled/g) ?? []).length, 3);
+  assert.match(html, /type="button"[^>]*disabled[^>]*>取消<\/button>/);
+  assert.match(html, /type="submit"[^>]*disabled/);
+});
+
+test("password disclosure uses its original action tile without opening another dialog", () => {
+  const props = { busy: false, disabled: false, onOpen() {}, onClose() {}, onCollapsed() {}, onBusyChange() {}, onChangePassword: async () => {} };
+  const collapsed = renderToStaticMarkup(h(AccountPasswordControls, { ...props, open: false }));
+  assert.match(collapsed, /aria-expanded="false"/);
+  assert.doesNotMatch(collapsed, /<form/);
+  const expanded = renderToStaticMarkup(h(AccountPasswordControls, { ...props, open: true }));
+  assert.match(expanded, /aria-expanded="true" aria-controls="account-password-form"/);
+  assert.match(expanded, /id="account-password-form" role="region"/);
+  assert.equal((expanded.match(/<form/g) ?? []).length, 1);
+  assert.doesNotMatch(expanded, /role="dialog"|aria-modal/);
 });

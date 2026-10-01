@@ -50,7 +50,7 @@ components → hooks → model
 - `HistoryQuickMenu` 保留自己的展开和 SVG 线条动画；外部退出入口通过 `data-history-menu-transition="exit"` 由最终页面状态驱动。具体触发约定见 `docs/history-menu-animation.md`。
 - 公共 `ConfirmationPopover` 负责锚定气泡结构、焦点、退出卸载和每个实例独立的原生 WAAPI 动画；账号的头像移除请求继续由 `AccountDialog` 处理。WAAPI 是浏览器能力，不引入第二个动画依赖。
 - `account/components/account-sign-out-controls.tsx` 负责原位分列、胶囊拼接、阴影、焦点和外部轻点取消；退出请求与防重复提交仍由 `AccountDialog` 处理，不另开退出确认 Sheet。
-- 公共 `Sheet` 管理弹层栈、滚动锁定、嵌套层焦点、`inert` 和减少动态效果。修改密码继续使用 `AccountPasswordSheet`；本对话讨论的替代界面尚未实施。
+- 公共 `Sheet` 管理弹层栈、滚动锁定、嵌套层焦点、`inert` 和减少动态效果。修改密码使用账号内 `AccountPasswordControls` 原位展开与 `AccountPasswordForm`，不再打开嵌套 Sheet；外层 Sheet 可在展开期间锚定原顶部位置。
 
 动画参数和回归要求以 `docs/ui-components.md` 为准；本对话的最终实施范围见 `docs/conversation-change-audit.md`。
 
