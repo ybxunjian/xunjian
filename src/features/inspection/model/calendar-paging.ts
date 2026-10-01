@@ -1,4 +1,4 @@
-export const CALENDAR_FLING_SPEED = 0.65; // pages per second
+const CALENDAR_FLING_SPEED = 0.65; // pages per second
 export const CALENDAR_SPRING_STIFFNESS = 420;
 export const CALENDAR_SPRING_DAMPING = 2 * Math.sqrt(CALENDAR_SPRING_STIFFNESS);
 

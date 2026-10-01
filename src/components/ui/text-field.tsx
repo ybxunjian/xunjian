@@ -1,7 +1,7 @@
 import type { InputHTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-export type TextFieldProps = InputHTMLAttributes<HTMLInputElement> & {
+type TextFieldProps = InputHTMLAttributes<HTMLInputElement> & {
   id: string;
   label: string;
   icon: ReactNode;

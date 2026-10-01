@@ -6,4 +6,3 @@ export {
   validatePassword,
   validatePasswordConfirmation,
 } from "./model/auth-validation";
-export { CredentialHeading } from "./components/credential-heading";

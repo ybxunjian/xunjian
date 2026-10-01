@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { motion, useIsPresent, useReducedMotion } from "framer-motion";
-import { cn } from "@/lib/utils";
 
 const FOCUSABLE_SELECTOR = [
   "a[href]",
@@ -107,21 +106,16 @@ function unlockBodyScroll() {
 
 type SheetProps = {
   children: ReactNode;
-  overlays?: ReactNode;
   labelledBy: string;
   onClose: () => void;
   busy?: boolean;
-  nested?: boolean;
-  role?: "dialog" | "alertdialog";
-  size?: "default" | "compact" | "credential";
   layoutScroll?: boolean;
   topOffset?: number;
 };
 
-/** Shared bottom-sheet shell. Keep nested overlays outside the scrolling panel. */
+/** Shared shell for account, deletion and save-validation dialogs. */
 export function Sheet({
-  children, overlays, labelledBy, onClose, busy = false, nested = false,
-  role = "dialog", size = "default", layoutScroll = false, topOffset,
+  children, labelledBy, onClose, busy = false, layoutScroll = false, topOffset,
 }: SheetProps) {
   const isPresent = useIsPresent();
   const reduceMotion = useReducedMotion();
@@ -131,7 +125,6 @@ export function Sheet({
   const busyRef = useRef(busy);
   const presentRef = useRef(isPresent);
   const [isTopMost, setIsTopMost] = useState(true);
-  const offset = nested ? 20 : 40;
 
   useEffect(() => {
     closeRef.current = onClose;
@@ -231,10 +224,7 @@ export function Sheet({
   const interactive = isPresent && isTopMost;
   return (
     <motion.div
-      className={cn(
-        "fixed inset-0 flex items-end justify-center px-page pb-[max(1rem,env(safe-area-inset-bottom))]",
-        nested ? "z-[60] bg-overlay/35" : "z-50 bg-overlay backdrop-blur-[2px]",
-      )}
+      className="fixed inset-0 z-50 flex items-end justify-center bg-overlay px-page pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-[2px]"
       style={{ pointerEvents: isPresent ? "auto" : "none", ...(topOffset === undefined ? {} : { alignItems: "flex-start", paddingTop: topOffset }) }}
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       transition={reduceMotion ? { duration: 0 } : undefined}
@@ -247,22 +237,18 @@ export function Sheet({
         ref={panelRef}
         style={topOffset === undefined ? undefined : { maxHeight: `calc(100svh - ${topOffset}px - max(1rem, env(safe-area-inset-bottom)))`, overflowAnchor: "none" }}
         layoutScroll={layoutScroll}
-        role={role} aria-modal={interactive ? "true" : undefined}
+        role="dialog" aria-modal={interactive ? "true" : undefined}
         aria-labelledby={labelledBy} aria-hidden={!interactive}
         inert={!interactive} tabIndex={-1}
-        className={cn(
-          "max-h-[calc(100svh-2rem)] w-full overflow-y-auto overscroll-contain rounded-sheet border border-border/80 bg-card p-4 text-card-foreground shadow-floating",
-          size === "compact" ? "max-w-sm" : size === "credential" ? "max-w-[var(--auth-content-max-width)]" : "max-w-md",
-        )}
-        initial={{ y: reduceMotion ? 0 : offset, opacity: nested ? 0.8 : 0, scale: nested && !reduceMotion ? 0.98 : 1 }}
-        animate={{ y: 0, opacity: 1, scale: 1 }}
-        exit={{ y: reduceMotion ? 0 : offset, opacity: 0, scale: nested && !reduceMotion ? 0.98 : 1 }}
-        transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: nested ? 460 : 420, damping: 34 }}
+        className="max-h-[calc(100svh-2rem)] w-full max-w-md overflow-y-auto overscroll-contain rounded-sheet border border-border/80 bg-card p-4 text-card-foreground shadow-floating"
+        initial={{ y: reduceMotion ? 0 : 40, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: reduceMotion ? 0 : 40, opacity: 0 }}
+        transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 34 }}
         onClick={(event) => event.stopPropagation()}
       >
         {children}
       </motion.div>
-      {overlays}
     </motion.div>
   );
 }

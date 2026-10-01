@@ -7,7 +7,7 @@
 ```text
 src/
 ├─ app/                         # Next.js 路由、布局和全局设计令牌
-├─ assets/                      # 页面内静态品牌资源
+├─ assets/                      # 独立品牌导出，运行时不加载
 ├─ components/ui/               # 可跨业务复用的基础 UI 组件
 ├─ features/inspection/
 │  ├─ components/               # 巡检界面，按泵区、皮带、历史和弹窗拆分
@@ -42,7 +42,7 @@ components → hooks → model
 - `components/ui` 不得依赖 `features`，避免基础组件与业务反向耦合。
 - `features/inspection/index.ts` 是业务模块对外公开入口；模块内部直接引用具体文件。
 - 历史记录的日期解析与日历分组放在 `model/history-filter.ts`，巡检日历和管理菜单留在 `features/inspection/components/history/`；菜单复用公共 `Button`，不把业务状态放进基础组件。
-- `design/brand/night-inspection-master.svg` 是品牌图形的唯一设计母版；`src/app`、`src/assets` 和 `public/icons` 中的图标均为面向具体运行场景的生产派生资源。
+- `design/brand/night-inspection-master.svg` 是品牌图形的唯一设计母版；`src/app`、`src/assets` 和 `public/icons` 中的图标均为品牌派生资源；`src/assets` 中的独立透明导出用于品牌核对，不参与页面加载。
 
 ## 界面交互职责
 
@@ -50,7 +50,7 @@ components → hooks → model
 - `HistoryQuickMenu` 保留自己的展开和 SVG 线条动画；外部退出入口通过 `data-history-menu-transition="exit"` 由最终页面状态驱动。具体触发约定见 `docs/history-menu-animation.md`。
 - 公共 `ConfirmationPopover` 负责锚定气泡结构、焦点、退出卸载和每个实例独立的原生 WAAPI 动画；账号的头像移除请求继续由 `AccountDialog` 处理。WAAPI 是浏览器能力，不引入第二个动画依赖。
 - `account/components/account-sign-out-controls.tsx` 负责原位分列、胶囊拼接、阴影、焦点和外部轻点取消；退出请求与防重复提交仍由 `AccountDialog` 处理，不另开退出确认 Sheet。
-- 公共 `Sheet` 管理弹层栈、滚动锁定、嵌套层焦点、`inert` 和减少动态效果。修改密码使用账号内 `AccountPasswordControls` 原位展开与 `AccountPasswordForm`，不再打开嵌套 Sheet；外层 Sheet 可在展开期间锚定原顶部位置。
+- 公共 `Sheet` 管理弹层栈、滚动锁定、顶层焦点、`inert` 和减少动态效果。修改密码使用账号内 `AccountPasswordControls` 原位展开与 `AccountPasswordForm`，不再打开嵌套 Sheet；外层 Sheet 可在展开期间锚定原顶部位置。
 
 动画参数和回归要求以 `docs/ui-components.md` 为准；本对话的最终实施范围见 `docs/conversation-change-audit.md`。
 

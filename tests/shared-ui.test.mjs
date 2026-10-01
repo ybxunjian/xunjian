@@ -53,15 +53,15 @@ test("primary navigation and belt tabs remain separate component groups", () => 
   assert.equal((filter.match(/aria-pressed="false"/g) ?? []).length, 2);
 });
 
-test("nested sheets keep confirmation outside the parent scrolling dialog", () => {
+test("sheets preserve dialog semantics and heading associations", () => {
   const html = renderToStaticMarkup(h(Sheet, {
     labelledBy: "parent", onClose() {}, children: h("h3", { id: "parent" }, "账号"),
-    overlays: h(Sheet, { labelledBy: "child", onClose() {}, nested: true, role: "alertdialog", children: h("h3", { id: "child" }, "确认") }),
   }));
-  assert.equal((html.match(/aria-modal="true"/g) ?? []).length, 2);
-  assert.equal((html.match(/tabindex="-1"/g) ?? []).length, 2);
-  assert.match(html, /<\/h3><\/div><div[^>]*z-\[60\]/);
-  assert.match(html, /role="alertdialog"/);
+  assert.equal((html.match(/aria-modal="true"/g) ?? []).length, 1);
+  assert.equal((html.match(/tabindex="-1"/g) ?? []).length, 1);
+  assert.match(html, /role="dialog"/);
+  assert.match(html, /aria-labelledby="parent"/);
+  assert.match(html, /<h3 id="parent">账号<\/h3>/);
 });
 
 test("credential forms disable submit during pending requests and show one error alert", () => {

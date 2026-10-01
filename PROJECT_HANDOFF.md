@@ -17,7 +17,7 @@
 - 品牌规范：`design/brand/README.md`；唯一品牌图形母版为 `design/brand/night-inspection-master.svg`。
 - 架构规范：`ARCHITECTURE.md`。
 - 公共交互规范：`docs/ui-components.md`；历史菜单的触发顺序单独见 `docs/history-menu-animation.md`；本对话修改核对见 `docs/conversation-change-audit.md`。
-- 当前界面运行时基线：`370a42b`（可接管的日历分页与触摸处理），GitHub Pages 构建与发布已成功；后续纯文档更新不改变该运行时基线。
+- 当前界面运行时基线：`b8f0739`（原位修改密码、可打断头像气泡、恢复默认图标反馈及删除撤销），GitHub Pages 构建与发布已成功；后续纯文档更新不改变该运行时基线。
 - 当前同步功能基线：PR #1 的合并提交 `cbb008c`（`提高离线与多设备同步可靠性`），GitHub Pages 构建与部署均已成功；后续纯文档提交不改变该运行时基线。
 
 当前代码已经完成模块化重构：
@@ -219,7 +219,7 @@ tests/inspection-sync-queue.test.mjs     # 队列迁移、确认和并发追加�
 | 巡检日历归位 | 可随时接管；刚度 420、阻尼 `2 * sqrt(420)`，限制初速度防过冲，时长随剩余距离和速度变化 |
 | 原生 Select 焦点 | 180ms |
 | 公共 Sheet 遮罩 | Framer Motion 默认 tween；减少动态效果时 0ms |
-| 公共 Sheet 面板 | 外层刚度 420、嵌套层 460，阻尼 34；减少动态效果时 0ms |
+| 公共 Sheet 面板 | 刚度 420、阻尼 34；减少动态效果时 0ms；旧嵌套弹窗分支已移除 |
 
 `prefers-reduced-motion` 已压缩 CSS 动画；公共 Sheet、历史菜单、历史详情切换与底部操作栏、头像气泡、退出登录分列及日历归位均已处理减少动态效果。一级板块内容切换仍为固定 180ms，尚未完整接入；后续修改须单独验证，不能因修复菜单触发顺序而改变其他动画。
 
@@ -248,7 +248,7 @@ type InspectionRecord = {
 - 云端表使用 RLS 按 `auth.uid() = user_id` 隔离；记录采用软删除，草稿按更新时间解决冲突。
 - 草稿规则位于 `model/draft-reconciliation.ts`：较新版本胜出、相同版本采用云端副本、无版本旧草稿不能覆盖已有云端草稿。编辑时间戳必须严格递增；RPC `upsert_inspection_draft_if_newer` 是服务端的最终并发保护，返回 `false` 后客户端必须重新获取云端版本。
 - 历史操作队列键为 `night-inspection-sync-queue:{user_id}`，由 `sync/inspection-sync-queue.ts` 独占管理。每项操作有稳定 `operationId`，成功后只能移除当前完成项；执行期间加入的新操作必须保留。旧版无 ID 队列在读取时自动补齐 ID。
-- 普通记录写入和合并导入使用 insert-only 语义；`deleted_at` 墓碑优先，不能被普通同步复活。覆盖恢复是唯一允许恢复墓碑的入口，并优先调用 `replace_inspection_records` 事务 RPC。
+- 普通记录写入和合并导入使用 insert-only 语义；`deleted_at` 墓碑优先，不能被普通同步复活。删除提示支持撤销本次删除，恢复操作按队列顺序清除对应墓碑。覆盖恢复则优先调用 `replace_inspection_records` 事务 RPC。
 - 历史同步失败按 1、3、10、30 秒退避重试；在线恢复、页面回到前台和 Realtime 变更都会触发补查。同步请求期间若本地记录修订号改变，必须丢弃返回的旧列表并再次同步。
 - 跨设备会话撤销复用 `user_preferences`：`sessions_revoked_at` 记录撤销时间，`sessions_revoked_by` 记录发起会话 ID；当前会话据此保持登录，其他会话退出。
 - 仓库迁移文件为 `supabase/migrations/20260830040000_session_revocation_realtime.sql`；生产 Supabase 已执行并登记为 `20260830110531_session_revocation_realtime`。该迁移只新增两个可空字段并把 `user_preferences` 加入 `supabase_realtime` publication，不改动现有用户、巡检、头像或导航数据。
@@ -318,7 +318,9 @@ $env:PAGES_BASE_PATH='/xunjian'
 npm run build
 ```
 
-截至 2026-10-01，界面基线 `370a42b` 已通过 GitHub Pages 的质量门禁与部署；当前测试集 61 项全部通过，包含头像恢复、草稿版本、字段规则、保存校验、备份兼容、存储兼容、历史同步队列、云映射、导航偏好、离线身份、Service Worker、公共 UI 和日历分页规则。日历的 Chromium / WebKit 连续翻页、归位接管、反向、日期点击、边界、键盘、竖向滚动及减少动态效果检查已通过；浏览器自动化不替代 iPhone / Android 真机手感验收。
+最近已部署基线 `b8f0739` 的 65 项测试、生产构建及 GitHub Pages 部署已通过。后续清理的依据与结果见 `GOVERNANCE.md`。
+
+此前界面基线 `370a42b` 已通过 GitHub Pages 的质量门禁与部署；该基线测试集 61 项全部通过，包含头像恢复、草稿版本、字段规则、保存校验、备份兼容、存储兼容、历史同步队列、云映射、导航偏好、离线身份、Service Worker、公共 UI 和日历分页规则。日历的 Chromium / WebKit 连续翻页、归位接管、反向、日期点击、边界、键盘、竖向滚动及减少动态效果检查已通过；浏览器自动化不替代 iPhone / Android 真机手感验收。
 
 涉及交互时至少手工检查：
 
