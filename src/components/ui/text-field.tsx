@@ -26,7 +26,7 @@ export function TextField({
           {...props} id={id} aria-invalid={Boolean(error)}
           aria-describedby={[describedBy, errorId].filter(Boolean).join(" ") || undefined}
           className={cn(
-            "min-h-14 w-full rounded-full border bg-card pl-13 text-base shadow-card outline-none transition focus:ring-4 focus:ring-primary/15 disabled:opacity-45",
+            "min-h-13 w-full rounded-full border bg-card pl-13 text-base shadow-card outline-none transition focus:ring-4 focus:ring-primary/15 disabled:opacity-45",
             trailingAction ? "pr-13" : "pr-4",
             error ? "border-destructive focus:border-destructive" : "border-border/80 focus:border-primary",
             className,

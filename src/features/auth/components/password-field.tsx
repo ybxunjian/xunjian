@@ -3,7 +3,6 @@
 import { useState, type InputHTMLAttributes, type ReactNode } from "react";
 import { Eye, EyeOff, LockKeyhole } from "lucide-react";
 import { TextField } from "@/components/ui/text-field";
-import { cn } from "@/lib/utils";
 
 type PasswordFieldProps = Omit<
   InputHTMLAttributes<HTMLInputElement>,
@@ -29,7 +28,7 @@ export function PasswordField({
   return (
     <TextField
       {...props} id={id} label={label} error={error} shakeKey={shakeKey}
-      belowAction={belowAction} className={cn("min-h-13", className)}
+      belowAction={belowAction} className={className}
       type={visible ? "text" : "password"}
       icon={<LockKeyhole className="size-5" />}
       trailingAction={
