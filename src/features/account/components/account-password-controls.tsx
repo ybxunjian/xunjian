@@ -6,7 +6,7 @@ import { KeyRound } from "lucide-react";
 import { ActionTile } from "@/components/ui/action-tile";
 import type { AccountDialogProps } from "./account-dialog-types";
 import { AccountPasswordForm } from "./account-password-form";
-import { PASSWORD_EXPAND_DURATION, PASSWORD_COLLAPSE_DURATION, PASSWORD_EASING } from "./account-password-motion";
+import { PASSWORD_EXPAND_DURATION, PASSWORD_COLLAPSE_DURATION, PASSWORD_EASING, PASSWORD_COLLAPSE_EASING } from "./account-password-motion";
 
 type PasswordControlsProps = Pick<AccountDialogProps, "onChangePassword"> & {
   open: boolean;
@@ -74,12 +74,13 @@ function PasswordExpansion(props: PasswordControlsProps) {
       inert={!isPresent} aria-hidden={!isPresent}
       initial={{ height: 0 }} animate={{ height }} exit={{ height: 0 }}
       transition={{ duration: reduceMotion ? 0 : isPresent ? PASSWORD_EXPAND_DURATION : PASSWORD_COLLAPSE_DURATION,
-        delay: reduceMotion || isPresent ? 0 : 0.04, ease: PASSWORD_EASING }}
+        delay: reduceMotion || isPresent ? 0 : 0.04,
+        ease: isPresent ? PASSWORD_EASING : PASSWORD_COLLAPSE_EASING }}
       className="overflow-hidden">
       <motion.div ref={contentRef}
         initial={{ opacity: 0, y: reduceMotion ? 0 : 4 }} animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 0 }}
-        transition={{ duration: reduceMotion ? 0 : isPresent ? 0.22 : 0.14,
+        transition={{ duration: reduceMotion ? 0 : 0.22,
           delay: reduceMotion || !isPresent ? 0 : 0.09, ease: "easeInOut" }}>
         <AccountPasswordForm onChangePassword={props.onChangePassword}
           onBusyChange={props.onBusyChange} onClose={props.onClose} disabled={props.disabled} />

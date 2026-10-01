@@ -139,7 +139,7 @@ function ConfirmationBubble({ id, busy, title, confirmLabel, busyLabel = "正在
       aria-busy={busy}
       aria-hidden={!isPresent || undefined}
       inert={!isPresent}
-      className="absolute left-1/2 top-full z-30 mt-2 w-48 rounded-confirmation-popover border border-border bg-card p-2 shadow-floating"
+      className="absolute left-1/2 top-full z-30 mt-2 w-48 rounded-confirmation-popover border border-border bg-card p-2.5 shadow-floating"
       style={{
         transformOrigin: TRANSFORM_ORIGIN,
         transform: "translateX(-50%) scale(.16)",
