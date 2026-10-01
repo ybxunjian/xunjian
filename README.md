@@ -11,7 +11,7 @@
 
 应用始终先把巡检数据保存在当前浏览器。配置 Supabase 后，登录用户的数据会同时同步到云端；未配置时仍可纯本地使用。
 
-历史记录标题右侧的菜单向左展开，可打开巡检日历、备份与恢复，或进入批量删除。日历仅显示月份网格：有记录的日期可直接打开当天记录详情；无记录的日期不可点击。批量删除时逐条选择，再用底部操作区删除。
+历史记录标题右侧的菜单向左展开，可打开巡检日历、备份与恢复，或进入批量删除。日历水平拖动直接跟手，松手归位可由新手势立即接管，标题跨过半页更新；保留竖向页面滚动。日历仅显示月份网格：有记录的日期可直接打开当天记录详情；无记录的日期不可点击。批量删除时逐条选择，再用底部操作区删除。
 
 ## 代码结构
 
@@ -33,6 +33,8 @@ tests/                           # 纯业务规则测试
 
 重复 UI 与交互的公共组件清单、复用边界和修改约定见 [`docs/ui-components.md`](./docs/ui-components.md)。更详细的依赖关系和数据流见 [`ARCHITECTURE.md`](./ARCHITECTURE.md)，当前业务规则与交接基线见 [`PROJECT_HANDOFF.md`](./PROJECT_HANDOFF.md)，界面规范见 [`DESIGN.md`](./DESIGN.md)，品牌图标的母版、色值、导出矩阵与验收规则见 [`design/brand/README.md`](./design/brand/README.md)。
 
+历史菜单触发规则见 [`docs/history-menu-animation.md`](./docs/history-menu-animation.md)，本对话全部修改的代码与文档核对见 [`docs/conversation-change-audit.md`](./docs/conversation-change-audit.md)。
+
 ## 品牌图标与 PWA 资源
 
 - 唯一设计母版为 `design/brand/night-inspection-master.svg`，使用透明背景、sRGB 色值和无描边 Bézier 路径。
@@ -48,6 +50,8 @@ tests/                           # 纯业务规则测试
 npm install
 npm run dev
 ```
+
+云端开发目录也是 Git 工作副本。先通过开发服务器预览并完成质量检查，确认修改后再推送；`main` 推送会直接触发生产发布。本项目采用 GitHub Pages，不为预览或部署调用 Netlify。云端修改推送后，在本地同一仓库执行 `git pull --ff-only` 获取更新，再运行上面的安装和启动命令；有未提交本地修改时先妥善保留，不用强制重置覆盖。
 
 ## 构建
 

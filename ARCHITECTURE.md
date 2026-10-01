@@ -44,6 +44,16 @@ components → hooks → model
 - 历史记录的日期解析与日历分组放在 `model/history-filter.ts`，巡检日历和管理菜单留在 `features/inspection/components/history/`；菜单复用公共 `Button`，不把业务状态放进基础组件。
 - `design/brand/night-inspection-master.svg` 是品牌图形的唯一设计母版；`src/app`、`src/assets` 和 `public/icons` 中的图标均为面向具体运行场景的生产派生资源。
 
+## 界面交互职责
+
+- `HistoryCalendar` 负责日历网格、月份标题和日期选择；`hooks/use-calendar-pager.ts` 负责 Pointer Events、横向触摸与滚轮处理、运动位置、可接管归位、外部导航和最终月份提交。目标月份、月差、拖动边界及归位初速度限制留在纯规则 `model/calendar-paging.ts`，不让模型依赖 React、DOM 或 Framer Motion。
+- `HistoryQuickMenu` 保留自己的展开和 SVG 线条动画；外部退出入口通过 `data-history-menu-transition="exit"` 由最终页面状态驱动。具体触发约定见 `docs/history-menu-animation.md`。
+- 公共 `ConfirmationPopover` 负责锚定气泡结构、焦点、退出卸载和每个实例独立的原生 WAAPI 动画；账号的头像移除请求继续由 `AccountDialog` 处理。WAAPI 是浏览器能力，不引入第二个动画依赖。
+- `account/components/account-sign-out-controls.tsx` 负责原位分列、胶囊拼接、阴影、焦点和外部轻点取消；退出请求与防重复提交仍由 `AccountDialog` 处理，不另开退出确认 Sheet。
+- 公共 `Sheet` 管理弹层栈、滚动锁定、嵌套层焦点、`inert` 和减少动态效果。修改密码继续使用 `AccountPasswordSheet`；本对话讨论的替代界面尚未实施。
+
+动画参数和回归要求以 `docs/ui-components.md` 为准；本对话的最终实施范围见 `docs/conversation-change-audit.md`。
+
 ## 数据兼容约束
 
 历史记录继续使用 `night-inspection`，草稿继续使用 `night-inspection-draft`。历史记录结构保持为：
@@ -103,7 +113,7 @@ type InspectionRecord = {
 
 新环境必须按文件名顺序执行 `supabase/migrations/` 下的全部迁移。当前最后一份迁移是 `20260906170915_reliable_inspection_sync.sql`：它创建 `replace_inspection_records(uuid, jsonb)` 事务函数，对覆盖恢复的载荷、记录归属和重复 ID 做校验，并把 `inspection_records`、`inspection_drafts` 加入 `supabase_realtime` publication。函数使用调用者权限并仅向 `authenticated` 授予执行权；客户端仍受现有 RLS 限制。
 
-生产 Supabase 已执行该迁移；生产代码基线为 `cbb008c`。代码保留仅针对 `PGRST202`（数据库尚未暴露新 RPC）的滚动发布兼容路径，新建环境不应依赖该回退替代迁移。
+生产 Supabase 已执行该迁移；该同步流程的功能基线为 `cbb008c`，不代表当前全部界面的最新提交。代码保留仅针对 `PGRST202`（数据库尚未暴露新 RPC）的滚动发布兼容路径，新建环境不应依赖该回退替代迁移。
 
 ## 密码修改与跨设备会话撤销
 
