@@ -30,7 +30,7 @@ function AuthLogo() {
       viewBox="800 850 2400 2400"
       aria-hidden="true"
       focusable="false"
-      className="mx-auto mb-5 size-14"
+      className="mx-auto mb-[var(--space-auth-logo)] size-14"
     >
       <defs>
         <linearGradient id="auth-logo-aqua" x1="0" y1="0" x2="0.12" y2="1">
@@ -204,9 +204,9 @@ export function AuthScreen({
   return (
     <main className="auth-shell min-h-svh bg-background pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(2.5rem,env(safe-area-inset-top))]">
       <div className="auth-content relative z-10 mx-auto flex min-h-[calc(100svh-4rem)] w-full flex-col">
-        <div className="mb-6 mt-8 text-center sm:mt-10">
+        <div className="mb-[var(--space-auth-form)] mt-8 text-center sm:mt-10">
           {mode === "reset-password" ? (
-            <div className="mx-auto mb-5 flex size-14 items-center justify-center rounded-card bg-primary text-primary-foreground shadow-primary">
+            <div className="mx-auto mb-[var(--space-auth-logo)] flex size-14 items-center justify-center rounded-card bg-primary text-primary-foreground shadow-primary">
               <KeyRound className="size-7" />
             </div>
           ) : (
@@ -302,7 +302,7 @@ export function AuthScreen({
           </CardContent>
         </Card>
 
-        <div className="mt-4 flex min-h-14 items-start justify-center">
+        <div className="mt-[var(--space-auth-footer)] flex min-h-14 items-start justify-center">
           {accountMode && !notice && (
             <p className="text-center text-base text-muted-foreground">
               {mode === "sign-in" ? "还没有账号？" : "已经有账号？"}{" "}

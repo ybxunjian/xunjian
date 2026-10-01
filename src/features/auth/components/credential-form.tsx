@@ -25,17 +25,17 @@ export function CredentialForm({
 }: CredentialFormProps) {
   const submitButton = (
     <Button type="submit"
-      className={onCancel ? "w-full rounded-full active:scale-[.99]" : "mt-3 min-h-13 w-full rounded-full text-base"}
+      className={onCancel ? "w-full rounded-full active:scale-[.99]" : "mt-[var(--space-credential-submit)] min-h-12 w-full rounded-full text-base"}
       disabled={disabled}>
       {submitting ? submittingLabel : submitLabel}
     </Button>
   );
   return (
-    <form onSubmit={onSubmit} noValidate className="space-y-2">
+    <form onSubmit={onSubmit} noValidate className="space-y-[var(--space-credential-fields)]">
       {children}
       <FormError>{error}</FormError>
       {onCancel ? (
-        <div className="mt-3 grid grid-cols-2 gap-2">
+        <div className="mt-[var(--space-credential-actions)] grid grid-cols-2 gap-2">
           <Button type="button" variant="outline" disabled={disabled} onClick={onCancel}
             className="w-full rounded-full active:scale-[.99]">取消</Button>
           {submitButton}
