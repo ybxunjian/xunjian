@@ -1,13 +1,13 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-export function ActionTile({ icon, title, description, onClick, disabled, expanded, controls, tone = "muted" }: {
+export function ActionTile({ icon, title, description, onClick, disabled, expanded, controls, pressFeedback = "default", tone = "muted" }: {
   icon: ReactNode; title: string; description?: ReactNode;
-  onClick: () => void; disabled?: boolean; expanded?: boolean; controls?: string; tone?: "muted" | "primary";
+  onClick: () => void; disabled?: boolean; expanded?: boolean; controls?: string; pressFeedback?: "default" | "subtle"; tone?: "muted" | "primary";
 }) {
   return (
     <button type="button" onClick={onClick} disabled={disabled} aria-expanded={expanded} aria-controls={controls}
-      className={cn("flex w-full items-center gap-3 rounded-control px-4 text-left transition active:scale-[.98] disabled:cursor-default disabled:opacity-45", description ? "min-h-16" : "min-h-14", tone === "primary" ? "bg-secondary text-secondary-foreground" : "bg-muted text-foreground")}>
+      className={cn("flex w-full items-center gap-3 rounded-control px-4 text-left transition disabled:cursor-default disabled:opacity-45", pressFeedback === "subtle" ? "active:scale-[.99]" : "active:scale-[.98]", description ? "min-h-16" : "min-h-14", tone === "primary" ? "bg-secondary text-secondary-foreground" : "bg-muted text-foreground")}>
       <span className={cn("grid shrink-0 place-items-center bg-card text-primary shadow-card", description ? "size-11 rounded-control" : "size-9 rounded-small")}>{icon}</span>
       <span className="min-w-0 flex-1">
         <b className={description ? "block text-card-title" : "block font-bold"}>{title}</b>

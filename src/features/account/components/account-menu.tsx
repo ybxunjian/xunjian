@@ -27,13 +27,14 @@ type AccountMenuProps = Pick<
   | "onNavigationOrderChange"
   | "onClose"
 > & {
+  passwordContentHeight?: number;
   passwordOpen: boolean;
   passwordBusy: boolean;
   onChangePassword: AccountDialogProps["onChangePassword"];
   onPasswordBusyChange: (busy: boolean) => void;
   onPasswordCollapsed: () => void;
   onClosePassword: () => void;
-  onOpenPassword: (top: number) => void;
+  onOpenPassword: (top: number, contentHeight: number) => void;
   onRequestAvatarRemoval: () => void;
   avatarRemovalOpen: boolean;
   confirmingAvatarRemoval: boolean;
@@ -55,7 +56,7 @@ export function AccountMenu({
   onAvatarChange,
   onNavigationOrderChange,
   onClose,
-  onOpenPassword, passwordOpen, passwordBusy, onChangePassword, onPasswordBusyChange, onPasswordCollapsed, onClosePassword,
+  onOpenPassword, passwordContentHeight, passwordOpen, passwordBusy, onChangePassword, onPasswordBusyChange, onPasswordCollapsed, onClosePassword,
   onRequestAvatarRemoval,
   avatarRemovalOpen,
   confirmingAvatarRemoval,
@@ -67,6 +68,7 @@ export function AccountMenu({
   onCancelSignOut,
   onConfirmSignOut,
 }: AccountMenuProps) {
+  const contentRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const passwordSectionRef = useRef<HTMLElement>(null);
   const isPresent = useIsPresent();
@@ -83,7 +85,7 @@ export function AccountMenu({
   };
 
   return (
-    <>
+    <div ref={contentRef} style={{ minHeight: passwordContentHeight }}>
       <div className="pointer-events-none sticky top-0 z-20 flex h-0 justify-end px-1">
         <Button
           type="button"
@@ -166,7 +168,10 @@ export function AccountMenu({
           disabled={signingOut || confirmingAvatarRemoval || avatarBusy || !isPresent}
           onOpen={() => {
             const panel = passwordSectionRef.current?.closest('[role="dialog"]');
-            onOpenPassword(Math.max(16, panel?.getBoundingClientRect().top ?? 16));
+            onOpenPassword(
+              Math.max(16, panel?.getBoundingClientRect().top ?? 16),
+              contentRef.current?.getBoundingClientRect().height ?? 0,
+            );
           }}
           onClose={onClosePassword} onCollapsed={onPasswordCollapsed}
           onBusyChange={onPasswordBusyChange} onChangePassword={onChangePassword} />
@@ -186,6 +191,6 @@ export function AccountMenu({
         <AccountSignOutControls open={signOutOpen} busy={signingOut}
           onRequest={onRequestSignOut} onCancel={onCancelSignOut} onConfirm={onConfirmSignOut} />
       </motion.div>
-    </>
+    </div>
   );
 }

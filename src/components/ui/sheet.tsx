@@ -245,7 +245,7 @@ export function Sheet({
     >
       <motion.div
         ref={panelRef}
-        style={topOffset === undefined ? undefined : { maxHeight: `calc(100svh - ${topOffset}px - max(1rem, env(safe-area-inset-bottom)))` }}
+        style={topOffset === undefined ? undefined : { maxHeight: `calc(100svh - ${topOffset}px - max(1rem, env(safe-area-inset-bottom)))`, overflowAnchor: "none" }}
         layoutScroll={layoutScroll}
         role={role} aria-modal={interactive ? "true" : undefined}
         aria-labelledby={labelledBy} aria-hidden={!interactive}

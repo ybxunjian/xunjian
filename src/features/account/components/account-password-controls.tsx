@@ -37,7 +37,7 @@ export function AccountPasswordControls(props: PasswordControlsProps) {
   return (
     <div className="rounded-control bg-muted">
       <div ref={triggerRef}>
-        <ActionTile icon={<KeyRound className="size-4" />} title="修改密码"
+        <ActionTile icon={<KeyRound className="size-4" />} title="修改密码" pressFeedback="subtle"
           expanded={props.open} controls={props.open ? "account-password-form" : undefined}
           disabled={props.busy || props.disabled}
           onClick={props.open ? props.onClose : props.onOpen} />

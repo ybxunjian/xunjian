@@ -25,7 +25,7 @@ export function CredentialForm({
 }: CredentialFormProps) {
   const submitButton = (
     <Button type="submit"
-      className={onCancel ? "w-full rounded-full" : "mt-3 min-h-13 w-full rounded-full text-base"}
+      className={onCancel ? "w-full rounded-full active:scale-[.99]" : "mt-3 min-h-13 w-full rounded-full text-base"}
       disabled={disabled}>
       {submitting ? submittingLabel : submitLabel}
     </Button>
@@ -36,8 +36,8 @@ export function CredentialForm({
       <FormError>{error}</FormError>
       {onCancel ? (
         <div className="mt-3 grid grid-cols-2 gap-2">
-          <Button type="button" variant="ghost" disabled={disabled} onClick={onCancel}
-            className="w-full rounded-full bg-background hover:bg-background">取消</Button>
+          <Button type="button" variant="outline" disabled={disabled} onClick={onCancel}
+            className="w-full rounded-full active:scale-[.99]">取消</Button>
           {submitButton}
         </div>
       ) : submitButton}

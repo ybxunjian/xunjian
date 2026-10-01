@@ -17,7 +17,7 @@ export function AccountDialog(props: AccountDialogProps) {
   const [passwordOpen, setPasswordOpen] = useState(false);
   const [passwordBusy, setPasswordBusy] = useState(false);
   const passwordBusyRef = useRef(false);
-  const [passwordTop, setPasswordTop] = useState<number>();
+  const [passwordAnchor, setPasswordAnchor] = useState<{ top: number; contentHeight: number }>();
 
   const confirmAction = async () => {
     if (!confirmation || confirmingRef.current) return;
@@ -45,7 +45,7 @@ export function AccountDialog(props: AccountDialogProps) {
 
   return (
     <Sheet labelledBy="account-dialog-title" onClose={props.onClose} layoutScroll
-      busy={confirming || passwordBusy} topOffset={passwordTop}>
+      busy={confirming || passwordBusy} topOffset={passwordAnchor?.top}>
       <AccountMenu
         email={props.email}
         emailVerified={props.emailVerified}
@@ -55,21 +55,22 @@ export function AccountDialog(props: AccountDialogProps) {
         onAvatarChange={props.onAvatarChange}
         onNavigationOrderChange={props.onNavigationOrderChange}
         onClose={() => { if (!confirmingRef.current && !passwordBusyRef.current) props.onClose(); }}
+        passwordContentHeight={passwordAnchor?.contentHeight}
         passwordOpen={passwordOpen}
         passwordBusy={passwordBusy}
         onChangePassword={props.onChangePassword}
         onPasswordBusyChange={(busy) => { passwordBusyRef.current = busy; setPasswordBusy(busy); }}
-        onPasswordCollapsed={() => setPasswordTop(undefined)}
+        onPasswordCollapsed={() => setPasswordAnchor(undefined)}
         onClosePassword={() => {
           if (passwordBusyRef.current) return;
           const active = document.activeElement;
           if (active instanceof HTMLInputElement && active.id.startsWith("account-")) active.blur();
           setPasswordOpen(false);
         }}
-        onOpenPassword={(top) => {
+        onOpenPassword={(top, contentHeight) => {
           if (confirmingRef.current || passwordBusyRef.current) return;
           setConfirmation(null);
-          setPasswordTop(top);
+          setPasswordAnchor({ top, contentHeight });
           setPasswordOpen(true);
         }}
         onRequestAvatarRemoval={() => { if (!confirmingRef.current) setConfirmation("remove-avatar"); }}
