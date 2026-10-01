@@ -47,6 +47,7 @@ export function HistoryCalendar({
   const touchingRef = useRef(false);
   const displayedMonthRef = useRef(month);
   const committedMonthRef = useRef(month);
+  const externalMonthRef = useRef(month);
   const pendingPositionRef = useRef<number | null>(null);
   const [initialMonth] = useState(month);
   const minimumMonth = earliestMonth ?? initialMonth;
@@ -97,8 +98,8 @@ export function HistoryCalendar({
     if (touchingRef.current || pendingPositionRef.current !== null) return;
     const next = nearestMonth();
     commitMonth(next);
-    const nextRange = getRange(next);
-    if (nextRange.first !== range.first || nextRange.last !== range.last) replaceRange(nextRange);
+    // Keep existing snap targets mounted. Removing them after the third page
+    // makes WebKit re-snap and can repeatedly trigger range expansion.
   };
   const scheduleScrollEnd = () => {
     clearScrollTimer();
@@ -133,6 +134,8 @@ export function HistoryCalendar({
   useLayoutEffect(() => {
     const viewport = viewportRef.current;
     if (!viewport) return;
+    if (externalMonthRef.current === month) return;
+    externalMonthRef.current = month;
     // A parent-driven month change (arrows or a new selection) is navigation.
     // Scroll-driven title updates must not reset or cancel native scrolling.
     if (committedMonthRef.current !== month) {
@@ -239,12 +242,14 @@ export function HistoryCalendar({
             <div aria-hidden="true" inert className="shrink-0"
               style={{ flexBasis: `${monthDistance(minimumMonth, range.first) * 100}%` }} />
             {visibleMonths.map((pageMonth) => {
-              const dates = getCalendarDates(pageMonth);
+              const renderDates = Math.abs(monthDistance(visibleMonth, pageMonth)) <= 3;
+              const dates = renderDates ? getCalendarDates(pageMonth) : [];
               return (
                 <div key={pageMonth} data-calendar-month={pageMonth}
                   aria-hidden={pageMonth !== visibleMonth} inert={pageMonth !== visibleMonth}
-                  className="grid w-full shrink-0 snap-start snap-always grid-cols-7 gap-y-1">
-                  {Array.from({ length: 42 }, (_, index) => dates[index] ?? null).map((date, index) => {
+                  className="grid w-full shrink-0 snap-start snap-always grid-cols-7 gap-y-1"
+                  style={{ gridTemplateRows: "repeat(6, minmax(44px, auto))" }}>
+                  {Array.from({ length: renderDates ? 42 : 0 }, (_, index) => dates[index] ?? null).map((date, index) => {
                     if (!date) return <span key={`empty-${index}`} className="min-h-11" />;
                     const dayRecords = grouped.get(date) ?? [];
                     const count = dayRecords.length;
