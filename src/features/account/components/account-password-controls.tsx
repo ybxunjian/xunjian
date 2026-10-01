@@ -74,7 +74,6 @@ function PasswordExpansion(props: PasswordControlsProps) {
       inert={!isPresent} aria-hidden={!isPresent}
       initial={{ height: 0 }} animate={{ height }} exit={{ height: 0 }}
       transition={{ duration: reduceMotion ? 0 : isPresent ? PASSWORD_EXPAND_DURATION : PASSWORD_COLLAPSE_DURATION,
-        delay: reduceMotion || isPresent ? 0 : 0.04,
         ease: isPresent ? PASSWORD_EASING : PASSWORD_COLLAPSE_EASING }}
       className="overflow-hidden">
       <motion.div ref={contentRef}

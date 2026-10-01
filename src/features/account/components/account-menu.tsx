@@ -184,7 +184,7 @@ export function AccountMenu({
           height: { duration: reduceMotion ? 0 : passwordOpen ? PASSWORD_EXPAND_DURATION : PASSWORD_COLLAPSE_DURATION,
             ease: passwordOpen ? PASSWORD_EASING : PASSWORD_COLLAPSE_EASING },
           opacity: { duration: reduceMotion ? 0 : passwordOpen ? 0.16 : 0.22,
-            delay: reduceMotion || passwordOpen ? 0 : 0.16 },
+            delay: reduceMotion || passwordOpen ? 0 : 0.14 },
         }} className="overflow-hidden">
         <NavigationOrderEditor
           navigationOrder={navigationOrder}
