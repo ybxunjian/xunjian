@@ -107,7 +107,7 @@ export function HistoryCalendar({
                           onClick={() => { navigateTo(pageMonth); onSelectRecord(dayRecords[0]); }}
                           aria-label={`查看 ${date} 的巡检详情，${count} 条记录`}
                           aria-current={today ? "date" : undefined}
-                          className={`mx-auto flex min-h-11 w-full max-w-12 items-center justify-center rounded-control text-card-title font-bold transition hover:bg-muted active:scale-[.97] ${today ? "bg-secondary text-primary" : "text-foreground-strong"}`}
+                          className={`mx-auto flex min-h-11 w-full max-w-12 items-center justify-center rounded-control text-card-title font-bold text-foreground-strong transition hover:bg-muted active:scale-[.97] ${today ? "bg-secondary" : ""}`}
                         >
                           {day}
                         </button>
