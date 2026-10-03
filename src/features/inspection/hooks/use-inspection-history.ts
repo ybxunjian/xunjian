@@ -69,6 +69,7 @@ export function useInspectionHistory({
   };
 
   const resetAfterRecordsChanged = () => {
+    setHistoryDirection(-1);
     setSelectedRecord(null);
     setManageHistory(false);
     setSelectedRecordIds([]);
@@ -184,6 +185,7 @@ export function useInspectionHistory({
       saveValidation,
     },
     actions: {
+      setHistoryDirection,
       resetHistoryList,
       resetAfterRecordsChanged,
       selectRecord,

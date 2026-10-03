@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, ChevronRight, History, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DirectionalViewTransition, VIEW_TRANSITION } from "@/components/ui/directional-view-transition";
 import { useStickyEdgeState } from "../../hooks/use-sticky-edge-state";
 import { Card, CardContent } from "@/components/ui/card";
 import { getLatestHistoryDate } from "../../model/history-filter";
@@ -13,28 +14,12 @@ import { BackupView, type BackupViewProps } from "./backup-view";
 import { HistoryQuickMenu } from "./history-quick-menu";
 import { InspectionSummary } from "./inspection-summary";
 
-const HISTORY_VIEW_VARIANTS = {
-  initial: (direction: 1 | -1) => ({
-    opacity: 0,
-    x: direction === 1 ? 18 : -18,
-  }),
-  animate: { opacity: 1, x: 0 },
-  exit: (direction: 1 | -1) => ({
-    opacity: 0,
-    x: direction === 1 ? -14 : 18,
-  }),
-};
-
-const HISTORY_VIEW_TRANSITION = {
-  duration: 0.18,
-  ease: [0.22, 1, 0.36, 1] as const,
-};
-
 type HistoryViewProps = {
   menuContainer: HTMLDivElement | null;
   records: InspectionRecord[];
   selectedRecord: InspectionRecord | null;
   direction: 1 | -1;
+  onDirectionChange: (direction: 1 | -1) => void;
   manageHistory: boolean;
   selectedRecordIds: string[];
   reduceMotion: boolean;
@@ -54,6 +39,7 @@ export function HistoryView({
   records,
   selectedRecord,
   direction,
+  onDirectionChange,
   manageHistory,
   selectedRecordIds,
   reduceMotion,
@@ -75,6 +61,7 @@ export function HistoryView({
     const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
     const latest = getLatestHistoryDate(records) ?? today;
     setCalendarMonth(latest.slice(0, 7));
+    onDirectionChange(1);
     setCalendarOpen(true);
   };
 
@@ -95,6 +82,7 @@ export function HistoryView({
               onBackup={onOpenBackup}
               onDone={onToggleManage}
               onBack={() => {
+                onDirectionChange(-1);
                 if (backupOpen) onCloseBackup();
                 else setCalendarOpen(false);
               }}
@@ -103,16 +91,11 @@ export function HistoryView({
         </AnimatePresence>,
         menuContainer,
       )}
-      <AnimatePresence initial={false} mode="wait" custom={direction}>
-        <motion.div
-          key={selectedRecord ? `detail-${selectedRecord.id}` : backupOpen ? "backup" : calendarOpen ? "calendar" : "list"}
-          custom={direction}
-          variants={HISTORY_VIEW_VARIANTS}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          transition={reduceMotion ? { duration: 0 } : HISTORY_VIEW_TRANSITION}
-        >
+      <DirectionalViewTransition
+        viewKey={selectedRecord ? `detail-${selectedRecord.id}` : backupOpen ? "backup" : calendarOpen ? "calendar" : "list"}
+        direction={direction}
+        reduceMotion={reduceMotion}
+      >
           {selectedRecord ? (
             <InspectionSummary record={selectedRecord} />
           ) : backupOpen ? (
@@ -134,8 +117,7 @@ export function HistoryView({
               onDeleteRequest={onDeleteRequest}
             />
           )}
-        </motion.div>
-      </AnimatePresence>
+      </DirectionalViewTransition>
       <AnimatePresence initial={false}>
         {selectedRecord && (
           <motion.div
@@ -148,8 +130,8 @@ export function HistoryView({
               transition: reduceMotion
                 ? { duration: 0 }
                 : {
-                  ...HISTORY_VIEW_TRANSITION,
-                  delay: HISTORY_VIEW_TRANSITION.duration,
+                  ...VIEW_TRANSITION,
+                  delay: VIEW_TRANSITION.duration,
                 },
             }}
             exit={{
@@ -157,7 +139,7 @@ export function HistoryView({
               y: reduceMotion ? 0 : 8,
               transition: reduceMotion
                 ? { duration: 0 }
-                : HISTORY_VIEW_TRANSITION,
+                : VIEW_TRANSITION,
             }}
           >
             <Button type="button" onClick={onReturnToList} className="w-full">

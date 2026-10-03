@@ -425,6 +425,7 @@ export function useInspectionController(userId?: string) {
       selectTab,
       createNewInspection,
       selectRecord: history.actions.selectRecord,
+      setHistoryDirection: history.actions.setHistoryDirection,
       returnToHistoryList: history.actions.returnToHistoryList,
       toggleHistoryManagement: history.actions.toggleHistoryManagement,
       toggleRecord: history.actions.toggleRecord,
@@ -434,8 +435,14 @@ export function useInspectionController(userId?: string) {
       save: history.actions.save,
       cancelSaveValidation: history.actions.cancelSaveValidation,
       cancelDeleteRequest: history.actions.cancelDeleteRequest,
-      openBackup: backup.actions.openBackup,
-      closeBackup: backup.actions.closeBackup,
+      openBackup: () => {
+        history.actions.setHistoryDirection(1);
+        backup.actions.openBackup();
+      },
+      closeBackup: () => {
+        history.actions.setHistoryDirection(-1);
+        backup.actions.closeBackup();
+      },
       exportBackup: backup.actions.exportBackup,
       previewImportFile: backup.actions.previewImportFile,
       cancelImportPreview: backup.actions.cancelImportPreview,

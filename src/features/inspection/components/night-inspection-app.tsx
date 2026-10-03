@@ -151,6 +151,7 @@ function InspectionAppContent({
         records={state.records}
         selectedRecord={state.selectedRecord}
         direction={state.historyDirection}
+        onDirectionChange={actions.setHistoryDirection}
         manageHistory={state.manageHistory}
         selectedRecordIds={state.selectedRecordIds}
         reduceMotion={Boolean(reduceMotion)}
