@@ -179,8 +179,8 @@ function InspectionAppContent({
     );
 
   return (
-    <main className={`mx-auto max-w-md bg-background px-page pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(1.25rem,env(safe-area-inset-top))] ${state.tab === "history" ? "flex h-dvh min-h-0 flex-col overflow-hidden" : "min-h-svh"}`}>
-      <header className={`shrink-0 rounded-sheet bg-gradient-to-br from-header-start via-header-middle to-header-end p-5 text-primary-foreground shadow-floating ring-1 ring-white/10 ${state.tab === "history" ? "[@media(max-height:600px)]:max-h-[35dvh] [@media(max-height:600px)]:overflow-y-auto" : ""}`}>
+    <main className="mx-auto min-h-svh max-w-md bg-background px-page pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(1.25rem,env(safe-area-inset-top))]">
+      <header className="rounded-sheet bg-gradient-to-br from-header-start via-header-middle to-header-end p-5 text-primary-foreground shadow-floating ring-1 ring-white/10">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h1 className="text-3xl font-black tracking-tight">夜班巡检</h1>
@@ -232,7 +232,7 @@ function InspectionAppContent({
         onChange={selectTab}
       />
 
-      <div className={`relative ${state.tab === "history" ? "min-h-0 flex-1" : ""}`}>
+      <div className="relative">
         <div
           ref={setHistoryMenuContainer}
           className="absolute right-[calc(1rem+1px)] top-0 z-10"
@@ -240,7 +240,6 @@ function InspectionAppContent({
         <AnimatePresence mode="wait">
           <motion.section
             key={state.tab}
-            className={state.tab === "history" ? "h-full min-h-0" : undefined}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}

@@ -100,7 +100,6 @@ export function HistoryView({
         viewKey={selectedRecord ? `detail-${selectedRecord.id}` : backupOpen ? "backup" : calendarOpen ? "calendar" : "list"}
         direction={direction}
         reduceMotion={reduceMotion}
-        restoreScroll={!selectedRecord}
       >
           {selectedRecord ? (
             <InspectionSummary record={selectedRecord} />
