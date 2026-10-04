@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, ChevronRight, History, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DirectionalViewTransition, VIEW_TRANSITION } from "@/components/ui/directional-view-transition";
+import { DirectionalViewTransition } from "@/components/ui/directional-view-transition";
 import { useStickyEdgeState } from "../../hooks/use-sticky-edge-state";
 import { Card, CardContent } from "@/components/ui/card";
 import { getLatestHistoryDate } from "../../model/history-filter";
@@ -13,6 +13,11 @@ import { HistoryCalendar } from "./history-calendar";
 import { BackupView, type BackupViewProps } from "./backup-view";
 import { HistoryQuickMenu } from "./history-quick-menu";
 import { InspectionSummary } from "./inspection-summary";
+
+const HISTORY_ACTION_TRANSITION = {
+  duration: 0.18,
+  ease: [0.22, 1, 0.36, 1] as const,
+};
 
 type HistoryViewProps = {
   menuContainer: HTMLDivElement | null;
@@ -129,17 +134,14 @@ export function HistoryView({
               y: 0,
               transition: reduceMotion
                 ? { duration: 0 }
-                : {
-                  ...VIEW_TRANSITION,
-                  delay: VIEW_TRANSITION.duration,
-                },
+                : HISTORY_ACTION_TRANSITION,
             }}
             exit={{
               opacity: 0,
               y: reduceMotion ? 0 : 8,
               transition: reduceMotion
                 ? { duration: 0 }
-                : VIEW_TRANSITION,
+                : HISTORY_ACTION_TRANSITION,
             }}
           >
             <Button type="button" onClick={onReturnToList} className="w-full">
