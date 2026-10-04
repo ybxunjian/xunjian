@@ -32,18 +32,21 @@ export function DirectionalViewTransition({
   children: ReactNode;
 }) {
   return (
-    <AnimatePresence initial={false} mode="wait" custom={direction}>
-      <motion.div
-        key={viewKey}
-        custom={direction}
-        variants={variants}
-        initial="initial"
-        animate="animate"
-        exit="exit"
-        transition={reduceMotion ? { duration: 0 } : VIEW_TRANSITION}
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
+    // Clip animated horizontal overflow without creating another scroll container.
+    <div className="overflow-x-clip">
+      <AnimatePresence initial={false} mode="wait" custom={direction}>
+        <motion.div
+          key={viewKey}
+          custom={direction}
+          variants={variants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          transition={reduceMotion ? { duration: 0 } : VIEW_TRANSITION}
+        >
+          {children}
+        </motion.div>
+      </AnimatePresence>
+    </div>
   );
 }
