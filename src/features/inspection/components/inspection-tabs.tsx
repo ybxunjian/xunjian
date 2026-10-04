@@ -21,7 +21,7 @@ export function InspectionTabs({
   return (
     <nav
       aria-label="巡检页面"
-      className="sticky top-[max(0.75rem,env(safe-area-inset-top))] z-20 my-5 grid h-11 grid-cols-4 rounded-navigation bg-card/95 p-1 shadow-card ring-1 ring-inset ring-border/70 backdrop-blur"
+      className="sticky top-[max(0.75rem,env(safe-area-inset-top))] z-20 my-5 grid h-11 shrink-0 grid-cols-4 rounded-navigation bg-card/95 p-1 shadow-card ring-1 ring-inset ring-border/70 backdrop-blur"
     >
       {order.map((id) => (
         <button
