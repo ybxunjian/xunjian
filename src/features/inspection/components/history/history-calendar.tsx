@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useMemo } from "react";
 import { useCalendarPager } from "../../hooks/use-calendar-pager";
 import { calendarMonthDistance } from "../../model/calendar-paging";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -32,23 +31,15 @@ type HistoryCalendarProps = {
 export function HistoryCalendar({
   records, month, onMonthChange, onSelectRecord,
 }: HistoryCalendarProps) {
-  const grouped = useMemo(() => groupHistoryRecordsByDate(records), [records]);
+  const grouped = groupHistoryRecordsByDate(records);
   const currentDate = todayKey();
-  const earliestMonth = useMemo(() => getEarliestHistoryDate(records)?.slice(0, 7), [records]);
+  const earliestMonth = getEarliestHistoryDate(records)?.slice(0, 7);
   const { anchor, visibleMonth, viewportRef, x, state, navigateTo, pointerHandlers } =
     useCalendarPager(month, earliestMonth, onMonthChange);
   const [year, monthNumber] = visibleMonth.split("-").map(Number);
   const hasEarlierRecords = earliestMonth !== undefined && visibleMonth > earliestMonth;
-  const pages = useMemo(() => Array.from({ length: 7 }, (_, index) => shiftHistoryMonth(visibleMonth, index - 3))
-    .filter((pageMonth) => pageMonth >= (earliestMonth ?? anchor))
-    .map((pageMonth) => {
-      const dates = getCalendarDates(pageMonth);
-      return {
-        month: pageMonth,
-        offset: calendarMonthDistance(anchor, pageMonth) * 100,
-        dates: Array.from({ length: 42 }, (_, index) => dates[index] ?? null),
-      };
-    }), [visibleMonth, earliestMonth, anchor]);
+  const visibleMonths = Array.from({ length: 7 }, (_, index) => shiftHistoryMonth(visibleMonth, index - 3))
+    .filter((pageMonth) => pageMonth >= (earliestMonth ?? anchor));
   const moveMonth = (offset: number) => navigateTo(shiftHistoryMonth(visibleMonth, offset));
 
   return (
@@ -81,17 +72,18 @@ export function HistoryCalendar({
             onDragStart={(event) => event.preventDefault()}
           >
             <motion.div className="grid w-full" style={{ x }}>
-              {pages.map(({ month: pageMonth, offset, dates }) => {
+              {visibleMonths.map((pageMonth) => {
+                const dates = getCalendarDates(pageMonth);
                 return (
                   <div key={pageMonth} data-calendar-month={pageMonth}
                     aria-hidden={pageMonth !== visibleMonth} inert={pageMonth !== visibleMonth}
                     className="grid w-full grid-cols-7 gap-y-1"
                     style={{
                       gridArea: "1 / 1",
-                      transform: `translateX(${offset}%)`,
+                      transform: `translateX(${calendarMonthDistance(anchor, pageMonth) * 100}%)`,
                       gridTemplateRows: "repeat(6, minmax(44px, auto))",
                     }}>
-                    {dates.map((date, index) => {
+                    {Array.from({ length: 42 }, (_, index) => dates[index] ?? null).map((date, index) => {
                       if (!date) return <span key={`empty-${index}`} className="min-h-11" />;
                       const dayRecords = grouped.get(date) ?? [];
                       const count = dayRecords.length;

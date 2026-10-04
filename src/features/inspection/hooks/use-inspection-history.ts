@@ -1,4 +1,4 @@
-import { startTransition, useEffect, useLayoutEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { toast } from "sonner";
 import type {
   DeleteRequest,
@@ -76,17 +76,13 @@ export function useInspectionHistory({
   };
 
   const selectRecord = (record: InspectionRecord) => {
-    startTransition(() => {
-      setHistoryDirection(1);
-      setSelectedRecord(record);
-    });
+    setHistoryDirection(1);
+    setSelectedRecord(record);
   };
 
   const returnToHistoryList = () => {
-    startTransition(() => {
-      setHistoryDirection(-1);
-      setSelectedRecord(null);
-    });
+    setHistoryDirection(-1);
+    setSelectedRecord(null);
   };
 
   const toggleHistoryManagement = () => {
