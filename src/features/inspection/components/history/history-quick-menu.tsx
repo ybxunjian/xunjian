@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useIsPresent } from "framer-motion";
 import { ArchiveRestore, CalendarDays, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useFixedHistoryMenuLines } from "../../model/history-menu-motion-check";
 
 type HistoryQuickMenuProps = {
   recordCount: number;
@@ -20,6 +21,12 @@ export function HistoryQuickMenu({
 }: HistoryQuickMenuProps) {
   const [open, setOpen] = useState(false);
   const isPresent = useIsPresent();
+  const fixedLines = useFixedHistoryMenuLines();
+  const paths = [
+    showBack ? "M 4 14 L 14 24" : manageHistory ? "M 3 14 L 11 21" : open ? "M 4 4 L 24 24" : "M 2 4 L 26 4",
+    showBack ? "M 14 4 L 4 14" : manageHistory ? "M 11 21 L 25 5" : open ? "M 24 4 L 4 24" : "M 2 24 L 26 24",
+    showBack ? "M 4 14 L 26 14" : "M 2 14 L 26 14",
+  ];
   const collapseLines = {
     d: "M 14 14 L 14 14",
     opacity: 0,
@@ -118,21 +125,21 @@ export function HistoryQuickMenu({
       >
         <svg viewBox="0 0 28 28" className="size-7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <motion.path
-            initial={{ d: "M 14 14 L 14 14", opacity: 0 }}
-            animate={{ d: showBack ? "M 4 14 L 14 24" : manageHistory ? "M 3 14 L 11 21" : open ? "M 4 4 L 24 24" : "M 2 4 L 26 4", opacity: 1 }}
-            exit={collapseLines}
+            initial={{ d: fixedLines ? paths[0] : "M 14 14 L 14 14", opacity: 0 }}
+            animate={{ d: paths[0], opacity: 1 }}
+            exit={{ ...collapseLines, d: fixedLines ? paths[0] : collapseLines.d }}
             transition={{ duration: reduceMotion ? 0 : 0.3, ease: [0.22, 1, 0.36, 1] }}
           />
           <motion.path
-            initial={{ d: "M 14 14 L 14 14", opacity: 0 }}
-            animate={{ d: showBack ? "M 14 4 L 4 14" : manageHistory ? "M 11 21 L 25 5" : open ? "M 24 4 L 4 24" : "M 2 24 L 26 24", opacity: 1 }}
-            exit={collapseLines}
+            initial={{ d: fixedLines ? paths[1] : "M 14 14 L 14 14", opacity: 0 }}
+            animate={{ d: paths[1], opacity: 1 }}
+            exit={{ ...collapseLines, d: fixedLines ? paths[1] : collapseLines.d }}
             transition={{ duration: reduceMotion ? 0 : 0.3, ease: [0.22, 1, 0.36, 1] }}
           />
           <motion.path
-            initial={{ d: "M 14 14 L 14 14", opacity: 0 }}
-            exit={collapseLines}
-            animate={{ d: showBack ? "M 4 14 L 26 14" : "M 2 14 L 26 14", opacity: showBack || (!open && !manageHistory) ? 1 : 0, pathLength: showBack || (!open && !manageHistory) ? 1 : 0 }}
+            initial={{ d: fixedLines ? paths[2] : "M 14 14 L 14 14", opacity: 0 }}
+            exit={{ ...collapseLines, d: fixedLines ? paths[2] : collapseLines.d }}
+            animate={{ d: paths[2], opacity: showBack || (!open && !manageHistory) ? 1 : 0, pathLength: showBack || (!open && !manageHistory) ? 1 : 0 }}
             transition={{
               duration: reduceMotion ? 0 : 0.3,
               pathLength: { duration: reduceMotion ? 0 : 0.2, delay: showBack && !reduceMotion ? 0.08 : 0 },
