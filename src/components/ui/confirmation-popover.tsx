@@ -4,7 +4,11 @@ import { useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
 import { AnimatePresence, usePresence, useReducedMotion } from "framer-motion";
 import { Button } from "./button";
 
-const TRANSFORM_ORIGIN = "50% -8.5px";
+const TIP_SIZE = 16;
+const TIP_VISIBLE_HEIGHT = 10;
+// Account for the rotated square's extra height and the bubble's 1px border.
+const TIP_TOP = TIP_SIZE * (Math.SQRT2 - 1) / 2 - 1 - TIP_VISIBLE_HEIGHT;
+const TRANSFORM_ORIGIN = `50% -${TIP_VISIBLE_HEIGHT}px`;
 const OPEN_DURATION = 390;
 const CLOSE_DURATION = 210;
 const OPEN_EASING = "cubic-bezier(.22,.72,.20,1)";
@@ -179,7 +183,7 @@ function ConfirmationBubble({ id, busy, title, confirmLabel, busyLabel = "正在
         opacity: 0,
       }}
     >
-      <span aria-hidden="true" className="absolute -top-1.5 left-1/2 size-3 -translate-x-1/2 rotate-45 border-l border-t border-border bg-card" />
+      <span aria-hidden="true" className="absolute left-1/2 -translate-x-1/2 rotate-45 border-l border-t border-border bg-card" style={{ top: TIP_TOP, width: TIP_SIZE, height: TIP_SIZE }} />
       <h3 id={`${id}-title`} className="sr-only">{title}</h3>
       <div className="relative flex flex-col gap-2">
         <Button type="button" variant="destructive" disabled={busy || !isPresent} onClick={onConfirm} className="w-full rounded-full shadow-none">
