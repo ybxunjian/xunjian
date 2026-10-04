@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
-import { AnimatePresence, motion, useIsPresent } from "framer-motion";
+import { AnimatePresence, motion, useIsPresent, useMotionValue } from "framer-motion";
 
 export type ViewTransitionDirection = 1 | -1;
 
@@ -37,7 +37,7 @@ export function DirectionalViewTransition({
   children: ReactNode;
 }) {
   return (
-    <div className="relative isolate grid overflow-clip bg-background">
+    <div className="relative isolate grid overflow-clip bg-background" style={{ contain: "layout paint" }}>
       <AnimatePresence initial={false} mode="sync" custom={direction}>
         <TransitionPage key={viewKey} direction={direction} reduceMotion={reduceMotion}>
           {children}
@@ -54,6 +54,7 @@ function TransitionPage({ direction, reduceMotion, children }: {
 }) {
   const isPresent = useIsPresent();
   const ref = useRef<HTMLDivElement>(null);
+  const willChange = useMotionValue(reduceMotion ? "auto" : "transform");
 
   useEffect(() => {
     if (!isPresent && document.activeElement instanceof HTMLElement && ref.current?.contains(document.activeElement)) {
@@ -70,10 +71,12 @@ function TransitionPage({ direction, reduceMotion, children }: {
       animate="animate"
       exit={reduceMotion ? { x: "0%" } : "exit"}
       transition={{ ...(reduceMotion ? { duration: 0 } : VIEW_TRANSITION), zIndex: { duration: 0 } }}
+      onAnimationStart={() => willChange.set(reduceMotion ? "auto" : "transform")}
+      onAnimationComplete={() => willChange.set("auto")}
       inert={!isPresent}
       aria-hidden={!isPresent || undefined}
       className="relative col-start-1 row-start-1 min-w-0 bg-background"
-      style={{ pointerEvents: isPresent ? "auto" : "none" }}
+      style={{ pointerEvents: isPresent ? "auto" : "none", willChange }}
     >
       {children}
     </motion.div>

@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { memo, useMemo } from "react";
 import { BELTS, PUMP_AREAS, PUMP_READING_FIELDS } from "../../model/config";
 import {
   fieldKey,
@@ -9,19 +10,26 @@ import {
 import type { InspectionRecord, PumpAreaId } from "../../model/types";
 import { SectionHeading } from "../section-heading";
 
-export function InspectionSummary({ record }: { record: InspectionRecord }) {
+// Equipment labels and point keys do not depend on the selected record.
+const BELT_SUMMARY_FIELDS = BELTS.map((belt) => ({
+  id: belt.id,
+  rows: getVisibleBeltItems(belt.id).map((item) => ({
+    item: getBeltItemTitle(belt.id, item),
+    readings: getBeltPoints(belt.id, belt.ends, item),
+  })),
+}));
+
+export const InspectionSummary = memo(function InspectionSummary({ record }: { record: InspectionRecord }) {
   const snapshot = record.values;
-  const beltSummary = BELTS.map((belt) => ({
+  const beltSummary = useMemo(() => BELT_SUMMARY_FIELDS.map((belt) => ({
     ...belt,
-    rows: getVisibleBeltItems(belt.id)
-      .map((item) => ({
-        item: getBeltItemTitle(belt.id, item),
-        readings: getBeltPoints(belt.id, belt.ends, item).filter(
-          ({ key }) => snapshot[key],
-        ),
+    rows: belt.rows
+      .map((row) => ({
+        ...row,
+        readings: row.readings.filter(({ key }) => snapshot[key]),
       }))
       .filter(({ readings }) => readings.length),
-  })).filter(({ rows }) => rows.length);
+  })).filter(({ rows }) => rows.length), [snapshot]);
 
   return (
     <>
@@ -78,7 +86,7 @@ export function InspectionSummary({ record }: { record: InspectionRecord }) {
       <div className="h-20" aria-hidden="true" />
     </>
   );
-}
+});
 
 function PumpSummary({
   area,
@@ -88,7 +96,7 @@ function PumpSummary({
   record: InspectionRecord;
 }) {
   const snapshot = record.values;
-  const entries = PUMP_AREAS[area].groups.flatMap(([group]) =>
+  const entries = useMemo(() => PUMP_AREAS[area].groups.flatMap(([group]) =>
     [0, 1].flatMap((index) => {
       const pumpNumber = snapshot[fieldKey(area, group, String(index), "no")];
       if (!pumpNumber) return [];
@@ -97,7 +105,7 @@ function PumpSummary({
       );
       return [{ group, pumpNumber, index, readings }];
     }),
-  );
+  ), [area, snapshot]);
 
   return (
     <Card className="mb-3">
