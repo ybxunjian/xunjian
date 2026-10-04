@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { Button } from "@/components/ui/button";
-import { setHistoryMenuMotionCheck } from "../model/history-menu-motion-check";
+import { setHistoryMenuMotionCheck, type HistoryMenuCheckMode } from "../model/history-menu-motion-check";
 
-type Mode = "normal" | "fixed";
+type Mode = HistoryMenuCheckMode;
+const modeLabels: Record<Mode, string> = { normal: "原动画", fixed: "固定线条", anchor: "保留动画修复" };
 type Sample = {
   ms: number;
   scrollY: number;
@@ -65,7 +66,7 @@ function MenuMotionCheck({ initialMode, onClose }: { initialMode: Mode; onClose:
           sampling.current = false;
           const ys = run.samples.map((point) => point.scrollY);
           const change = Math.max(...ys) - Math.min(...ys);
-          setSummary(`${mode === "normal" ? "原动画" : "固定线条"} · ${action === "enter" ? "进入" : "返回"}：滚动变化 ${change.toFixed(2)}px（已记录 ${runs.current.length} 次）`);
+          setSummary(`${modeLabels[mode]} · ${action === "enter" ? "进入" : "返回"}：滚动变化 ${change.toFixed(2)}px（已记录 ${runs.current.length} 次）`);
         }
       };
       sample();
@@ -128,6 +129,7 @@ function MenuMotionCheck({ initialMode, onClose }: { initialMode: Mode; onClose:
         <Button variant={mode === "normal" ? "default" : "outline"} aria-pressed={mode === "normal"} onClick={() => setMode("normal")}>原动画</Button>
         <Button variant={mode === "fixed" ? "default" : "outline"} aria-pressed={mode === "fixed"} onClick={() => setMode("fixed")}>固定线条</Button>
       </div>
+      <Button variant={mode === "anchor" ? "default" : "outline"} className="mt-2 w-full" aria-pressed={mode === "anchor"} onClick={() => setMode("anchor")}>保留动画修复</Button>
       <p className="my-2 text-caption text-muted-foreground" aria-live="polite">{summary}</p>
       <Button variant="secondary" className="w-full" onClick={copyReport}>复制检测结果</Button>
       {report && <textarea aria-label="检测结果" readOnly value={report} className="mt-2 h-20 w-full rounded-control border border-border p-2 text-caption" />}

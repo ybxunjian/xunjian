@@ -90,7 +90,7 @@ function InspectionAppContent({
 }: InspectionAppContentProps) {
   useEffect(() => {
     const mode = new URLSearchParams(window.location.search).get("menuMotionCheck");
-    if (mode !== "normal" && mode !== "fixed") return;
+    if (mode !== "normal" && mode !== "fixed" && mode !== "anchor") return;
     let disposed = false;
     let close: (() => void) | undefined;
     void import("../diagnostics/history-menu-check").then(({ mountHistoryMenuCheck }) => {

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useIsPresent } from "framer-motion";
 import { ArchiveRestore, CalendarDays, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useFixedHistoryMenuLines } from "../../model/history-menu-motion-check";
+import { useExcludeHistoryMenuAnchor, useFixedHistoryMenuLines } from "../../model/history-menu-motion-check";
 
 type HistoryQuickMenuProps = {
   recordCount: number;
@@ -22,6 +22,7 @@ export function HistoryQuickMenu({
   const [open, setOpen] = useState(false);
   const isPresent = useIsPresent();
   const fixedLines = useFixedHistoryMenuLines();
+  const excludeAnchor = useExcludeHistoryMenuAnchor();
   const paths = [
     showBack ? "M 4 14 L 14 24" : manageHistory ? "M 3 14 L 11 21" : open ? "M 4 4 L 24 24" : "M 2 4 L 26 4",
     showBack ? "M 14 4 L 4 14" : manageHistory ? "M 11 21 L 25 5" : open ? "M 24 4 L 4 24" : "M 2 24 L 26 24",
@@ -67,7 +68,7 @@ export function HistoryQuickMenu({
   };
 
   return (
-    <div ref={menuRef} className="relative z-10 flex shrink-0 items-center" inert={!isPresent} aria-hidden={!isPresent || undefined}>
+    <div ref={menuRef} style={excludeAnchor ? { overflowAnchor: "none" } : undefined} className="relative z-10 flex shrink-0 items-center" inert={!isPresent} aria-hidden={!isPresent || undefined}>
       <AnimatePresence>
         {open && !manageHistory && !showBack && isPresent && (
           <motion.div

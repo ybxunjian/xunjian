@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
 
-type Mode = "normal" | "fixed";
+export type HistoryMenuCheckMode = "normal" | "fixed" | "anchor";
+type Mode = HistoryMenuCheckMode;
 let mode: Mode = "normal";
 const listeners = new Set<() => void>();
 
@@ -18,4 +19,9 @@ function subscribe(listener: () => void) {
 /** Temporary in-memory switch, set only by the opt-in diagnostic panel. */
 export function useFixedHistoryMenuLines() {
   return useSyncExternalStore(subscribe, () => mode === "fixed", () => false);
+}
+
+/** Exclude only the menu subtree from scroll anchoring; preserve its animation. */
+export function useExcludeHistoryMenuAnchor() {
+  return useSyncExternalStore(subscribe, () => mode === "anchor", () => false);
 }
