@@ -69,6 +69,10 @@
   --font-size-card-title: 0.9375rem;
   --font-size-input: 1.0625rem;
   --font-size-title: 1.5rem;
+  --font-size-history-date: 1.375rem;
+  --space-history-date-column: 5.125rem;
+  --space-history-info-gap: 0.875rem;
+  --size-history-entry-circle: 2.125rem;
 }
 
 @theme inline {
@@ -135,6 +139,25 @@ button:focus-visible {
 .segmented-item:focus-visible {
   outline: none;
   box-shadow: var(--shadow-card), inset 0 0 0 2px color-mix(in srgb, var(--primary) 24%, transparent);
+}
+
+/* History cards: align both primary values and both captions in shared rows. */
+.history-record-info {
+  display: grid;
+  grid-template-columns: var(--space-history-date-column) 1px minmax(0, 1fr);
+  grid-template-rows: minmax(30px, auto) auto;
+  column-gap: var(--space-history-info-gap);
+  row-gap: 2px;
+  align-items: baseline;
+}
+.history-record-date { grid-area: 1 / 1; font-size: var(--font-size-history-date); line-height: 30px; font-weight: 800; letter-spacing: -0.7px; }
+.history-record-date-caption { grid-area: 2 / 1; line-height: 17px; white-space: nowrap; }
+.history-record-separator { grid-area: 1 / 2 / 3 / 3; height: 32px; align-self: center; }
+.history-record-time { grid-area: 1 / 3; line-height: 30px; overflow-wrap: anywhere; }
+.history-record-time-caption { grid-area: 2 / 3; line-height: 17px; overflow-wrap: anywhere; }
+.history-detail-entry-circle { width: var(--size-history-entry-circle); height: var(--size-history-entry-circle); }
+@media (max-width: 350px) {
+  .history-record-info { grid-template-columns: 76px 1px minmax(0, 1fr); column-gap: 10px; }
 }
 
 /* 手机端泵号下拉：保留原生选择的可靠性，但改为 App 风格的触发器。 */

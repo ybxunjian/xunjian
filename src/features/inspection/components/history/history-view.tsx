@@ -7,6 +7,7 @@ import { DirectionalViewTransition, VIEW_TRANSITION } from "@/components/ui/dire
 import { useStickyEdgeState } from "../../hooks/use-sticky-edge-state";
 import { Card, CardContent } from "@/components/ui/card";
 import { getLatestHistoryDate } from "../../model/history-filter";
+import { getHistoryRecordDisplay } from "../../model/history-record-display";
 import type { DeleteRequest, InspectionRecord } from "../../model/types";
 import { SectionHeading } from "../section-heading";
 import { HistoryCalendar } from "./history-calendar";
@@ -142,7 +143,7 @@ export function HistoryView({
                 : VIEW_TRANSITION,
             }}
           >
-            <Button type="button" onClick={onReturnToList} className="w-full">
+            <Button type="button" onClick={onReturnToList} className="h-12 w-full rounded-full">
               {calendarOpen ? "返回巡检日历" : "返回历史记录"}
             </Button>
             <Button
@@ -156,7 +157,7 @@ export function HistoryView({
                   label: `${selectedRecord.date} ${selectedRecord.time}`,
                 })
               }
-              className="bg-destructive-soft text-destructive shadow-destructive"
+              className="rounded-full bg-destructive-soft text-destructive shadow-destructive"
             >
               <Trash2 size={19} />
             </Button>
@@ -201,7 +202,7 @@ function HistoryList({
                 onClick={() => onToggleRecord(record.id)}
                 aria-label={`选择 ${record.date} ${record.time} 的巡检记录`}
                 aria-pressed={selectedRecordIds.includes(record.id)}
-                className="flex min-h-18 w-full items-center gap-3 rounded-card p-4 text-left"
+                className="flex min-h-22 w-full items-center gap-3 rounded-card p-4 text-left"
               >
                   <span
                     className={`grid size-6 shrink-0 place-items-center rounded-full border-2 ${selectedRecordIds.includes(record.id) ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}
@@ -210,12 +211,12 @@ function HistoryList({
                       <Check size={14} strokeWidth={3} />
                     )}
                   </span>
-                <span className="flex-1">
+                <span className="min-w-0 flex-1">
                   <RecordDate record={record} />
                 </span>
               </button> : (
-                <div className="flex min-h-18 w-full items-center gap-3 rounded-card p-4 text-left">
-                  <span className="flex-1">
+                <div className="flex min-h-22 w-full items-center gap-3 rounded-card p-4 text-left">
+                  <span className="min-w-0 flex-1">
                     <RecordDate record={record} />
                   </span>
                   <Button
@@ -225,9 +226,11 @@ function HistoryList({
                     aria-label={`查看 ${record.date} ${record.time} 的巡检详情`}
                     data-history-menu-transition="exit"
                     onClick={() => onSelectRecord(record)}
-                    className="bg-muted text-muted-foreground"
+                    className="group rounded-full hover:bg-transparent"
                   >
-                    <ChevronRight size={18} />
+                    <span className="history-detail-entry-circle grid place-items-center rounded-full bg-background text-muted-foreground group-hover:bg-muted">
+                      <ChevronRight size={18} />
+                    </span>
                   </Button>
                 </div>
               )}
@@ -276,12 +279,15 @@ function HistoryList({
 }
 
 function RecordDate({ record }: { record: InspectionRecord }) {
+  const display = getHistoryRecordDisplay(record);
   return (
-    <span>
-      <b className="block text-card-title">{record.date}</b>
-      <span className="mt-1 block text-caption text-muted-foreground">
-        填写时间 {record.time}
-      </span>
+    <span className="history-record-info" title={`${record.date} · 填写时间 ${record.time}`}>
+      <b className="history-record-date tabular-nums">{display.date}</b>
+      <span className="history-record-date-caption text-label text-muted-foreground">{display.dateCaption}</span>
+      <span className="history-record-separator bg-border" aria-hidden="true" />
+      <span className="history-record-time text-card-title font-semibold tabular-nums text-muted-foreground">{display.time}</span>
+      <span className="history-record-time-caption text-label text-subtle-foreground">{display.timeCaption}</span>
+      <span className="sr-only">完整填写时间 {record.time}</span>
     </span>
   );
 }
