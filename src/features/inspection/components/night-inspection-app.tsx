@@ -30,20 +30,6 @@ import { InspectionTabs } from "./inspection-tabs";
 import { PumpArea } from "./pump/pump-area";
 
 export function NightInspectionApp() {
-  useEffect(() => {
-    const mode = new URLSearchParams(window.location.search).get("menuMotionCheck");
-    if (mode !== "normal" && mode !== "fixed") return;
-    let disposed = false;
-    let close: (() => void) | undefined;
-    void import("../diagnostics/history-menu-check").then(({ mountHistoryMenuCheck }) => {
-      if (!disposed) close = mountHistoryMenuCheck(mode);
-    });
-    return () => {
-      disposed = true;
-      close?.();
-    };
-  }, []);
-
   const auth = useAuth();
   const account = auth.user ?? auth.offlineIdentity;
 
@@ -102,6 +88,20 @@ function InspectionAppContent({
   onChangePassword,
   onSignOut,
 }: InspectionAppContentProps) {
+  useEffect(() => {
+    const mode = new URLSearchParams(window.location.search).get("menuMotionCheck");
+    if (mode !== "normal" && mode !== "fixed") return;
+    let disposed = false;
+    let close: (() => void) | undefined;
+    void import("../diagnostics/history-menu-check").then(({ mountHistoryMenuCheck }) => {
+      if (!disposed) close = mountHistoryMenuCheck(mode);
+    });
+    return () => {
+      disposed = true;
+      close?.();
+    };
+  }, []);
+
   const reduceMotion = useReducedMotion();
   const { state, actions } = useInspectionController(userId);
   const preferences = useUserPreferences(userId);
