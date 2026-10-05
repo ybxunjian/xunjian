@@ -84,8 +84,6 @@ export function AccountSignOutControls({
 
   return (
     <div ref={rootRef} className="relative mt-5 h-11 w-full" role="group" aria-label={open ? "确认退出登录" : "退出登录"} aria-busy={busy}>
-      <motion.div aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-full shadow-destructive"
-        initial={false} animate={{ opacity: open ? 0 : 1 }} transition={transition} />
       <motion.div
         className="absolute left-0 top-0 h-11"
         style={{ borderTopLeftRadius: CAPSULE_RADIUS, borderBottomLeftRadius: CAPSULE_RADIUS }}
@@ -113,8 +111,6 @@ export function AccountSignOutControls({
           borderBottomLeftRadius: open ? CAPSULE_RADIUS : "0rem" }}
         transition={transition}
       >
-        <motion.div aria-hidden="true" className="pointer-events-none absolute inset-0 shadow-destructive" style={{ borderRadius: "inherit" }}
-          initial={false} animate={{ opacity: open ? 1 : 0 }} transition={transition} />
         <Button type="button" variant="destructive"
           style={{ borderRadius: "inherit" }}
           disabled={disabled || !open} aria-hidden={!open} tabIndex={open ? 0 : -1}
