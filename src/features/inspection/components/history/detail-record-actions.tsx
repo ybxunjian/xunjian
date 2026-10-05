@@ -25,23 +25,17 @@ export function DetailRecordActions({
   const isPresent = useIsPresent();
   const leftRef = useRef<HTMLButtonElement>(null);
   const rightRef = useRef<HTMLButtonElement>(null);
-  const labelRef = useRef<HTMLSpanElement>(null);
   const wasConfirming = useRef(false);
   const deleting = useRef(false);
   const expansion = useMotionValue(0);
-  const labelWidth = useMotionValue(0);
   const softColor = useMotionValue("var(--destructive-soft)");
   const destructiveColor = useMotionValue("var(--destructive)");
-  const contrastColor = useMotionValue("var(--destructive-foreground)");
   const leftWidth = useTransform(expansion, leftWidthAt);
   const rightWidth = useTransform(expansion, rightWidthAt);
-  // Stage colors and text on the same reversible clock as the button widths.
+  // Colors and the centered icon/text crossfade share the reversible width clock.
   const surfaceProgress = useTransform(expansion, [0, 0.6], [0, 1]);
-  const iconProgress = useTransform(expansion, [0.3, 0.45], [0, 1]);
-  const revealProgress = useTransform(expansion, [0.45, 1], [0, 1]);
+  const iconOpacity = useTransform(expansion, [0, 1], [1, 0]);
   const backgroundColor = useTransform(() => mix(softColor.get(), destructiveColor.get())(surfaceProgress.get()));
-  const iconColor = useTransform(() => mix(destructiveColor.get(), contrastColor.get())(iconProgress.get()));
-  const revealWidth = useTransform(() => revealProgress.get() * labelWidth.get());
   const transition = {
     duration: reduceMotion ? 0 : confirming ? 0.28 : 0.22,
     ease: confirming ? [0.25, 0.1, 0.25, 1] as const : [0.25, 0.1, 0.35, 1] as const,
@@ -54,18 +48,7 @@ export function DetailRecordActions({
     const tokens = getComputedStyle(button);
     softColor.set(tokens.getPropertyValue("--destructive-soft").trim());
     destructiveColor.set(tokens.getPropertyValue("--destructive").trim());
-    contrastColor.set(tokens.getPropertyValue("--destructive-foreground").trim());
-  }, [softColor, destructiveColor, contrastColor]);
-
-  useEffect(() => {
-    const label = labelRef.current;
-    if (!label) return;
-    const measure = () => labelWidth.set(label.getBoundingClientRect().width);
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(label);
-    return () => observer.disconnect();
-  }, [labelWidth]);
+  }, [softColor, destructiveColor]);
 
   useEffect(() => {
     if (!isPresent) return;
@@ -138,18 +121,18 @@ export function DetailRecordActions({
           }
         }}
         variant="ghost"
-        className="absolute right-0 top-0 h-12 rounded-full bg-destructive-soft p-0 text-destructive transition-transform hover:bg-destructive-soft"
-        style={{ width: rightWidth, backgroundColor, color: iconColor }}
+        className="absolute right-0 top-0 h-12 overflow-hidden rounded-full bg-destructive-soft p-0 text-destructive transition-transform hover:bg-destructive-soft"
+        style={{ width: rightWidth, backgroundColor }}
         initial={false}
         aria-label={confirming ? "确认删除当前记录" : "删除当前记录"}
         aria-expanded={confirming}
       >
-        <span className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
+        <motion.span className="absolute inset-0 flex items-center justify-center" style={{ opacity: iconOpacity }} aria-hidden="true">
           <Trash2 size={19} className="shrink-0" />
-          <motion.span className="shrink-0 overflow-hidden" style={{ width: revealWidth }}>
-            <span ref={labelRef} className="block w-max whitespace-nowrap pl-2 text-destructive-foreground">确认删除</span>
-          </motion.span>
-        </span>
+        </motion.span>
+        <motion.span className="absolute inset-0 flex items-center justify-center whitespace-nowrap text-destructive-foreground" style={{ opacity: expansion }} aria-hidden="true">
+          确认删除
+        </motion.span>
       </MotionButton>
     </div>
   );
