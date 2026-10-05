@@ -58,12 +58,12 @@ export function DetailRecordActions({
         disabled={!isPresent}
         onClick={() => confirming ? setConfirming(false) : onReturn()}
         variant="ghost"
-        className="absolute left-0 top-0 h-12 rounded-full p-0 hover:bg-transparent"
+        className="absolute left-0 top-0 h-12 rounded-full p-0 transition-transform hover:bg-transparent"
         initial={false}
         animate={{
           width: confirming ? DETAIL_ACTION_WIDTHS.open.left : DETAIL_ACTION_WIDTHS.closed.left,
-          backgroundColor: confirming ? "var(--muted)" : "var(--primary)",
-          color: confirming ? "var(--muted-foreground)" : "var(--primary-foreground)",
+          backgroundColor: confirming ? "var(--card)" : "var(--primary)",
+          color: confirming ? "var(--foreground)" : "var(--primary-foreground)",
         }}
         transition={transition}
         aria-label={confirming ? "取消删除" : returnLabel}
@@ -92,25 +92,24 @@ export function DetailRecordActions({
           }
         }}
         variant="ghost"
-        className="absolute right-0 top-0 h-12 rounded-full p-0 hover:bg-transparent"
+        className="absolute right-0 top-0 h-12 rounded-full bg-destructive-soft p-0 text-destructive transition-transform hover:bg-destructive-soft"
         initial={false}
         animate={{
           width: confirming ? DETAIL_ACTION_WIDTHS.open.right : DETAIL_ACTION_WIDTHS.closed.right,
-          backgroundColor: confirming ? "var(--destructive)" : "var(--destructive-soft)",
-          color: confirming ? "var(--destructive-foreground)" : "var(--destructive)",
         }}
         transition={transition}
         aria-label={confirming ? "确认删除当前记录" : "删除当前记录"}
         aria-expanded={confirming}
       >
-        <AnimatePresence initial={false}>
-          <motion.span key={confirming ? "confirm" : "delete"}
-            className="absolute inset-0 flex items-center justify-center whitespace-nowrap"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        <motion.span className="absolute inset-0 flex items-center justify-center"
+          initial={false} animate={{ columnGap: confirming ? 8 : 0 }} transition={transition}>
+          <Trash2 size={19} className="shrink-0" />
+          <motion.span className="overflow-hidden whitespace-nowrap"
+            initial={false} animate={{ width: confirming ? "auto" : 0, opacity: confirming ? 1 : 0 }}
             transition={labelTransition}>
-            {confirming ? "确认删除" : <Trash2 size={19} />}
+            确认删除
           </motion.span>
-        </AnimatePresence>
+        </motion.span>
       </MotionButton>
     </div>
   );

@@ -37,7 +37,7 @@ export function CredentialForm({
       {onCancel ? (
         <div className="mt-[var(--space-credential-actions)] grid grid-cols-2 gap-2">
           <Button type="button" variant="outline" disabled={disabled} onClick={onCancel}
-            className="w-full rounded-full active:scale-[.99]">取消</Button>
+            className="w-full rounded-full border-0 active:scale-[.99]">取消</Button>
           {submitButton}
         </div>
       ) : submitButton}
