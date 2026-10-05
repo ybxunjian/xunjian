@@ -60,7 +60,7 @@
 
 ### Card、输入与状态
 
-卡片使用 `Card` 与 `CardContent`，白色背景、统一圆角和轻阴影。输入错误必须在字段附近清楚说明；Toast 只用于短暂的操作结果。保存校验、删除确认等会阻塞决策的场景使用 Dialog / Bottom Sheet，而不是 Toast。
+卡片使用 `Card` 与 `CardContent`，白色背景、统一圆角和轻阴影。主操作与危险操作按钮不使用蓝色或红色投影，靠填充颜色和按压反馈表达操作层级；卡片、气泡、弹窗、导航条保留容器阴影。输入错误必须在字段附近清楚说明；Toast 只用于短暂的操作结果。保存校验、删除确认等会阻塞决策的场景使用 Dialog / Bottom Sheet，而不是 Toast。
 
 ### Loading、Empty、Error、Success
 

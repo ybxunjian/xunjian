@@ -157,7 +157,7 @@ export function HistoryView({
                   label: `${selectedRecord.date} ${selectedRecord.time}`,
                 })
               }
-              className="rounded-full bg-destructive-soft text-destructive shadow-destructive"
+              className="rounded-full bg-destructive-soft text-destructive"
             >
               <Trash2 size={19} />
             </Button>
