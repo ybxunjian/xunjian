@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { AnimatePresence, motion, useIsPresent, useReducedMotion } from "framer-motion";
+import { motion, useIsPresent, useReducedMotion } from "framer-motion";
 import { LogOut } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { getSplitConfirmationTransition, SplitConfirmationButton } from "@/components/ui/split-confirmation-button";
 
 const SPLIT_WIDTH = "calc(50% - 0.25rem)";
 const JOINED_WIDTH = "calc(50% - 0rem)";
@@ -26,11 +26,7 @@ export function AccountSignOutControls({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const wasOpenRef = useRef(false);
   const disabled = busy || !isPresent;
-  const transition = {
-    duration: reduceMotion ? 0 : open ? 0.28 : 0.22,
-    ease: open ? [0.25, 0.1, 0.25, 1] as const : [0.25, 0.1, 0.35, 1] as const,
-  };
-  const textTransition = { duration: transition.duration, ease: "easeInOut" as const };
+  const transition = getSplitConfirmationTransition(open, Boolean(reduceMotion));
 
   useEffect(() => {
     if (!open || busy || !isPresent) return;
@@ -94,13 +90,14 @@ export function AccountSignOutControls({
           backgroundColor: open ? "var(--muted)" : "var(--destructive)" }}
         transition={transition}
       >
-        <Button ref={cancelRef} type="button" variant="ghost"
+        <SplitConfirmationButton ref={cancelRef} type="button" variant="ghost"
+          open={open} reduceMotion={Boolean(reduceMotion)} openContent="取消"
           style={{ borderRadius: "inherit" }}
           disabled={disabled || !open} aria-hidden={!open} tabIndex={open ? 0 : -1}
+          aria-label="取消退出登录"
           onClick={onCancel}
-          className={`h-11 w-full rounded-[inherit] bg-transparent p-0 hover:bg-transparent active:scale-[.99] ${busy ? "" : "disabled:opacity-100"}`}>
-          <motion.span initial={false} animate={{ opacity: open ? 1 : 0 }} transition={textTransition}>取消</motion.span>
-        </Button>
+          className={`relative h-11 w-full rounded-[inherit] bg-transparent p-0 hover:bg-transparent active:scale-[.99] ${busy ? "" : "disabled:opacity-100"}`}
+        />
       </motion.div>
       <motion.div
         className="absolute right-0 top-0 h-11 bg-destructive"
@@ -111,30 +108,24 @@ export function AccountSignOutControls({
           borderBottomLeftRadius: open ? CAPSULE_RADIUS : "0rem" }}
         transition={transition}
       >
-        <Button type="button" variant="destructive"
+        <SplitConfirmationButton type="button" variant="destructive"
+          open={open} reduceMotion={Boolean(reduceMotion)}
+          openContent={busy ? "正在退出…" : "确认退出"}
+          openContentKey={busy ? "busy" : "confirm"}
           style={{ borderRadius: "inherit" }}
           disabled={disabled || !open} aria-hidden={!open} tabIndex={open ? 0 : -1}
           aria-label={busy ? "正在退出…" : "确认退出"}
           onClick={() => { if (!disabled && open) onConfirm(); }}
-          className={`relative h-11 w-full rounded-[inherit] p-0 shadow-none! disabled:shadow-none! active:scale-[.99] ${busy ? "" : "disabled:opacity-100"}`}>
-          <AnimatePresence initial={false}>
-            <motion.span key={busy ? "busy" : "confirm"}
-              initial={{ opacity: 0 }} animate={{ opacity: open ? 1 : 0 }} exit={{ opacity: 0 }}
-              transition={textTransition} className="absolute inset-0 flex items-center justify-center whitespace-nowrap">
-              {busy ? "正在退出…" : "确认退出"}
-            </motion.span>
-          </AnimatePresence>
-        </Button>
+          className={`relative h-11 w-full rounded-[inherit] p-0 shadow-none! disabled:shadow-none! active:scale-[.99] ${busy ? "" : "disabled:opacity-100"}`}
+        />
       </motion.div>
-      <Button ref={triggerRef} type="button" variant="ghost"
+      <SplitConfirmationButton ref={triggerRef} type="button" variant="ghost"
+        open={open} reduceMotion={Boolean(reduceMotion)}
+        closedContent={<><LogOut className="size-4" />退出登录</>}
         disabled={disabled || open} aria-hidden={open} tabIndex={open ? -1 : 0}
         aria-label="退出登录" onClick={onRequest}
-        className={`absolute inset-0 h-11 w-full rounded-full bg-transparent text-destructive-foreground hover:bg-transparent active:scale-[.99] ${open ? "pointer-events-none" : "disabled:opacity-100"}`}>
-        <motion.span initial={false} animate={{ opacity: open ? 0 : 1 }} transition={textTransition}
-          className="flex items-center justify-center gap-2">
-          <LogOut className="size-4" />退出登录
-        </motion.span>
-      </Button>
+        className={`absolute inset-0 h-11 w-full rounded-full bg-transparent text-destructive-foreground hover:bg-transparent active:scale-[.99] ${open ? "pointer-events-none" : "disabled:opacity-100"}`}
+      />
     </div>
   );
 }

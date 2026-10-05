@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, animate, mix, motion, useIsPresent, useMotionValue, useTransform } from "framer-motion";
+import { mix, useIsPresent, useTransform } from "framer-motion";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { SplitConfirmationButton, useSplitConfirmationColor, useSplitConfirmationMotion } from "@/components/ui/split-confirmation-button";
 
-const MotionButton = motion.create(Button);
 // Matching calc templates let Motion interpolate every frame, including interruptions.
 export const DETAIL_ACTION_WIDTHS = {
   closed: { left: "calc(100% + -56px)", right: "calc(0% + 48px)" },
@@ -27,37 +26,10 @@ export function DetailRecordActions({
   const rightRef = useRef<HTMLButtonElement>(null);
   const wasConfirming = useRef(false);
   const deleting = useRef(false);
-  const expansion = useMotionValue(0);
-  const softColor = useMotionValue("var(--destructive-soft)");
-  const destructiveColor = useMotionValue("var(--destructive)");
+  const { progress: expansion, transition } = useSplitConfirmationMotion(confirming, reduceMotion, isPresent);
   const leftWidth = useTransform(expansion, leftWidthAt);
   const rightWidth = useTransform(expansion, rightWidthAt);
-  // Colors and the centered icon/text crossfade share the reversible width clock.
-  const surfaceProgress = useTransform(expansion, [0, 0.6], [0, 1]);
-  const iconOpacity = useTransform(expansion, [0, 1], [1, 0]);
-  const backgroundColor = useTransform(() => mix(softColor.get(), destructiveColor.get())(surfaceProgress.get()));
-  const transition = {
-    duration: reduceMotion ? 0 : confirming ? 0.28 : 0.22,
-    ease: confirming ? [0.25, 0.1, 0.25, 1] as const : [0.25, 0.1, 0.35, 1] as const,
-  };
-
-  useEffect(() => {
-    const button = rightRef.current;
-    if (!button) return;
-    // Resolve semantic tokens once: mixing CSS variable strings would jump colors.
-    const tokens = getComputedStyle(button);
-    softColor.set(tokens.getPropertyValue("--destructive-soft").trim());
-    destructiveColor.set(tokens.getPropertyValue("--destructive").trim());
-  }, [softColor, destructiveColor]);
-
-  useEffect(() => {
-    if (!isPresent) return;
-    const controls = animate(expansion, confirming ? 1 : 0, {
-      duration: reduceMotion ? 0 : confirming ? 0.28 : 0.22,
-      ease: confirming ? [0.25, 0.1, 0.25, 1] : [0.25, 0.1, 0.35, 1],
-    });
-    return () => controls.stop();
-  }, [confirming, reduceMotion, isPresent, expansion]);
+  const backgroundColor = useSplitConfirmationColor(expansion, "--destructive-soft", "--destructive", 0.6);
 
   useEffect(() => {
     if (!isPresent) return;
@@ -77,11 +49,9 @@ export function DetailRecordActions({
     return () => window.removeEventListener("keydown", cancel);
   }, [confirming, isPresent]);
 
-  const labelTransition = { duration: transition.duration, ease: "easeInOut" as const };
-
   return (
     <div className="relative h-12 w-full" role="group" aria-label={confirming ? "确认删除当前记录" : "记录操作"}>
-      <MotionButton
+      <SplitConfirmationButton
         ref={leftRef}
         type="button"
         disabled={!isPresent}
@@ -89,24 +59,18 @@ export function DetailRecordActions({
         variant="ghost"
         className="absolute left-0 top-0 h-12 rounded-full p-0 transition-transform hover:bg-transparent"
         style={{ width: leftWidth }}
-        initial={false}
+        open={confirming}
+        reduceMotion={reduceMotion}
+        closedContent={returnLabel}
+        openContent="取消"
         animate={{
           backgroundColor: confirming ? "var(--card)" : "var(--primary)",
           color: confirming ? "var(--foreground)" : "var(--primary-foreground)",
         }}
         transition={transition}
         aria-label={confirming ? "取消删除" : returnLabel}
-      >
-        <AnimatePresence initial={false}>
-          <motion.span key={confirming ? "cancel" : "return"}
-            className="absolute inset-0 flex items-center justify-center whitespace-nowrap"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            transition={labelTransition}>
-            {confirming ? "取消" : returnLabel}
-          </motion.span>
-        </AnimatePresence>
-      </MotionButton>
-      <MotionButton
+      />
+      <SplitConfirmationButton
         ref={rightRef}
         type="button"
         disabled={!isPresent}
@@ -123,17 +87,14 @@ export function DetailRecordActions({
         variant="ghost"
         className="absolute right-0 top-0 h-12 overflow-hidden rounded-full bg-destructive-soft p-0 text-destructive transition-transform hover:bg-destructive-soft"
         style={{ width: rightWidth, backgroundColor }}
-        initial={false}
+        open={confirming}
+        reduceMotion={reduceMotion}
+        closedContent={<Trash2 size={19} className="shrink-0" />}
+        openContent="确认删除"
+        openContentClassName="text-destructive-foreground"
         aria-label={confirming ? "确认删除当前记录" : "删除当前记录"}
         aria-expanded={confirming}
-      >
-        <motion.span className="absolute inset-0 flex items-center justify-center" style={{ opacity: iconOpacity }} aria-hidden="true">
-          <Trash2 size={19} className="shrink-0" />
-        </motion.span>
-        <motion.span className="absolute inset-0 flex items-center justify-center whitespace-nowrap text-destructive-foreground" style={{ opacity: expansion }} aria-hidden="true">
-          确认删除
-        </motion.span>
-      </MotionButton>
+      />
     </div>
   );
 }
