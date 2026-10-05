@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, useIsPresent } from "framer-motion";
+import { AnimatePresence, animate, mix, motion, useIsPresent, useMotionValue, useTransform } from "framer-motion";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,8 @@ export const DETAIL_ACTION_WIDTHS = {
   closed: { left: "calc(100% + -56px)", right: "calc(0% + 48px)" },
   open: { left: "calc(50% + -4px)", right: "calc(50% + -4px)" },
 };
+const leftWidthAt = mix(DETAIL_ACTION_WIDTHS.closed.left, DETAIL_ACTION_WIDTHS.open.left);
+const rightWidthAt = mix(DETAIL_ACTION_WIDTHS.closed.right, DETAIL_ACTION_WIDTHS.open.right);
 
 export function DetailRecordActions({
   returnLabel, reduceMotion, onReturn, onDelete,
@@ -23,12 +25,37 @@ export function DetailRecordActions({
   const isPresent = useIsPresent();
   const leftRef = useRef<HTMLButtonElement>(null);
   const rightRef = useRef<HTMLButtonElement>(null);
+  const labelRef = useRef<HTMLSpanElement>(null);
   const wasConfirming = useRef(false);
   const deleting = useRef(false);
+  const expansion = useMotionValue(0);
+  const labelWidth = useMotionValue(0);
+  const leftWidth = useTransform(expansion, leftWidthAt);
+  const rightWidth = useTransform(expansion, rightWidthAt);
+  const revealWidth = useTransform(() => expansion.get() * labelWidth.get());
   const transition = {
     duration: reduceMotion ? 0 : confirming ? 0.28 : 0.22,
     ease: confirming ? [0.25, 0.1, 0.25, 1] as const : [0.25, 0.1, 0.35, 1] as const,
   };
+
+  useEffect(() => {
+    const label = labelRef.current;
+    if (!label) return;
+    const measure = () => labelWidth.set(label.getBoundingClientRect().width);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(label);
+    return () => observer.disconnect();
+  }, [labelWidth]);
+
+  useEffect(() => {
+    if (!isPresent) return;
+    const controls = animate(expansion, confirming ? 1 : 0, {
+      duration: reduceMotion ? 0 : confirming ? 0.28 : 0.22,
+      ease: confirming ? [0.25, 0.1, 0.25, 1] : [0.25, 0.1, 0.35, 1],
+    });
+    return () => controls.stop();
+  }, [confirming, reduceMotion, isPresent, expansion]);
 
   useEffect(() => {
     if (!isPresent) return;
@@ -59,9 +86,9 @@ export function DetailRecordActions({
         onClick={() => confirming ? setConfirming(false) : onReturn()}
         variant="ghost"
         className="absolute left-0 top-0 h-12 rounded-full p-0 transition-transform hover:bg-transparent"
+        style={{ width: leftWidth }}
         initial={false}
         animate={{
-          width: confirming ? DETAIL_ACTION_WIDTHS.open.left : DETAIL_ACTION_WIDTHS.closed.left,
           backgroundColor: confirming ? "var(--card)" : "var(--primary)",
           color: confirming ? "var(--foreground)" : "var(--primary-foreground)",
         }}
@@ -93,23 +120,17 @@ export function DetailRecordActions({
         }}
         variant="ghost"
         className="absolute right-0 top-0 h-12 rounded-full bg-destructive-soft p-0 text-destructive transition-transform hover:bg-destructive-soft"
+        style={{ width: rightWidth }}
         initial={false}
-        animate={{
-          width: confirming ? DETAIL_ACTION_WIDTHS.open.right : DETAIL_ACTION_WIDTHS.closed.right,
-        }}
-        transition={transition}
         aria-label={confirming ? "确认删除当前记录" : "删除当前记录"}
         aria-expanded={confirming}
       >
-        <motion.span className="absolute inset-0 flex items-center justify-center"
-          initial={false} animate={{ columnGap: confirming ? 8 : 0 }} transition={transition}>
+        <span className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
           <Trash2 size={19} className="shrink-0" />
-          <motion.span className="overflow-hidden whitespace-nowrap"
-            initial={false} animate={{ width: confirming ? "auto" : 0, opacity: confirming ? 1 : 0 }}
-            transition={labelTransition}>
-            确认删除
+          <motion.span className="shrink-0 overflow-hidden" style={{ width: revealWidth }}>
+            <span ref={labelRef} className="block w-max whitespace-nowrap pl-2">确认删除</span>
           </motion.span>
-        </motion.span>
+        </span>
       </MotionButton>
     </div>
   );
