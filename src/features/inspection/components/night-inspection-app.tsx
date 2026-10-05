@@ -160,6 +160,10 @@ function InspectionAppContent({
         onToggleManage={actions.toggleHistoryManagement}
         onToggleRecord={actions.toggleRecord}
         onDeleteRequest={actions.setDeleteRequest}
+        onDeleteRecord={(record) => actions.deleteRecords({
+          ids: [record.id],
+          label: `${record.date} ${record.time}`,
+        })}
         onOpenBackup={actions.openBackup}
         onCloseBackup={actions.closeBackup}
         backupOpen={state.backupOpen}

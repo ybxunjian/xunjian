@@ -98,9 +98,8 @@ export function useInspectionHistory({
     );
   };
 
-  const confirmDeleteRecords = () => {
-    if (!deleteRequest) return;
-    const deleting = new Set(deleteRequest.ids);
+  const deleteRecords = (request: DeleteRequest) => {
+    const deleting = new Set(request.ids);
     const deletedRecords = recordsRef.current.filter((record) => deleting.has(record.id));
     const next = recordsRef.current.filter((record) => !deleting.has(record.id));
     commitRecords(next);
@@ -113,13 +112,13 @@ export function useInspectionHistory({
     setDeleteRequest(null);
     if (userId) {
       void runCloudChange(
-        deleteCloudInspectionRecords(userId, deleteRequest.ids),
+        deleteCloudInspectionRecords(userId, request.ids),
       );
     }
     let restored = false;
     const toastId = toast.success(
-      deleteRequest.ids.length > 1
-        ? `已删除 ${deleteRequest.ids.length} 条记录`
+      request.ids.length > 1
+        ? `已删除 ${request.ids.length} 条记录`
         : "已删除历史记录",
       {
         action: {
@@ -144,6 +143,10 @@ export function useInspectionHistory({
       },
     );
     deleteToastIds.current.add(toastId);
+  };
+
+  const confirmDeleteRecords = () => {
+    if (deleteRequest) deleteRecords(deleteRequest);
   };
 
   const commitSave = () => {
@@ -194,6 +197,7 @@ export function useInspectionHistory({
       toggleRecord,
       setDeleteRequest,
       confirmDeleteRecords,
+      deleteRecords,
       commitSave,
       save,
       cancelSaveValidation: () => setSaveValidation(null),

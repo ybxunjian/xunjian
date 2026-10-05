@@ -14,6 +14,7 @@ import { HistoryCalendar } from "./history-calendar";
 import { BackupView, type BackupViewProps } from "./backup-view";
 import { HistoryQuickMenu } from "./history-quick-menu";
 import { InspectionSummary } from "./inspection-summary";
+import { DetailRecordActions } from "./detail-record-actions";
 
 type HistoryViewProps = {
   menuContainer: HTMLDivElement | null;
@@ -29,6 +30,7 @@ type HistoryViewProps = {
   onToggleManage: () => void;
   onToggleRecord: (id: string) => void;
   onDeleteRequest: (request: DeleteRequest) => void;
+  onDeleteRecord: (record: InspectionRecord) => void;
   onOpenBackup: () => void;
   onCloseBackup: () => void;
   backupOpen: boolean;
@@ -49,6 +51,7 @@ export function HistoryView({
   onToggleManage,
   onToggleRecord,
   onDeleteRequest,
+  onDeleteRecord,
   onOpenBackup,
   onCloseBackup,
   backupOpen,
@@ -123,7 +126,7 @@ export function HistoryView({
         {selectedRecord && (
           <motion.div
             key={`actions-${selectedRecord.id}`}
-            className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 z-30 grid w-[calc(100%-2rem)] max-w-[416px] -translate-x-1/2 grid-cols-[1fr_auto] gap-2"
+            className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 z-30 grid w-[calc(100%-2rem)] max-w-[416px] -translate-x-1/2"
             initial={{ opacity: 0, y: reduceMotion ? 0 : 10 }}
             animate={{
               opacity: 1,
@@ -143,24 +146,12 @@ export function HistoryView({
                 : VIEW_TRANSITION,
             }}
           >
-            <Button type="button" onClick={onReturnToList} className="h-12 w-full rounded-full">
-              {calendarOpen ? "返回巡检日历" : "返回历史记录"}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="iconLarge"
-              aria-label="删除当前记录"
-              onClick={() =>
-                onDeleteRequest({
-                  ids: [selectedRecord.id],
-                  label: `${selectedRecord.date} ${selectedRecord.time}`,
-                })
-              }
-              className="rounded-full bg-destructive-soft text-destructive"
-            >
-              <Trash2 size={19} />
-            </Button>
+            <DetailRecordActions
+              returnLabel={calendarOpen ? "返回巡检日历" : "返回历史记录"}
+              reduceMotion={reduceMotion}
+              onReturn={onReturnToList}
+              onDelete={() => onDeleteRecord(selectedRecord)}
+            />
           </motion.div>
         )}
       </AnimatePresence>
@@ -266,7 +257,7 @@ function HistoryList({
                   label: `${selectedRecordIds.length} 条历史记录`,
                 })
               }
-              className="ml-auto px-3"
+              className="ml-auto rounded-full px-3"
             >
               <Trash2 size={16} />
               删除

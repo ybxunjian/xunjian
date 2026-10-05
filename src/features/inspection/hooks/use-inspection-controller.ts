@@ -431,6 +431,7 @@ export function useInspectionController(userId?: string) {
       toggleRecord: history.actions.toggleRecord,
       setDeleteRequest: history.actions.setDeleteRequest,
       confirmDeleteRecords: history.actions.confirmDeleteRecords,
+      deleteRecords: history.actions.deleteRecords,
       commitSave: history.actions.commitSave,
       save: history.actions.save,
       cancelSaveValidation: history.actions.cancelSaveValidation,

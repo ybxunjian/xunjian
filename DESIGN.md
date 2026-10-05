@@ -112,3 +112,5 @@ Framer Motion 用于页面/Tab 切换、底部弹层、卡片展开、受控日�
 ## 组件与质量演进
 
 新增通用能力优先扩展本地 shadcn/ui 风格组件（如 Sheet、Dialog、Tabs、Skeleton）。Storybook 用于组件状态基线，Playwright 用于手机端核心流程。引入上述工具或 React Hook Form、Zod、Service Worker 前，需先记录使用位置、收益与更轻量替代方案。
+
+详情底部删除采用原位确认：右侧圆形扩为红色确认胶囊，左侧返回同步变为灰色取消胶囊，最终等宽；48px 高与 8px 间距不变，展开 280ms、恢复 220ms，无回弹、无阴影，沿用删除撤销机制。批量删除仍使用原确认弹窗。参数详见 `docs/ui-components.md`。
