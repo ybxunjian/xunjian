@@ -42,7 +42,7 @@
 - `useFieldFeedback.report(errors)` 替换字段错误，递增出错字段的动画序号，并返回是否存在错误。输入变化调用 `clear(field)`；切换表单模式调用 `reset()`。通用密码校验仍使用 `auth-validation.ts`。
 - `InspectionTabs` 统一顶部 4 个主导航项，使用蓝色选中态和 `aria-current`。`BeltTabs` 统一下方 3 个皮带选项，使用白色选中态、项间距和 `aria-pressed`。两组视觉与交互独立维护。
 - 历史列表采用日期与填写时间分区排版：月日 22px、字重 700，年份和星期 11px；填写时分 15px 灰色、字重 600，说明 11px，主值与辅助信息分别按共享网格行对齐。同日省略重复日期，跨日、跨年明确标注填写日期；只调整显示，保留完整原始记录与无障碍时间说明。卡片至少 88px 高，详情入口圆形可见直径 34px、点击区域 44px。详情底部返回按钮为 48px 高胶囊，删除按钮为 48px 圆形，间距 8px，不使用彩色阴影，沿用现有颜色和动画。
-- 历史管理菜单属于巡检业务组件 `HistoryQuickMenu`：日历、备份与恢复、批量删除复用公共 `Button` 的 `outline` / `icon` 组合，切换入口复用 `ghost` / `icon`。只有切换入口的三横线 / 叉 / 勾 / 左箭头连续线条动画使用业务内 SVG；其余功能图标使用 Lucide。
+- 历史管理菜单属于巡检业务组件 `HistoryQuickMenu`：日历、备份与恢复、批量删除复用公共 `Button` 的 `ghost` / `icon` 组合，仅显示 21px Lucide 图标，保留 44×44px 透明点击区域和现有间距；无圆背景、边框、阴影、悬停底色或按压缩放。切换入口复用 `ghost` / `icon` 并保留原有反馈。只有切换入口的三横线 / 叉 / 勾 / 左箭头连续线条动画使用业务内 SVG；其余功能图标使用 Lucide。整组展开、收起动画保持原样。
 - 样式继续消费 `src/app/globals.css` 的设计变量。`field-shake` 的动画和减少动态效果规则只在这里定义一次。
 - 组合 Tailwind 类名统一使用 `src/lib/utils.ts` 的 `cn()`。项目自定义字号 `text-label`、`text-caption`、`text-body`、`text-card-title` 和 `text-title` 已注册为字号类，必须与 `text-destructive`、`text-muted-foreground` 等颜色类同时保留。新增 `--text-*` 字号变量时，必须同步扩展 `cn()` 的 `font-size` 分组并补充回归测试，避免字号类被 `tailwind-merge` 误判为颜色类后删除。
 - 巡检数据规则、存储、云同步、密码提交、导入导出和具体确认动作保留在各业务模块中。

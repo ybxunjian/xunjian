@@ -87,12 +87,12 @@ export function HistoryQuickMenu({
               <div key={item.label} className="shrink-0">
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="ghost"
                   size="icon"
                   aria-label={item.label}
                   disabled={item.disabled}
                   onClick={item.action}
-                  className="rounded-full text-foreground-strong hover:bg-card active:scale-[.92]"
+                  className="text-foreground-strong hover:bg-transparent active:scale-100"
                 >
                   {item.icon}
                 </Button>
