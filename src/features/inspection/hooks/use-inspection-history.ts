@@ -1,7 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { toast } from "sonner";
 import type {
-  DeleteRequest,
   InspectionRecord,
   InspectionValues,
   SaveValidation,
@@ -57,7 +56,6 @@ export function useInspectionHistory({
   const [historyDirection, setHistoryDirection] = useState<1 | -1>(1);
   const [manageHistory, setManageHistory] = useState(false);
   const [selectedRecordIds, setSelectedRecordIds] = useState<string[]>([]);
-  const [deleteRequest, setDeleteRequest] = useState<DeleteRequest | null>(null);
   const [saveValidation, setSaveValidation] =
     useState<SaveValidation | null>(null);
 
@@ -98,8 +96,8 @@ export function useInspectionHistory({
     );
   };
 
-  const deleteRecords = (request: DeleteRequest) => {
-    const deleting = new Set(request.ids);
+  const deleteRecords = (ids: string[]) => {
+    const deleting = new Set(ids);
     const deletedRecords = recordsRef.current.filter((record) => deleting.has(record.id));
     const next = recordsRef.current.filter((record) => !deleting.has(record.id));
     commitRecords(next);
@@ -109,16 +107,15 @@ export function useInspectionHistory({
     }
     setSelectedRecordIds([]);
     setManageHistory(false);
-    setDeleteRequest(null);
     if (userId) {
       void runCloudChange(
-        deleteCloudInspectionRecords(userId, request.ids),
+        deleteCloudInspectionRecords(userId, ids),
       );
     }
     let restored = false;
     const toastId = toast.success(
-      request.ids.length > 1
-        ? `已删除 ${request.ids.length} 条记录`
+      ids.length > 1
+        ? `已删除 ${ids.length} 条记录`
         : "已删除历史记录",
       {
         action: {
@@ -143,10 +140,6 @@ export function useInspectionHistory({
       },
     );
     deleteToastIds.current.add(toastId);
-  };
-
-  const confirmDeleteRecords = () => {
-    if (deleteRequest) deleteRecords(deleteRequest);
   };
 
   const commitSave = () => {
@@ -184,7 +177,6 @@ export function useInspectionHistory({
       historyDirection,
       manageHistory,
       selectedRecordIds,
-      deleteRequest,
       saveValidation,
     },
     actions: {
@@ -195,13 +187,10 @@ export function useInspectionHistory({
       returnToHistoryList,
       toggleHistoryManagement,
       toggleRecord,
-      setDeleteRequest,
-      confirmDeleteRecords,
       deleteRecords,
       commitSave,
       save,
       cancelSaveValidation: () => setSaveValidation(null),
-      cancelDeleteRequest: () => setDeleteRequest(null),
     },
   };
 }

@@ -1,20 +1,21 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, ChevronRight, History, Trash2 } from "lucide-react";
+import { Check, ChevronRight, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DirectionalViewTransition, VIEW_TRANSITION } from "@/components/ui/directional-view-transition";
 import { useStickyEdgeState } from "../../hooks/use-sticky-edge-state";
 import { Card, CardContent } from "@/components/ui/card";
 import { getLatestHistoryDate } from "../../model/history-filter";
 import { getHistoryRecordDisplay } from "../../model/history-record-display";
-import type { DeleteRequest, InspectionRecord } from "../../model/types";
+import type { InspectionRecord } from "../../model/types";
 import { SectionHeading } from "../section-heading";
 import { HistoryCalendar } from "./history-calendar";
 import { BackupView, type BackupViewProps } from "./backup-view";
 import { HistoryQuickMenu } from "./history-quick-menu";
 import { InspectionSummary } from "./inspection-summary";
 import { DetailRecordActions } from "./detail-record-actions";
+import { BatchDeleteControls } from "./batch-delete-controls";
 
 type HistoryViewProps = {
   menuContainer: HTMLDivElement | null;
@@ -29,7 +30,7 @@ type HistoryViewProps = {
   onReturnToList: () => void;
   onToggleManage: () => void;
   onToggleRecord: (id: string) => void;
-  onDeleteRequest: (request: DeleteRequest) => void;
+  onDeleteRecords: (ids: string[]) => void;
   onDeleteRecord: (record: InspectionRecord) => void;
   onOpenBackup: () => void;
   onCloseBackup: () => void;
@@ -50,7 +51,7 @@ export function HistoryView({
   onReturnToList,
   onToggleManage,
   onToggleRecord,
-  onDeleteRequest,
+  onDeleteRecords,
   onDeleteRecord,
   onOpenBackup,
   onCloseBackup,
@@ -118,7 +119,8 @@ export function HistoryView({
               selectedRecordIds={selectedRecordIds}
               onSelectRecord={onSelectRecord}
               onToggleRecord={onToggleRecord}
-              onDeleteRequest={onDeleteRequest}
+              onDeleteRecords={onDeleteRecords}
+              reduceMotion={reduceMotion}
             />
           )}
       </DirectionalViewTransition>
@@ -166,7 +168,8 @@ type HistoryListProps = Pick<
   | "selectedRecordIds"
   | "onSelectRecord"
   | "onToggleRecord"
-  | "onDeleteRequest"
+  | "onDeleteRecords"
+  | "reduceMotion"
 >;
 
 function HistoryList({
@@ -175,7 +178,8 @@ function HistoryList({
   selectedRecordIds,
   onSelectRecord,
   onToggleRecord,
-  onDeleteRequest,
+  onDeleteRecords,
+  reduceMotion,
 }: HistoryListProps) {
   const { elementRef: selectionActionsRef, isStuck } = useStickyEdgeState(
     manageHistory && records.length > 0,
@@ -247,21 +251,11 @@ function HistoryList({
             <span className="text-body font-semibold text-muted-foreground">
               已选择 <b className="text-primary">{selectedRecordIds.length}</b> 条
             </span>
-            <Button
-              type="button"
-              variant="destructive"
-              disabled={selectedRecordIds.length === 0}
-              onClick={() =>
-                onDeleteRequest({
-                  ids: selectedRecordIds,
-                  label: `${selectedRecordIds.length} 条历史记录`,
-                })
-              }
-              className="ml-auto rounded-full px-3"
-            >
-              <Trash2 size={16} />
-              删除
-            </Button>
+            <BatchDeleteControls
+              selectedRecordIds={selectedRecordIds}
+              reduceMotion={reduceMotion}
+              onDelete={onDeleteRecords}
+            />
           </div>
         </div>
       )}

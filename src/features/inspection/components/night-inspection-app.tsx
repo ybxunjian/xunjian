@@ -23,7 +23,6 @@ import {
 } from "../hooks/use-inspection-controller";
 import type { InspectionTab } from "../model/types";
 import { BeltArea } from "./belt/belt-area";
-import { DeleteDialog } from "./dialogs/delete-dialog";
 import { SaveValidationDialog } from "./dialogs/save-validation-dialog";
 import { HistoryView } from "./history/history-view";
 import { InspectionTabs } from "./inspection-tabs";
@@ -159,11 +158,8 @@ function InspectionAppContent({
         onReturnToList={actions.returnToHistoryList}
         onToggleManage={actions.toggleHistoryManagement}
         onToggleRecord={actions.toggleRecord}
-        onDeleteRequest={actions.setDeleteRequest}
-        onDeleteRecord={(record) => actions.deleteRecords({
-          ids: [record.id],
-          label: `${record.date} ${record.time}`,
-        })}
+        onDeleteRecords={actions.deleteRecords}
+        onDeleteRecord={(record) => actions.deleteRecords([record.id])}
         onOpenBackup={actions.openBackup}
         onCloseBackup={actions.closeBackup}
         backupOpen={state.backupOpen}
@@ -260,15 +256,6 @@ function InspectionAppContent({
             validation={state.saveValidation}
             onSave={actions.commitSave}
             onCancel={actions.cancelSaveValidation}
-          />
-        )}
-      </AnimatePresence>
-      <AnimatePresence>
-        {state.deleteRequest && (
-          <DeleteDialog
-            request={state.deleteRequest}
-            onConfirm={actions.confirmDeleteRecords}
-            onCancel={actions.cancelDeleteRequest}
           />
         )}
       </AnimatePresence>

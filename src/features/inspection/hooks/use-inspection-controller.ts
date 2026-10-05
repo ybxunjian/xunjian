@@ -429,13 +429,10 @@ export function useInspectionController(userId?: string) {
       returnToHistoryList: history.actions.returnToHistoryList,
       toggleHistoryManagement: history.actions.toggleHistoryManagement,
       toggleRecord: history.actions.toggleRecord,
-      setDeleteRequest: history.actions.setDeleteRequest,
-      confirmDeleteRecords: history.actions.confirmDeleteRecords,
       deleteRecords: history.actions.deleteRecords,
       commitSave: history.actions.commitSave,
       save: history.actions.save,
       cancelSaveValidation: history.actions.cancelSaveValidation,
-      cancelDeleteRequest: history.actions.cancelDeleteRequest,
       openBackup: () => {
         history.actions.setHistoryDirection(1);
         backup.actions.openBackup();
