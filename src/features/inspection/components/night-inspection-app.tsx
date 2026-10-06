@@ -29,7 +29,7 @@ import { InspectionTabs } from "./inspection-tabs";
 import { PumpArea } from "./pump/pump-area";
 
 const PRIMARY_PAGE_TRANSITION = {
-  duration: 0.2,
+  duration: 0.24,
   ease: [0.25, 0.1, 0.25, 1] as const,
 };
 
