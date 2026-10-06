@@ -147,7 +147,7 @@ function ImportPreviewPanel({
         type="button"
         disabled={preview.newRecordCount === 0}
         onClick={onMergeImport}
-        className="mt-4 w-full"
+        className="mt-4 w-full rounded-full"
       >
         <Upload size={17} />
         {preview.newRecordCount > 0 ? `恢复 ${preview.newRecordCount} 条新记录` : "没有需要新增的记录"}
@@ -182,7 +182,7 @@ function ImportPreviewPanel({
               if (confirmReplace) onReplaceImport();
               else setConfirmReplace(true);
             }}
-            className="mt-2 w-full"
+            className="mt-2 w-full rounded-full"
           >
             {preview.invalidCount > 0
               ? "备份含无效记录，无法替换"

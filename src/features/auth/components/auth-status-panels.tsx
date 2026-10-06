@@ -31,7 +31,7 @@ export function AccountNotice({
           variant="secondary"
           disabled={resending || resendCooldown > 0}
           onClick={onResend}
-          className="w-full"
+          className="w-full rounded-full"
         >
           {resending
             ? "正在发送…"

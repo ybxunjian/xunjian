@@ -43,11 +43,11 @@ export function SaveValidationDialog({
           variant="ghost"
           disabled={!isPresent}
           onClick={onSave}
-          className="bg-muted text-foreground"
+          className="rounded-full bg-muted text-foreground"
         >
           仍然保存
         </Button>
-        <Button type="button" disabled={!isPresent} onClick={onCancel}>
+        <Button type="button" disabled={!isPresent} onClick={onCancel} className="rounded-full">
           返回补充
         </Button>
       </div>
