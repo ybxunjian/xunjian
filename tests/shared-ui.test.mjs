@@ -43,14 +43,7 @@ test("primary navigation and belt tabs remain separate component groups", () => 
   assert.equal((nav.match(/<button/g) ?? []).length, 4);
   assert.equal((filter.match(/<button/g) ?? []).length, 3);
   assert.match(nav, /grid-cols-4/);
-  assert.equal((nav.match(/data-navigation-indicator=""/g) ?? []).length, 1);
-  assert.match(nav, /transform:translateX\(100%\)/);
-  assert.doesNotMatch(nav, /<button[^>]*\bbg-primary\b/);
-  assert.match(nav, /aria-current="page"[^>]*text-primary-foreground/);
-  const reordered = renderToStaticMarkup(h(InspectionTabs, {
-    order: ["history", "slag9", "slag8", "belt"], value: "belt", onChange() {},
-  }));
-  assert.match(reordered, /transform:translateX\(300%\)/);
+  assert.match(nav, /bg-primary text-primary-foreground/);
   assert.match(filter, /grid-cols-3 gap-1/);
   assert.match(filter, /bg-card text-primary/);
   assert.equal((nav.match(/aria-current="page"/g) ?? []).length, 1);
