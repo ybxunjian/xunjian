@@ -100,7 +100,7 @@ export function BatchDeleteControls({
         reduceMotion={reduceMotion}
         closedContent={<><Trash2 size={16} />删除</>}
         openContent="确认"
-        className="absolute right-0 top-0 h-11 w-[76px] rounded-full p-0 transition-transform hover:bg-destructive disabled:opacity-100"
+        className="absolute right-0 top-0 h-11 w-[76px] rounded-full p-0 transition-transform hover:bg-destructive active:scale-[.99] disabled:opacity-100"
       />
     </div>
   );

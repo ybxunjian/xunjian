@@ -57,7 +57,7 @@ export function DetailRecordActions({
         disabled={!isPresent}
         onClick={() => confirming ? setConfirming(false) : onReturn()}
         variant="ghost"
-        className="absolute left-0 top-0 h-12 rounded-full p-0 transition-transform hover:bg-transparent"
+        className="absolute left-0 top-0 h-12 rounded-full p-0 transition-transform hover:bg-transparent active:scale-[.99]"
         style={{ width: leftWidth }}
         open={confirming}
         reduceMotion={reduceMotion}
@@ -85,7 +85,7 @@ export function DetailRecordActions({
           }
         }}
         variant="ghost"
-        className="absolute right-0 top-0 h-12 overflow-hidden rounded-full bg-destructive-soft p-0 text-destructive transition-transform hover:bg-destructive-soft"
+        className="absolute right-0 top-0 h-12 overflow-hidden rounded-full bg-destructive-soft p-0 text-destructive transition-transform hover:bg-destructive-soft active:scale-[.99]"
         style={{ width: rightWidth, backgroundColor }}
         open={confirming}
         reduceMotion={reduceMotion}

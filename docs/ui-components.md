@@ -18,7 +18,7 @@
 | [DirectionalViewTransition](../src/components/ui/directional-view-transition.tsx) | 历史列表、详情、日历、备份切页 |
 | [SplitConfirmationButton](../src/components/ui/split-confirmation-button.tsx) | 批量删除、详情删除、退出登录的内容层与分裂动画基础 |
 | [ConfirmationPopover](../src/components/ui/confirmation-popover.tsx) | 头像移除锚定气泡、焦点与 WAAPI 生命周期 |
-| [SectionHeading](../src/features/inspection/components/section-heading.tsx) | 巡检和汇总内容标题 |
+| [SectionHeading](../src/features/inspection/components/section-heading.tsx) | 巡检、汇总、历史列表、日历和备份页面标题；标题行至少 44px 高、左右内边距 4px、下间距 16px，统一字号、字重和紧缩字距 |
 | [InspectionTabs](../src/features/inspection/components/inspection-tabs.tsx)、[BeltTabs](../src/features/inspection/components/belt/belt-tabs.tsx) | 分别维护一级导航与皮带子导航，不合为万能组件 |
 
 组合类名统一用 `src/lib/utils.ts` 的 `cn()`；新增自定义字号变量需同步其 font-size 分组，避免与颜色类合并时丢失字号。
@@ -28,7 +28,8 @@
 | 控件 | 当前尺寸和反馈 |
 | --- | --- |
 | 基础 Button | 默认至少 44px，compact 最少 36px；默认按压 0.97、CSS 200ms。compact 只用于适合的场景 |
-| 首页与辅助流程操作 | 首页新建/保存、备份恢复/替换、保存校验的两项操作、验证邮件重发均为 44px 高胶囊；配色与布局由原场景维护 |
+| 首页操作 | 新建/保存均为 44px 高、14px 圆角矩形，复用基础 Button 默认圆角 |
+| 辅助流程操作 | 备份恢复/替换、保存校验的两项操作、验证邮件重发均为 44px 高胶囊；配色与布局由原场景维护 |
 | 两层分段导航 | 44px 轨道、4px 内边距、36px 可见项；透明伪元素纵向扩充点击到 44px。外圆角 22px、项圆角 18px，选中样式 CSS 200ms |
 | 原生泵号 select | 108px 宽、当前盒高 44px，焦点过渡 180ms |
 | TextField 邮箱/密码 | 最小 52px、字体 16px，胶囊；普通错误区另预留 24px，带忘记密码操作行最小 44px |
@@ -83,7 +84,7 @@
 | `DetailRecordActions` | 48px 高蓝色返回胶囊 + 48px 浅红删除圆形 → 白底深字取消 + 红底白字确认删除；两侧各占 `(100% - 8px)/2`，保持 8px 间距 |
 | `BatchDeleteControls` | 76×44px 红色“垃圾桶＋删除” → 原尺寸原位置红色“确认” + 左侧 76×44px 白底深字取消，间距 8px |
 
-三组均不使用彩色阴影。打开聚焦取消，主动取消后恢复入口焦点，均 preventScroll；Escape 取消，滚动保持展开，退场禁用。业务确认及防重复提交留在调用方。
+三组均不使用彩色阴影，入口、确认与取消的按压缩放均为 0.99。打开聚焦取消，主动取消后恢复入口焦点，均 preventScroll；Escape 取消，滚动保持展开，退场禁用。业务确认及防重复提交留在调用方。
 
 - 退出登录：初始由完整覆盖按钮承接点击，展开后隐藏入口，两侧独立操作；按压 0.99。外部轻点抬起取消，移动超过 8px、滚动或取消手势保持展开。请求时禁用，右侧“正在退出…”通过 openContentKey 交叉切换，失败保留确认供重试。
 - 详情：左侧蓝色返回渐变为白底取消；右侧底色在几何进度 0–60% 从 destructive-soft 加深为 destructive，居中垃圾桶淡出，白色“确认删除”淡入，无图标占位。每条记录独立挂载，离开不保留确认。

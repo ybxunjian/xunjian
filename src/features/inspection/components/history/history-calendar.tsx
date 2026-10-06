@@ -6,6 +6,7 @@ import { calendarMonthDistance } from "../../model/calendar-paging";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { SectionHeading } from "../section-heading";
 import {
   getCalendarDates,
   getEarliestHistoryDate,
@@ -44,9 +45,7 @@ export function HistoryCalendar({
 
   return (
     <>
-      <div className="mb-3 flex min-h-11 items-center justify-between gap-2">
-        <h2 className="text-title font-black">巡检日历</h2>
-      </div>
+      <SectionHeading title="巡检日历" />
       <Card>
         <CardContent className="p-3 sm:p-4">
           <div className="mb-3 flex items-center justify-between gap-2">

@@ -216,10 +216,10 @@ function InspectionAppContent({
           </button>
         )}
         <div className="mt-5 grid grid-cols-2 gap-2">
-          <Button variant="inverse" onClick={actions.createNewInspection} className="rounded-full">
+          <Button variant="inverse" onClick={actions.createNewInspection}>
             新建
           </Button>
-          <Button onClick={actions.save} className="rounded-full">
+          <Button onClick={actions.save}>
             <Save />
             保存
           </Button>

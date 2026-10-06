@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { InspectionImportPreview } from "../../model/types";
+import { SectionHeading } from "../section-heading";
 
 export type BackupViewProps = {
   recordCount: number;
@@ -30,9 +31,7 @@ export type BackupViewProps = {
 export function BackupView(props: BackupViewProps) {
   return (
     <>
-      <div className="mb-3 flex min-h-11 items-center">
-        <h2 className="text-title font-black">备份与恢复</h2>
-      </div>
+      <SectionHeading title="备份与恢复" />
       <Card>
         <CardContent>
           {props.importPreview ? (
