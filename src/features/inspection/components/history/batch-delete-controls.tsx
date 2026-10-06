@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useIsPresent, useTransform } from "framer-motion";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { SplitConfirmationButton, useSplitConfirmationColor, useSplitConfirmationMotion } from "@/components/ui/split-confirmation-button";
+import { SplitConfirmationButton, useSplitConfirmationMotion } from "@/components/ui/split-confirmation-button";
 
 export function BatchDeleteControls({
   selectedRecordIds, reduceMotion, onDelete,
@@ -27,7 +27,6 @@ export function BatchDeleteControls({
   const { progress } = useSplitConfirmationMotion(open, reduceMotion, isPresent);
   // Keep the original trigger's entire 76px hit area and center for confirmation.
   const leftOffset = useTransform(progress, [0, 1], [52, 84]);
-  const cancelColor = useSplitConfirmationColor(progress, "--destructive", "--card");
   const cancel = () => setConfirmation({ selectionKey, open: false });
 
   useEffect(() => {
@@ -73,8 +72,8 @@ export function BatchDeleteControls({
         style={{ right: leftOffset }}
         surface={(
           <motion.span
-            className="pointer-events-none absolute inset-0 rounded-full"
-            style={{ backgroundColor: cancelColor, opacity: progress }}
+            className="pointer-events-none absolute inset-0 rounded-full bg-card"
+            style={{ opacity: progress }}
             aria-hidden="true"
           />
         )}
