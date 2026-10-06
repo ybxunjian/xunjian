@@ -1,117 +1,45 @@
 # 夜班巡检
 
-面向手机端的夜班巡检记录工具，包含：
+面向手机现场填写的巡检 PWA，支持 8#冲渣、SZ101 / SZ201 / SZ201-N 皮带、9#冲渣，以及历史汇总、巡检日历、删除撤销和 JSON 备份恢复。
 
-- 8#冲渣区域
-- SZ101、SZ201、SZ201-N 皮带区域
-- 9#冲渣区域
-- 本地历史记录、按月巡检日历、巡检汇总与 JSON 备份恢复
-- 邮箱账号、私有头像和可排序导航
-- localStorage 本地优先缓存与 Supabase 跨设备同步
+数据先保存到当前浏览器。配置 Supabase 后提供邮箱账号、私有头像、导航排序和跨设备同步；未配置时可纯本地使用。首次访问需要网络，离线资源和本地数据依赖浏览器保留站点数据。
 
-应用始终先把巡检数据保存在当前浏览器。配置 Supabase 后，登录用户的数据会同时同步到云端；未配置时仍可纯本地使用。
+正式网站：<https://ybxunjian.github.io/xunjian/>
 
-历史记录标题右侧的菜单向左展开，可打开巡检日历、备份与恢复，或进入批量删除。日历水平拖动直接跟手，松手归位可由新手势立即接管，标题跨过半页更新；保留竖向页面滚动。日历仅显示月份网格：有记录的日期可直接打开当天记录详情；无记录的日期不可点击。批量删除时逐条选择，再用底部操作区删除。
+仓库：<https://github.com/ybxunjian/xunjian>
 
-## 代码结构
+## 开始开发
 
-```text
-src/app/                         # App Router 入口、布局和全局样式
-src/assets/                      # 独立品牌导出，运行时不加载
-src/components/ui/               # 本地基础 UI 组件
-src/features/inspection/         # 巡检视图、流程、规则、存储和云同步
-src/features/inspection/sync/    # 云端同步、持久化离线队列和冲突保护
-src/features/auth/               # 登录、注册、验证、密码恢复和会话撤销
-src/features/account/            # 账号面板、头像和导航偏好
-src/lib/supabase/                # 浏览器 Supabase 客户端
-scripts/                         # 静态导出后的离线资源清单与 Service Worker
-supabase/migrations/             # 数据表、RPC、Storage、RLS 和 Realtime 迁移
-public/icons/                    # PWA 普通与 Maskable 图标
-design/brand/                    # 品牌矢量母版、规范与历史设计归档
-tests/                           # 纯业务规则测试
-```
-
-重复 UI 与交互的公共组件清单、复用边界和修改约定见 [`docs/ui-components.md`](./docs/ui-components.md)。更详细的依赖关系和数据流见 [`ARCHITECTURE.md`](./ARCHITECTURE.md)，当前业务规则与交接基线见 [`PROJECT_HANDOFF.md`](./PROJECT_HANDOFF.md)，界面规范见 [`DESIGN.md`](./DESIGN.md)，品牌图标的母版、色值、导出矩阵与验收规则见 [`design/brand/README.md`](./design/brand/README.md)。
-
-历史菜单触发规则见 [`docs/history-menu-animation.md`](./docs/history-menu-animation.md)，本对话全部修改的代码与文档核对见 [`docs/conversation-change-audit.md`](./docs/conversation-change-audit.md)。
-
-## 品牌图标与 PWA 资源
-
-- 唯一设计母版为 `design/brand/night-inspection-master.svg`，使用透明背景、sRGB 色值和无描边 Bézier 路径。
-- 登录页品牌图形以内嵌 SVG 组件 `AuthLogo` 定义在 `src/features/auth/components/auth-screen.tsx`，紧邻应用标题并使用 `aria-hidden`，不产生额外图片请求或重复朗读。
-- Next.js 元数据图标为白底 `src/app/icon.svg`；Apple Web Clip 与 favicon 分别使用 `src/app/apple-icon.png` 和 `src/app/favicon.ico`。
-- PWA 普通图标与 Maskable 图标分开声明。Maskable 图标使用不透明背景，全部品牌图形必须位于画布中心、半径为边长 40% 的安全圆内。
-- 生产图标只使用 SVG、PNG 或 ICO，不使用 JPEG；修改母版后必须同步生成并检查全部尺寸。
-- `design/brand/archive/` 仅保存本次品牌设计的历史版本，不参与运行时构建。项目原来的黑底眼形旧图标已从当前工作区删除。
-
-## 本地运行
+使用 Node.js 22，在仓库根目录执行：
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
-云端开发目录也是 Git 工作副本。先通过开发服务器预览并完成质量检查，确认修改后再推送；`main` 推送会直接触发生产发布。本项目采用 GitHub Pages，不为预览或部署调用 Netlify。云端修改推送后，在本地同一仓库执行 `git pull --ff-only` 获取更新，再运行上面的安装和启动命令；有未提交本地修改时先妥善保留，不用强制重置覆盖。
+打开 <http://localhost:3000/>。`package-lock.json` 是已提交的依赖锁文件；按现有版本安装，无需更新依赖。
 
-## 构建
+Supabase 环境变量、数据库初始化、质量门禁与 GitHub Pages 发布步骤见 [开发与发布](./docs/development.md)。推送 `main` 会触发正式发布。
 
-```bash
-npm run build
-```
+## 文档入口与职责
 
-构建会在 `out/sw.js` 生成带版本的离线缓存清单。用户首次在线打开生产站点后，浏览器会缓存首页、必要的脚本和样式、manifest 与图标；之后断网重开可继续使用当前浏览器中的巡检数据。Supabase 请求和账号数据不会进入 Service Worker 缓存。登录账号的令牌在离线时无法刷新时，应用只使用上次已验证账号的本地标识；恢复联网后重新检查会话，明确退出登录会清除此标识。首次访问仍需要网络，浏览器清理站点数据也会移除离线资源和本地巡检数据。
+每类规则只在对应文档维护，其他文档通过链接引用。文档与源码不一致时先核对当前实现及明确需求，再纠正文档；不要根据旧截图或历史提交恢复已经替换的实现。
 
-## 质量检查
+| 需要了解的内容 | 唯一维护入口 |
+| --- | --- |
+| 新对话接手、重点代码入口 | [项目交接](./PROJECT_HANDOFF.md) |
+| 开发代理必须遵守的约束 | [AGENTS.md](./AGENTS.md)；`CLAUDE.md` 引用同一文件 |
+| 修改边界、清理依据、文档维护 | [治理约定](./GOVERNANCE.md) |
+| 模块职责、依赖方向和扩展位置 | [架构](./ARCHITECTURE.md) |
+| 设备、填写、保存、历史和备份规则 | [巡检业务规则](./docs/inspection-rules.md) |
+| 数据格式、兼容读取、同步与账号隔离 | [数据与同步](./docs/data-and-sync.md) |
+| 视觉语言、设计令牌和层级 | [设计规范](./DESIGN.md) |
+| 公共组件、尺寸、动画参数和交互 | [公共 UI 与交互](./docs/ui-components.md) |
+| 环境、迁移、校验与发布 | [开发与发布](./docs/development.md) |
+| 品牌母版、图标导出和验收 | [品牌资源](./design/brand/README.md) |
 
-```powershell
-$env:PAGES_BASE_PATH='/xunjian'
-npm run check
-```
+## 运行入口
 
-`npm run check` 会依次执行 ESLint、独立 TypeScript 类型检查、业务测试和生产构建；任一步失败都会以非零状态退出。Pull Request 会自动运行同一门禁，`main` 分支的部署也只有在门禁全部通过后才会上传到 GitHub Pages。
+[src/app/page.tsx](./src/app/page.tsx) 保持路由入口；客户端应用由 [NightInspectionApp](./src/features/inspection/components/night-inspection-app.tsx) 组合巡检、认证和账号功能。
 
-## GitHub Pages 部署
-
-站点地址：[https://ybxunjian.github.io/xunjian/](https://ybxunjian.github.io/xunjian/)。
-
-推送到 `main` 分支后，GitHub Actions 会自动执行 `npm ci`、构建静态导出并发布到 GitHub Pages。该构建会自动注入 `/xunjian` 基础路径；本地校验 Pages 构建时使用：
-
-```powershell
-$env:PAGES_BASE_PATH='/xunjian'
-npm run build
-```
-
-未配置 Supabase 时，巡检草稿和历史记录仍只保存在使用者浏览器的 `localStorage` 中；重新部署不会迁移或清空终端用户已有的数据。配置后，应用要求邮箱账号登录，并在保留本地缓存的同时同步到 Supabase。
-
-## Supabase 账号与同步
-
-1. 在 Supabase 新建项目，按文件名顺序执行 `supabase/migrations/` 下的全部迁移：
-   - `202608280001_create_inspection_sync.sql`：创建巡检记录、草稿及初始同步结构。
-   - `20260829150903_user_preferences_and_private_avatars.sql`：创建用户偏好、私有头像桶及 RLS 策略。
-   - `20260830040000_session_revocation_realtime.sql`：增加跨设备会话撤销字段并为用户偏好启用 Realtime。
-   - `20260831101013_protect_drafts_and_add_recorded_at.sql`：增加 `recorded_at`，并创建只接受较新草稿的 RPC。
-   - `20260901043209_revoke_rls_auto_enable_api_execution.sql`：撤销 API 角色对内部 `SECURITY DEFINER` 事件触发函数的直接执行权。
-   - `20260906170915_reliable_inspection_sync.sql`：创建事务型整体恢复 RPC，并为巡检记录和草稿启用 Realtime。
-2. 在 Authentication → Providers → Email 中保持邮箱注册开启。需要验证邮箱时，同时配置正确的 Site URL；本地开发可加入 `http://localhost:3000` 作为 Redirect URL。
-3. 将 `.env.example` 复制为 `.env.local`，填写项目 URL 和 publishable key。旧项目只有 anon key 时，也可将 anon key 填入 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`。
-4. GitHub Pages 部署需在仓库 Settings → Secrets and variables → Actions 中创建同名的两个 secret：
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
-
-浏览器端不得配置或使用 `service_role` key。数据访问由迁移中的 Row Level Security 策略限制为当前账号。`user_preferences` 加入 Realtime publication 后仍受现有 RLS 约束，客户端只能订阅和更新自己的偏好记录。
-
-首次登录会把当前浏览器中的旧版巡检记录归入该账号，并按记录 UUID 与云端合并。以后在保存、删除、导入恢复、恢复联网和页面重新回到前台时同步。历史记录的保存、删除、撤销删除、合并导入和覆盖恢复会先写入按账号隔离的持久化操作队列，再尝试访问网络；失败项保留在浏览器中，并按 1、3、10、30 秒退避重试，恢复联网或回到前台时也会立即补查。
-
-历史记录通过 UUID 合并，删除通过云端 `deleted_at` 墓碑传播。普通保存和合并导入只允许新增，不能复活墓碑；删除后的提示可撤销本次删除，只恢复删掉的记录；云端恢复按队列顺序清除对应墓碑，不覆盖其他记录。“覆盖恢复”则通过 `replace_inspection_records` 数据库事务恢复目标记录并软删除其余活动记录。队列中的每项操作拥有稳定 ID，同步成功后只确认对应项，因此同步进行期间新增的操作不会丢失。同步请求返回前如果本地记录又发生变化，客户端会拒绝旧结果并重新同步。
-
-草稿的每次真实编辑都会生成严格递增的 `updatedAt`：较新版本胜出，相同版本采用已确认的云端副本，旧版无时间戳草稿不能覆盖已有云端草稿。数据库 RPC 会再次拒绝过期写入，客户端收到拒绝后重新获取云端最新版本。新建空白记录也会保存为空白版本化草稿，因此清空操作能够同步到其他设备。在线账号同时订阅巡检记录和草稿的 Realtime 变更；Realtime 只负责触发重新拉取，恢复联网和页面回到前台时仍会完整补查。
-
-首页同步状态会区分“同步中”“离线（含待同步数量）”“同步失败（含待同步数量）”和最近同步时间。该数量来自当前账号的本地操作队列，不包含尚在防抖等待中的草稿编辑。
-
-首页右上角头像打开账号面板。头像存放在私有 Supabase Storage bucket 中，客户端缓存短期签名 URL，并在图片实际加载成功后才替换当前显示；失败后会在启动、恢复联网或回到前台时重试。邮箱状态、修改密码、导航拖动排序和退出登录均集中在此。导航第一项作为启动页面，偏好本地缓存并同步到 `user_preferences`，换设备登录后自动恢复。导航顺序和头像路径按字段分别提交，并通过更新时间条件和本地修订号防止旧请求覆盖另一设备或后续操作的新值。
-
-登录与注册使用统一的移动端表单布局，密码输入使用原生密码框并通过 `password` / `text` 类型切换显隐，不使用 CSS 密码遮罩。注册和重置密码都需要二次确认。注册后可重发验证邮件；登录未验证邮箱时也会提供重发入口。
-
-登录页支持“忘记密码”：用户提交邮箱后，Supabase 会发送重置邮件；打开邮件链接会回到应用并显示设置新密码界面。要让生产环境的验证和重置链接正确返回 GitHub Pages，请在 Authentication → URL Configuration 中将 Site URL 设为 `https://ybxunjian.github.io/xunjian/`，并把该完整地址加入 Redirect URLs。本地调试时再额外加入 `http://localhost:3000/`。
-
-账号内修改密码和邮件找回重设密码后，应用保留当前设备登录并撤销其他设备会话。在线设备通过 `user_preferences` 的 Realtime 变更及时退出；离线或后台设备会在恢复联网或页面回到前台时检查撤销标记并退出。
+业务代码在 `src/features/`，通用控件在 `src/components/ui/`，设计令牌在 `src/app/globals.css`。更完整的职责划分见架构文档。历史实施过程由 Git 历史保存，不作为现行规范重复维护。

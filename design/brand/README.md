@@ -1,31 +1,33 @@
-# 夜班巡检品牌图标
+# 品牌资源
 
-`night-inspection-master.svg` 是图形的唯一设计母版。它使用透明背景、sRGB 色值和无描边的 Bézier 路径。
+[night-inspection-master.svg](./night-inspection-master.svg) 是品牌图形唯一设计母版：透明背景、sRGB 色值、无描边 Bézier 路径。界面使用方式见 [设计规范](../../DESIGN.md)，此处维护资产本身。
 
 ## 固定规范
 
-- 深蓝：`#0f1f37`
-- 青色渐变：`#3deb9f` → `#18d8b9` → `#08c1cd` → `#00a0e3`
-- 相邻斜边保持平行，白色通道保持均匀
-- 不添加预制圆角、描边、发光或图形阴影
-- 不使用 JPEG 作为生产图标源
+- 深蓝：`#0f1f37`。
+- 青色渐变：`#3deb9f` → `#18d8b9` → `#08c1cd` → `#00a0e3`。
+- 相邻斜边平行、白色通道均匀；不添加预制圆角、描边、发光或图形阴影。
+- 生产图标使用 SVG、PNG、ICO，不使用 JPEG 作为源。
+- 浏览器与 Apple 图标为不透明白色方形背景，不预先裁切系统圆角；登录图形透明、56px，无独立蓝色圆底，与文字标题同时出现时 aria-hidden。
 
-## 生产资源
+## 资源矩阵
 
-- `src/app/icon.svg`：白底浏览器/应用图标
-- `src/app/apple-icon.png`：180×180 Apple Web Clip 图标
-- `src/app/favicon.ico`：16/32/48/64 小尺寸视觉版
-- `src/app/opengraph-image.png`：1200×630 网站富媒体预览图
-- `src/app/twitter-image.png`：1200×630 大图分享卡片
-- `src/features/auth/components/auth-screen.tsx`：登录页内嵌透明品牌图形
-- `public/icons/night-inspection-192-v2.png`：PWA 普通图标
-- `public/icons/night-inspection-512-v2.png`：PWA 普通图标
-- `public/icons/night-inspection-maskable-512-v2.png`：PWA Maskable 图标
+| 资源 | 用途/尺寸 |
+| --- | --- |
+| [src/app/icon.svg](../../src/app/icon.svg) | 白底浏览器/应用图标 |
+| [apple-icon.png](../../src/app/apple-icon.png) | 180×180 Apple Web Clip |
+| [favicon.ico](../../src/app/favicon.ico) | 16/32/48/64 小尺寸视觉版 |
+| [opengraph-image.png](../../src/app/opengraph-image.png)、[twitter-image.png](../../src/app/twitter-image.png) | 1200×630 分享卡片 |
+| [auth-screen.tsx](../../src/features/auth/components/auth-screen.tsx) 内嵌 AuthLogo | 登录页透明品牌图形 |
+| [night-inspection-192-v2.png](../../public/icons/night-inspection-192-v2.png)、[night-inspection-512-v2.png](../../public/icons/night-inspection-512-v2.png) | PWA 普通图标，purpose: any |
+| [night-inspection-maskable-512-v2.png](../../public/icons/night-inspection-maskable-512-v2.png) | PWA Maskable，purpose: maskable |
 
-修改品牌图形后，必须同步重新导出所有生产资源，并在 16、32、56、180、192 和 512 像素下检查边缘与识别度。
+[night-inspection-social-preview.svg](./night-inspection-social-preview.svg) 是分享卡片源稿，可增加背景与信息层级，内部品牌路径和色值保持母版一致。[src/assets/night-inspection-logo.svg](../../src/assets/night-inspection-logo.svg) 是独立透明导出，供核对及非页面用途，当前运行时不加载。
 
-`night-inspection-social-preview.svg` 是富媒体预览图源稿。预览图使用品牌深蓝和青色渐变，可添加版式背景与信息层级，但内部品牌图形仍必须保持母版路径和固定色值。
+favicon 使用 `648 648 2800 2800` 正方形视觉裁切，提高 16px 主体占比。Maskable 使用不透明背景，全部重要品牌像素位于画布中心、半径为边长 40% 的安全圆内。
 
-`src/assets/night-inspection-logo.svg` 保留为独立透明导出，供品牌核对和非页面场景使用；当前运行时代码不加载该文件。
+## 导出与验收
 
-favicon 使用 `648 648 2800 2800` 的正方形视觉裁切范围，以提高 16px 下的主体占比。Maskable 图标必须保持不透明背景，并确保全部品牌图形位于画布中心、半径为画布边长 40% 的安全圆内。
+修改母版后同步全部生产资源、登录内嵌图形和分享源稿。检查 16、32、56、180、192、512px 下的识别度、抗锯齿、透明边缘、裁切和颜色一致性；同时核验 Next 元数据及 manifest 引用。
+
+`archive/` 只用于设计过程留档，不作为运行时或 manifest 的资源源头。资产保留与代码删除依据见 [治理约定](../../GOVERNANCE.md)。

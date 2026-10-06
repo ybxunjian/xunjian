@@ -20,3 +20,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - For material UI or architecture changes, state the expected impact before implementation.
 - After code changes, run `npm run lint`, `npx tsc --noEmit`, and a production build. Run relevant core-flow tests when they exist.
 - Prefer small, reviewable changes. Keep touch targets at least 44px where practical and preserve Safe Area behavior.
+
+## Documentation
+
+Use [README.md](./README.md#文档入口与职责) as the document index. Read the relevant current topic before editing; maintain each rule in its owning document, as described in [GOVERNANCE.md](./GOVERNANCE.md).
