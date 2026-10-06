@@ -29,7 +29,7 @@ import { InspectionTabs } from "./inspection-tabs";
 import { PumpArea } from "./pump/pump-area";
 
 const PRIMARY_PAGE_TRANSITION = {
-  duration: 0.24,
+  duration: 0.3,
   ease: [0.25, 0.1, 0.25, 1] as const,
 };
 
@@ -238,16 +238,9 @@ function InspectionAppContent({
       />
 
       <div className="relative">
-        <motion.div
+        <div
           ref={setHistoryMenuContainer}
           className="absolute right-[calc(1rem+1px)] top-0 z-10"
-          initial={false}
-          animate={{ opacity: state.tab === "history" ? 1 : 0 }}
-          transition={
-            reduceMotion || state.tab !== "history"
-              ? { duration: 0 }
-              : PRIMARY_PAGE_TRANSITION
-          }
         />
         <motion.section
           key={state.tab}
