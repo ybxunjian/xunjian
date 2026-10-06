@@ -28,6 +28,11 @@ import { HistoryView } from "./history/history-view";
 import { InspectionTabs } from "./inspection-tabs";
 import { PumpArea } from "./pump/pump-area";
 
+const PRIMARY_PAGE_TRANSITION = {
+  duration: 0.2,
+  ease: [0.25, 0.1, 0.25, 1] as const,
+};
+
 export function NightInspectionApp() {
   const auth = useAuth();
   const account = auth.user ?? auth.offlineIdentity;
@@ -233,21 +238,25 @@ function InspectionAppContent({
       />
 
       <div className="relative">
-        <div
+        <motion.div
           ref={setHistoryMenuContainer}
           className="absolute right-[calc(1rem+1px)] top-0 z-10"
+          initial={false}
+          animate={{ opacity: state.tab === "history" ? 1 : 0 }}
+          transition={
+            reduceMotion || state.tab !== "history"
+              ? { duration: 0 }
+              : PRIMARY_PAGE_TRANSITION
+          }
         />
-        <AnimatePresence mode="wait">
-          <motion.section
-            key={state.tab}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.18 }}
-          >
-            {content}
-          </motion.section>
-        </AnimatePresence>
+        <motion.section
+          key={state.tab}
+          initial={reduceMotion ? false : { opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={reduceMotion ? { duration: 0 } : PRIMARY_PAGE_TRANSITION}
+        >
+          {content}
+        </motion.section>
       </div>
 
       <AnimatePresence>

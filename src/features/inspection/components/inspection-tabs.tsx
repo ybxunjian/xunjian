@@ -30,7 +30,7 @@ export function InspectionTabs({
           aria-current={value === id ? "page" : undefined}
           data-history-menu-transition={value !== id ? "exit" : undefined}
           onClick={() => onChange(id)}
-          className={`segmented-item relative h-full rounded-navigation-item py-0 text-caption font-bold transition duration-200 before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${value === id ? "bg-primary text-primary-foreground shadow-card" : "text-muted-foreground"}`}
+          className={`segmented-item relative h-full rounded-navigation-item py-0 text-caption font-bold transition duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)] motion-reduce:transition-none before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${value === id ? "bg-primary text-primary-foreground shadow-card" : "text-muted-foreground"}`}
         >
           {TAB_LABELS[id]}
         </button>

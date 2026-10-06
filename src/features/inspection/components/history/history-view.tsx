@@ -73,8 +73,7 @@ export function HistoryView({
   return (
     <>
       {menuContainer && createPortal(
-        // An empty propagated presence cannot finish the parent tab's exit.
-        <AnimatePresence propagate={!selectedRecord}>
+        <AnimatePresence>
           {!selectedRecord && (
             <HistoryQuickMenu
               key="history-menu"
