@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   Cloud,
   CloudOff,
@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { ViewTransition } from "@/components/ui/view-transition";
 import {
   AccountDialog,
   AvatarVisual,
@@ -22,9 +23,11 @@ import {
   type InspectionSyncStatus,
 } from "../hooks/use-inspection-controller";
 import type { InspectionTab } from "../model/types";
+import { getLatestHistoryDate } from "../model/history-filter";
 import { BeltArea } from "./belt/belt-area";
 import { SaveValidationDialog } from "./dialogs/save-validation-dialog";
 import { HistoryView } from "./history/history-view";
+import { HistoryQuickMenu } from "./history/history-quick-menu";
 import { InspectionTabs } from "./inspection-tabs";
 import { PumpArea } from "./pump/pump-area";
 
@@ -91,7 +94,9 @@ function InspectionAppContent({
   const { state, actions } = useInspectionController(userId);
   const preferences = useUserPreferences(userId);
   const [accountOpen, setAccountOpen] = useState(false);
-  const [historyMenuContainer, setHistoryMenuContainer] = useState<HTMLDivElement | null>(null);
+  const [historyActionsContainer, setHistoryActionsContainer] = useState<HTMLDivElement | null>(null);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [calendarMonth, setCalendarMonth] = useState("");
   const startupTabApplied = useRef(false);
 
   useEffect(() => {
@@ -104,8 +109,21 @@ function InspectionAppContent({
     // A choice made while preferences are loading must win over the delayed
     // startup default applied when synchronization finishes.
     startupTabApplied.current = true;
-    if (nextTab !== "history") actions.closeBackup();
+    if (nextTab !== "history") {
+      actions.closeBackup();
+      setCalendarOpen(false);
+      setCalendarMonth("");
+    }
     actions.selectTab(nextTab);
+  };
+
+  const openCalendar = () => {
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    const latest = getLatestHistoryDate(state.records) ?? today;
+    setCalendarMonth(latest.slice(0, 7));
+    actions.setHistoryDirection(1);
+    setCalendarOpen(true);
   };
 
   const signOut = async () => {
@@ -146,22 +164,21 @@ function InspectionAppContent({
       />
     ) : (
       <HistoryView
-        menuContainer={historyMenuContainer}
+        actionsContainer={historyActionsContainer}
+        calendarOpen={calendarOpen}
+        calendarMonth={calendarMonth}
+        onCalendarMonthChange={setCalendarMonth}
         records={state.records}
         selectedRecord={state.selectedRecord}
         direction={state.historyDirection}
-        onDirectionChange={actions.setHistoryDirection}
         manageHistory={state.manageHistory}
         selectedRecordIds={state.selectedRecordIds}
         reduceMotion={Boolean(reduceMotion)}
         onSelectRecord={actions.selectRecord}
         onReturnToList={actions.returnToHistoryList}
-        onToggleManage={actions.toggleHistoryManagement}
         onToggleRecord={actions.toggleRecord}
         onDeleteRecords={actions.deleteRecords}
         onDeleteRecord={(record) => actions.deleteRecords([record.id])}
-        onOpenBackup={actions.openBackup}
-        onCloseBackup={actions.closeBackup}
         backupOpen={state.backupOpen}
         backupProps={{
           recordCount: state.records.length,
@@ -233,21 +250,32 @@ function InspectionAppContent({
       />
 
       <div className="relative">
-        <div
-          ref={setHistoryMenuContainer}
-          className="absolute right-[calc(1rem+1px)] top-0 z-10"
-        />
-        <AnimatePresence mode="wait">
-          <motion.section
-            key={state.tab}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.18 }}
-          >
-            {content}
-          </motion.section>
-        </AnimatePresence>
+        <div className="absolute right-[calc(1rem+1px)] top-0 z-10">
+          <AnimatePresence>
+            {state.tab === "history" && !state.selectedRecord && (
+              <HistoryQuickMenu
+                key="history-menu"
+                recordCount={state.records.length}
+                reduceMotion={Boolean(reduceMotion)}
+                manageHistory={state.manageHistory}
+                showBack={calendarOpen || state.backupOpen}
+                onCalendar={openCalendar}
+                onBatchDelete={actions.toggleHistoryManagement}
+                onBackup={actions.openBackup}
+                onDone={actions.toggleHistoryManagement}
+                onBack={() => {
+                  actions.setHistoryDirection(-1);
+                  if (state.backupOpen) actions.closeBackup();
+                  else setCalendarOpen(false);
+                }}
+              />
+            )}
+          </AnimatePresence>
+        </div>
+        <ViewTransition viewKey={state.tab} reduceMotion={Boolean(reduceMotion)}>
+          {content}
+        </ViewTransition>
+        <div ref={setHistoryActionsContainer} />
       </div>
 
       <AnimatePresence>
