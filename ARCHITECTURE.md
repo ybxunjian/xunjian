@@ -48,9 +48,8 @@
 
 ## UI 组合
 
-- 一级板块与 `HistoryView` 的列表、详情、日历和备份复用公共 `ViewTransition`；它管理顺序交接、退场禁用和运行时滚动位置，不管理业务状态。
-- `HistoryQuickMenu` 由应用层在切页容器外独立管理入退场；日历开关和月份同在应用层，菜单形态由最终页面状态驱动。
-- 详情底部操作栏仍由 `HistoryView` 管理，通过 Portal 放入两层切页动画外的静态容器；实际详情挂载后入场，退出历史时禁用并退场。
+- `HistoryView` 用公共 `DirectionalViewTransition` 切换列表、详情、日历和备份；详情底部操作栏在切页 transform 容器外定位。
+- `HistoryQuickMenu` 通过 Portal 放入一级页面动画外的静态容器，菜单形态由最终页面状态驱动。
 - 公共 `SplitConfirmationButton` 统一内容层和动画基础。批量删除、详情删除、退出登录的几何布局、焦点策略和提交仍留在对应业务控件。
 - 公共 `Sheet` 管理弹层栈、滚动锁定、焦点及退出禁用；账号内密码展开由 `AccountPasswordControls` 与 `AccountPasswordForm` 管理。
 - 公共 `ConfirmationPopover` 管理气泡和自身 WAAPI 生命周期，头像请求由 `AccountDialog` 执行。WAAPI 是浏览器能力，不增加动画依赖。

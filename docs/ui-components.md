@@ -15,7 +15,7 @@
 | [PasswordField](../src/features/auth/components/password-field.tsx) | 组合 TextField 与原生密码显隐 |
 | [useFieldFeedback](../src/hooks/use-field-feedback.ts) | 字段错误、重复抖动及清理 |
 | [ActionTile](../src/components/ui/action-tile.tsx)、[ClearButton](../src/components/ui/clear-button.tsx) | 图标操作行与局部清空 |
-| [ViewTransition](../src/components/ui/view-transition.tsx) | 一级板块及历史列表、详情、日历、备份的顺序切页、退场禁用与运行时滚动恢复 |
+| [DirectionalViewTransition](../src/components/ui/directional-view-transition.tsx) | 历史列表、详情、日历、备份切页 |
 | [SplitConfirmationButton](../src/components/ui/split-confirmation-button.tsx) | 批量删除、详情删除、退出登录的内容层与分裂动画基础 |
 | [ConfirmationPopover](../src/components/ui/confirmation-popover.tsx) | 头像移除锚定气泡、焦点与 WAAPI 生命周期 |
 | [SectionHeading](../src/features/inspection/components/section-heading.tsx) | 巡检、汇总、历史列表、日历和备份页面标题；标题行至少 44px 高、左右内边距 4px、下间距 16px，统一字号、字重和紧缩字距 |
@@ -52,17 +52,15 @@
 
 面板外圆角 26px、内容留白 16px，保存校验的整宽状态块圆角 10px，保持内外平行轮廓。面板位移 40px，弹簧刚度 420、阻尼 34；遮罩用 Motion 默认 tween。减少动态效果时立即切换。普通面板最高 `100svh - 2rem`，内部滚动；账号密码展开可按记录的 topOffset 锚定顶部。
 
-两层切页复用 `ViewTransition`，采用 mode="wait"。退出 100ms、曲线 `[0.4, 0, 1, 1]`，进入 200ms、曲线 `[0.22, 1, 0.36, 1]`。首次挂载不播放，两层均在减少动态效果时立即切换；容器 overflow-x: clip，保留整页竖向滚动。
+一级板块在 `NightInspectionApp` 使用 mode="wait"，旧页上移 6px / 180ms 淡出，新页从下方 8px / 180ms 淡入；当前未完整接入减少动态效果。
 
-一级板块旧页只淡出，新页从下方 4px 淡入归位。历史内部传入 direction：前进为 1，旧页向左 12px 退出、新页从右 16px 进入；返回为 −1，方向反转，距离相同。中途切换以最后目标为准；退场页立即 inert / aria-hidden，并清除内部焦点。
+历史内部由 `DirectionalViewTransition` 统一：前进 direction=1，返回 −1；mode="wait"，每段 180ms，曲线 `[0.22, 1, 0.36, 1]`。前进旧页向左 14px 退出、新页从右 18px 进入；返回旧页向右 18px 退出、新页从左 18px 进入。首次挂载不播放，减少动态效果立即切换；容器 overflow-x: clip，保留整页竖向滚动。
 
-退出开始时暂留旧页高度，下一页完成布局后解除占位。每个切页实例仅在运行时保存各 viewKey 的 scrollY；返回已访问页面恢复位置，首次访问沿用退出位置，并限制到新页有效滚动范围。没有持久化字段，也不统一回到顶部；实例卸载后缓存释放。
-
-详情底部操作栏通过 Portal 在两层切页 transform 容器外 fixed，保持视口与 Safe Area 定位。实际详情挂载后入场，不使用固定等待；入场 y=10px / 200ms，出场 y=8px / 100ms，曲线复用公共切页。退场立即 inert / aria-hidden、清除焦点并禁用操作，减少动态效果立即切换。批量栏在列表内 sticky，仅实际吸底时显示顶部 32px 渐隐；短列表正常排在最后卡片后，减少透明效果时使用实色。
+详情底部操作栏在切页 transform 容器外 fixed，保持视口与 Safe Area 定位。入场 y=10px、出场 y=8px，时长/曲线复用历史切页；入场延迟 180ms，退场无延迟，减少动态效果立即切换。批量栏在列表内 sticky，仅实际吸底时显示顶部 32px 渐隐；短列表正常排在最后卡片后，减少透明效果时使用实色。
 
 ## 历史菜单
 
-实现为 `HistoryQuickMenu`，在应用层独立 AnimatePresence 中直接渲染，位于一级动画外的静态容器，层级低于吸顶主导航。根容器 overflow-anchor: none，只排除菜单子树，避免 SVG 线条变形引发浏览器滚动补偿。
+实现为 `HistoryQuickMenu`，通过 Portal 位于一级动画外的静态容器，层级低于吸顶主导航。根容器 overflow-anchor: none，只排除菜单子树，避免 SVG 线条变形引发浏览器滚动补偿。
 
 一次操作由最终页面/模式状态触发动画。切换到其他主导航或进入详情使用 `data-history-menu-transition="exit"`，外部 pointerdown 忽略此标记，避免先普通收起、再退出。普通外部点击、叉号和 Escape 按正常逻辑收起；日历、备份、批量、返回和完成保留各自目标图标。
 
@@ -72,7 +70,7 @@
 | SVG 线条 | 变形、从中心展开、向中心收缩均 300ms，同一曲线 |
 | 中线 pathLength / opacity | 200ms；形成左箭头时延迟 80ms |
 
-叉号退出直接向中心收缩并淡出，不先变三横线；返回列表从中心展开成三横线。叉到左箭头保留斜线方向，向箭尖折合，横线随后伸出。退场由 isPresent 禁用，减少动态效果直接切换。菜单完整执行自己的 300ms 退场，与页面交接并行，不阻塞新页，也不随旧页提前卸载。日历开关和月份由应用层持有，离开历史板块时重置。
+叉号退出直接向中心收缩并淡出，不先变三横线；返回列表从中心展开成三横线。叉到左箭头保留斜线方向，向箭尖折合，横线随后伸出。退场由 isPresent 禁用，减少动态效果直接切换。菜单 AnimatePresence 仅在未选详情时 propagate，空菜单不参与一级导航退出等待。
 
 ## 公共分裂确认
 
@@ -131,7 +129,5 @@
 公共 UI 的语义由 tests/shared-ui.test.mjs 等测试覆盖，真实动画、计算字号、焦点、退出和滚动还需浏览器检查；整体校验流程见 [开发与发布](./development.md#验证)。
 
 菜单检查导航附近滚动、展开状态进入详情、从空菜单切走；三处分裂控件检查动画中途反向、请求失败和减少动态效果，批量检查原点再次点击与同数量改选。
-
-切页检查四个一级导航与历史子页的连续点击、退出中返回、退场焦点、减少动态效果；长列表进入长/短详情并返回，滚动恢复应在合法范围。主页面尚在淡入时进入详情，底栏仍应按视口定位，不能随动画祖先改变定位参照。
 
 日历覆盖 Chromium 与 WebKit 双向连续十二页、第三页前停顿、约 90% 到位时接管、反向、快滑后点击、键盘、滚轮、竖向滚动、边界/跨年和尺寸变化。停稳后标题、日期页、父月份一致，最多七页，不自行翻月。自动化不代替真机手感验收。
