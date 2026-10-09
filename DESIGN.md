@@ -18,6 +18,7 @@
 | --- | --- |
 | 页面与文字 | `background`、`foreground`、`foreground-strong` |
 | 容器与辅助 | `card`、`muted`、`muted-foreground`、`subtle-foreground`、`border` |
+| 一级导航 | `navigation-track`、`navigation-foreground`、`navigation-muted`、`navigation-border`；选中块复用 `card` |
 | 操作与状态 | `primary`、`secondary`、`success`、`warning`、`destructive` 及各自前景/弱底色 |
 | 圆角 | `radius-small`、`radius-control`、`radius-navigation`、`radius-navigation-item`、`radius-card`、`radius-sheet`、`radius-confirmation-popover` |
 | 容器阴影 | `shadow-card`、`shadow-floating` |
@@ -32,7 +33,7 @@
 ## 信息与操作层级
 
 - 首页深色头部承载应用身份、新建、保存和紧凑同步状态，不增加重复账号信息或同步入口。
-- 主导航蓝底白字选中，皮带子导航白底蓝字选中，表达不同层级；吸顶时保持导航在内容与管理菜单上方。
+- 主导航使用浅灰轨道、白色选中块、深色选中文字与灰色未选中文字；皮带子导航保持白底蓝字选中。吸顶时保持导航在内容与管理菜单上方。
 - 账号设置集中在账号面板，备份集中在历史页面。删除和退出登录使用原位二次确认，头像移除使用锚定气泡，保存完整性校验使用 Sheet。
 - 日期是历史卡片主信息，填写时间降低一级但保持可读。仅改变显示排版，不改真实记录时间。
 - 日历有记录的日期使用深色加粗；今天保持浅蓝底，有记录也遵循深色加粗，无记录则蓝字不加粗。

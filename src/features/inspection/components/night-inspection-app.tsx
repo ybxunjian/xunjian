@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { AnimatePresence, useIsPresent, useReducedMotion } from "framer-motion";
 import {
   Cloud,
   CloudOff,
@@ -237,16 +237,8 @@ function InspectionAppContent({
           ref={setHistoryMenuContainer}
           className="absolute right-[calc(1rem+1px)] top-0 z-10"
         />
-        <AnimatePresence mode="wait">
-          <motion.section
-            key={state.tab}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.18 }}
-          >
-            {content}
-          </motion.section>
+        <AnimatePresence initial={false} mode="sync">
+          <InspectionPageContent key={state.tab}>{content}</InspectionPageContent>
         </AnimatePresence>
       </div>
 
@@ -317,4 +309,10 @@ function formatSyncTime(value: string) {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+/** Hide outgoing content immediately while its portalled menu finishes exiting. */
+function InspectionPageContent({ children }: { children: ReactNode }) {
+  const isPresent = useIsPresent();
+  return <div hidden={!isPresent} inert={!isPresent}>{children}</div>;
 }

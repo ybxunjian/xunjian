@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, useIsPresent } from "framer-motion";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion, useAnimationControls, useIsPresent } from "framer-motion";
 import { ArchiveRestore, CalendarDays, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -18,18 +18,56 @@ type HistoryQuickMenuProps = {
 export function HistoryQuickMenu({
   recordCount, reduceMotion, manageHistory, showBack, onCalendar, onBatchDelete, onBackup, onDone, onBack,
 }: HistoryQuickMenuProps) {
-  const [open, setOpen] = useState(false);
   const isPresent = useIsPresent();
-  const paths = [
+  const [open, setOpen] = useState(false);
+  const [previousRenderPresence, setPreviousRenderPresence] = useState(isPresent);
+  if (previousRenderPresence !== isPresent) {
+    // A retained exit must not restore the expanded menu on a quick return.
+    setPreviousRenderPresence(isPresent);
+    setOpen(false);
+  }
+  const paths = useMemo(() => [
     showBack ? "M 4 14 L 14 24" : manageHistory ? "M 3 14 L 11 21" : open ? "M 4 4 L 24 24" : "M 2 4 L 26 4",
     showBack ? "M 14 4 L 4 14" : manageHistory ? "M 11 21 L 25 5" : open ? "M 24 4 L 4 24" : "M 2 24 L 26 24",
     showBack ? "M 4 14 L 26 14" : "M 2 14 L 26 14",
-  ];
+  ], [showBack, manageHistory, open]);
   const collapseLines = {
     d: "M 14 14 L 14 14",
     opacity: 0,
-    transition: { duration: reduceMotion ? 0 : 0.3, ease: [0.22, 1, 0.36, 1] as const },
+    transition: { duration: reduceMotion ? 0 : 0.34, ease: [0.22, 1, 0.36, 1] as const },
   };
+  const shapeAnimation = useAnimationControls();
+  const initialShape = useRef(paths.join("|"));
+  const hasChangedShape = useRef(false);
+  const previousPresence = useRef(isPresent);
+  const centerVisible = showBack || (!open && !manageHistory);
+
+  useEffect(() => {
+    // Repeated Strict Mode setup must not turn the first appearance into a morph.
+    if (paths.join("|") !== initialShape.current) hasChangedShape.current = true;
+    const reentering = !previousPresence.current;
+    const entering = !hasChangedShape.current || reentering;
+    previousPresence.current = isPresent;
+    if (!isPresent) return;
+    if (reentering) {
+      shapeAnimation.set({ d: "M 14 14 L 14 14", opacity: 0, pathLength: 1 });
+    }
+    const duration = entering ? 0.34 : 0.3;
+    void shapeAnimation.start((index: number) => ({
+      d: paths[index],
+      opacity: index === 2 ? Number(centerVisible) : 1,
+      ...(index === 2 ? { pathLength: Number(centerVisible) } : {}),
+      transition: {
+        duration: reduceMotion ? 0 : duration,
+        ease: [0.22, 1, 0.36, 1],
+        ...(index === 2 ? {
+          pathLength: { duration: reduceMotion ? 0 : 0.2, delay: showBack && !reduceMotion ? 0.08 : 0 },
+          opacity: { duration: reduceMotion ? 0 : 0.2, delay: showBack && !reduceMotion ? 0.08 : 0 },
+        } : {}),
+      },
+    }));
+  }, [centerVisible, isPresent, paths, reduceMotion, shapeAnimation, showBack]);
+
   const menuRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
 
@@ -123,29 +161,15 @@ export function HistoryQuickMenu({
         className="relative text-foreground-strong hover:bg-transparent active:scale-[.92]"
       >
         <svg viewBox="0 0 28 28" className="size-7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <motion.path
-            initial={{ d: "M 14 14 L 14 14", opacity: 0 }}
-            animate={{ d: paths[0], opacity: 1 }}
-            exit={collapseLines}
-            transition={{ duration: reduceMotion ? 0 : 0.3, ease: [0.22, 1, 0.36, 1] }}
-          />
-          <motion.path
-            initial={{ d: "M 14 14 L 14 14", opacity: 0 }}
-            animate={{ d: paths[1], opacity: 1 }}
-            exit={collapseLines}
-            transition={{ duration: reduceMotion ? 0 : 0.3, ease: [0.22, 1, 0.36, 1] }}
-          />
-          <motion.path
-            initial={{ d: "M 14 14 L 14 14", opacity: 0 }}
-            exit={collapseLines}
-            animate={{ d: paths[2], opacity: showBack || (!open && !manageHistory) ? 1 : 0, pathLength: showBack || (!open && !manageHistory) ? 1 : 0 }}
-            transition={{
-              duration: reduceMotion ? 0 : 0.3,
-              pathLength: { duration: reduceMotion ? 0 : 0.2, delay: showBack && !reduceMotion ? 0.08 : 0 },
-              opacity: { duration: reduceMotion ? 0 : 0.2, delay: showBack && !reduceMotion ? 0.08 : 0 },
-              ease: [0.22, 1, 0.36, 1],
-            }}
-          />
+          {[0, 1, 2].map((index) => (
+            <motion.path
+              key={index}
+              custom={index}
+              initial={{ d: "M 14 14 L 14 14", opacity: 0 }}
+              animate={shapeAnimation}
+              exit={collapseLines}
+            />
+          ))}
         </svg>
       </Button>
     </div>

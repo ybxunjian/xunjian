@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useIsPresent } from "framer-motion";
 import { Check, ChevronRight, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DirectionalViewTransition, VIEW_TRANSITION } from "@/components/ui/directional-view-transition";
@@ -60,6 +60,15 @@ export function HistoryView({
 }: HistoryViewProps) {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState("");
+  const isPresent = useIsPresent();
+  const [pagePresence, setPagePresence] = useState({ present: isPresent, visit: 0 });
+  if (pagePresence.present !== isPresent) {
+    setPagePresence({
+      present: isPresent,
+      visit: pagePresence.visit + Number(isPresent),
+    });
+    if (isPresent) setCalendarOpen(false);
+  }
 
   const openCalendar = () => {
     const now = new Date();
@@ -73,9 +82,9 @@ export function HistoryView({
   return (
     <>
       {menuContainer && createPortal(
-        // An empty propagated presence cannot finish the parent tab's exit.
+        // Remove the live child before a propagated exit diffs it; retain only its exit snapshot.
         <AnimatePresence propagate={!selectedRecord}>
-          {!selectedRecord && (
+          {isPresent && !selectedRecord && (
             <HistoryQuickMenu
               key="history-menu"
               recordCount={records.length}
@@ -97,6 +106,7 @@ export function HistoryView({
         menuContainer,
       )}
       <DirectionalViewTransition
+        key={pagePresence.visit}
         viewKey={selectedRecord ? `detail-${selectedRecord.id}` : backupOpen ? "backup" : calendarOpen ? "calendar" : "list"}
         direction={direction}
         reduceMotion={reduceMotion}

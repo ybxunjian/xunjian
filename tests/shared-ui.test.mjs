@@ -43,9 +43,11 @@ test("primary navigation and belt tabs remain separate component groups", () => 
   assert.equal((nav.match(/<button/g) ?? []).length, 4);
   assert.equal((filter.match(/<button/g) ?? []).length, 3);
   assert.match(nav, /grid-cols-4/);
-  assert.match(nav, /bg-primary text-primary-foreground/);
+  assert.match(nav, /bg-navigation-track/);
+  assert.match(nav, /text-navigation-foreground/);
   assert.match(filter, /grid-cols-3 gap-1/);
-  assert.match(filter, /bg-card text-primary/);
+  assert.match(filter, /bg-card/);
+  assert.match(filter, /text-primary/);
   assert.equal((nav.match(/aria-current="page"/g) ?? []).length, 1);
   assert.doesNotMatch(nav, /aria-pressed/);
   assert.match(filter, /role="group"/);

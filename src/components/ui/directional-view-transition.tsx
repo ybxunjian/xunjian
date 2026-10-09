@@ -20,6 +20,11 @@ const variants = {
   }),
 };
 
+const reducedMotionVariants = {
+  initial: { opacity: 1, x: 0 },
+  animate: { opacity: 1, x: 0 },
+  exit: { opacity: 1, x: 0 },
+};
 export function DirectionalViewTransition({
   viewKey,
   direction,
@@ -38,7 +43,7 @@ export function DirectionalViewTransition({
         <motion.div
           key={viewKey}
           custom={direction}
-          variants={variants}
+          variants={reduceMotion ? reducedMotionVariants : variants}
           initial="initial"
           animate="animate"
           exit="exit"

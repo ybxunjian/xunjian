@@ -19,6 +19,10 @@
   --muted-foreground: #64748b;
   --subtle-foreground: #94a3b8;
   --border: #e2e8f0;
+  --navigation-track: #f7f7f7;
+  --navigation-foreground: #1c1c1c;
+  --navigation-muted: #707070;
+  --navigation-border: #e6e6e6;
   --overlay: rgb(2 6 23 / 0.38);
   --input-foreground: #000000;
   --header-start: #020617;
@@ -89,6 +93,10 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-subtle-foreground: var(--subtle-foreground);
   --color-border: var(--border);
+  --color-navigation-track: var(--navigation-track);
+  --color-navigation-foreground: var(--navigation-foreground);
+  --color-navigation-muted: var(--navigation-muted);
+  --color-navigation-border: var(--navigation-border);
   --color-overlay: var(--overlay);
   --color-input-foreground: var(--input-foreground);
   --color-header-start: var(--header-start);
@@ -139,6 +147,24 @@ button:focus-visible {
 .segmented-item:focus-visible {
   outline: none;
   box-shadow: var(--shadow-card), inset 0 0 0 2px color-mix(in srgb, var(--primary) 24%, transparent);
+}
+
+/* Segmented navigation: persistent thumbs, with labels above every animation frame. */
+.segmented-navigation-thumb { transform-origin: center; will-change: transform; }
+.segmented-navigation-thumb::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: var(--shadow-floating);
+  opacity: var(--navigation-press, 0);
+}
+.primary-segmented-navigation [data-preview-active="true"] { color: var(--navigation-foreground); }
+.primary-segmented-navigation [data-preview-active="false"] { color: var(--navigation-muted); }
+.belt-segmented-navigation [data-preview-active="true"] { color: var(--primary); }
+.belt-segmented-navigation [data-preview-active="false"] { color: var(--muted-foreground); }
+@media (prefers-reduced-motion: reduce) {
+  .segmented-navigation-thumb { will-change: auto; }
 }
 
 /* History cards: align both primary values and both captions in shared rows. */
