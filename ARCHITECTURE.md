@@ -48,8 +48,10 @@
 
 ## UI 组合
 
+- `InspectionTabs` 与 `BeltTabs` 保留各自布局、语义和选择回调，共用 `segmented-navigation-controller.ts` 的滑块与手势实现，以及 `segmented-navigation-motion.ts` 的弹簧参数；控制器不持有业务页面或存储状态。
+- `NightInspectionApp` 即时切换一级内容；退出内容立即 hidden / inert，保留 presence 生命周期供 Portal 菜单独立退场。
 - `HistoryView` 用公共 `DirectionalViewTransition` 切换列表、详情、日历和备份；详情底部操作栏在切页 transform 容器外定位。
-- `HistoryQuickMenu` 通过 Portal 放入一级页面动画外的静态容器，菜单形态由最终页面状态驱动。
+- `HistoryQuickMenu` 通过 Portal 放入一级内容外的静态容器，菜单形态由最终页面状态驱动。`HistoryView` 在退出时移除菜单的实时子节点，由 AnimatePresence 保留唯一退场快照；快速重入重置历史子页面与菜单展开状态。
 - 公共 `SplitConfirmationButton` 统一内容层和动画基础。批量删除、详情删除、退出登录的几何布局、焦点策略和提交仍留在对应业务控件。
 - 公共 `Sheet` 管理弹层栈、滚动锁定、焦点及退出禁用；账号内密码展开由 `AccountPasswordControls` 与 `AccountPasswordForm` 管理。
 - 公共 `ConfirmationPopover` 管理气泡和自身 WAAPI 生命周期，头像请求由 `AccountDialog` 执行。WAAPI 是浏览器能力，不增加动画依赖。

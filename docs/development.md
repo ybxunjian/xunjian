@@ -55,6 +55,8 @@ npm run check
 | --- | --- |
 | 填写与保存 | 重复泵号交换、局部清空/撤销、全表缺项校验、仍然保存、刷新恢复与新建空白草稿 |
 | 历史与确认 | 列表/日历进入详情的返回方向；批量改选使确认失效；取消、打断、重复提交、删除及撤销 |
+| 两层导航 | 点击、快速反向、长按与甩动、激活后上下偏移和轨道外松手、激活前正常竖向滚动；键盘、吸顶、窄屏、排序与减少动态效果；滑块预览不提前提交业务选择 |
+| 历史菜单生命周期 | 展开、日历/备份箭头、批量管理勾状态下离开并立即切回，恢复列表与收起汉堡；检查出现/消失与形态变换各自时间线、退场 inert、控制台错误及重复 key 警告 |
 | 公共 UI | 所有调用方、实际字号/尺寸、焦点与 Esc、退出禁用、减少动态效果；细节按 [组件文档](./ui-components.md) |
 | 同步 | 离线操作后刷新、联网按序补交、并发追加项保留、旧结果拒绝、墓碑不复活、覆盖/恢复撤销 |
 | 草稿 | 多设备新旧版本、同毫秒递增、无版本读取、RPC 拒绝、空白草稿同步 |
@@ -72,4 +74,4 @@ npm run check
 - [ci.yml](../.github/workflows/ci.yml)：面向 main 的 PR 或手动触发，执行同一质量门禁。
 - [deploy.yml](../.github/workflows/deploy.yml)：main 推送或手动触发，注入 `/xunjian` 基础路径和 Supabase secrets，门禁成功后上传并部署 Pages。
 
-正式地址：<https://ybxunjian.github.io/xunjian/>。发布结果同时确认 build 与 deploy 成功，并核对该地址；本项目使用 GitHub Pages，不用 Netlify。浏览器保留旧页面时检查刷新与 Service Worker 更新，不用改用户记录来验证上线。
+正式地址：<https://ybxunjian.github.io/xunjian/>。发布结果须对应本次推送的提交 SHA，同时确认 build 与 deploy 成功，并核对该地址及静态资源加载；本项目使用 GitHub Pages，不用 Netlify。浏览器保留旧页面时检查刷新与 Service Worker 更新，不用改用户记录来验证上线。

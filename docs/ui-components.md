@@ -78,6 +78,8 @@
 
 叉号退出直接向中心收缩并淡出，不先变三横线；返回列表从中心展开成三横线。叉到左箭头保留斜线方向，向箭尖折合，横线随后伸出。退场由 isPresent 禁用，减少动态效果直接切换。菜单 AnimatePresence 仅在未选详情时 propagate，空菜单不参与一级导航退出等待。一级内容退出时立即隐藏，Portal 菜单独立完成 340ms 收缩后卸载；退出期间 inert / aria-hidden，快速切回历史时清除菜单展开状态并还原列表，汉堡从中心重新出现，时长 340ms；叉号、日历/备份箭头和批量管理勾均不恢复旧形态。图标之间的普通变形仍为 300ms。
 
+Portal 内的实时菜单仅在 `isPresent && !selectedRecord` 时渲染，退出快照由 AnimatePresence 保留。不能在父级 propagated exit 时继续传入同一个 `history-menu` 子节点，否则可能重复保留同 key 菜单。快速重入通过历史页面 visit key 重建内部切页容器，立即显示列表；菜单从中心重新入场，不接续旧图标变形。
+
 ## 公共分裂确认
 
 `SplitConfirmationButton` 复用 Button。关闭/打开内容采用固定绝对居中层交叉淡入淡出，不测量、裁切或缩放文字；调用方提供当前 aria-label，视觉层 aria-hidden。
