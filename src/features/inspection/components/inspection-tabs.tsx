@@ -39,7 +39,7 @@ export function InspectionTabs({ order, value, onChange }: InspectionTabsProps) 
 
   return (
     <nav ref={root} aria-label="巡检页面"
-      className="primary-segmented-navigation sticky top-[max(0.75rem,env(safe-area-inset-top))] z-20 my-5 grid h-11 grid-cols-4 touch-pan-y select-none rounded-navigation bg-navigation-track p-1 ring-1 ring-inset ring-navigation-border">
+      className="primary-segmented-navigation sticky top-[max(0.75rem,env(safe-area-inset-top))] z-20 my-5 grid h-11 grid-cols-4 touch-none select-none rounded-navigation bg-navigation-track p-1 ring-1 ring-inset ring-navigation-border">
       <span ref={thumb} aria-hidden="true"
         className="segmented-navigation-thumb pointer-events-none absolute left-1 top-1 z-0 h-9 rounded-navigation-item bg-card"
         style={{ width: "calc((100% - 0.5rem) / 4)", transform: "translate3d(" + initialIndex * 100 + "%,0,0)" }} />

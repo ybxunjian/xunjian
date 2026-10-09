@@ -54,7 +54,7 @@ export function BeltTabs({ value, onChange }: BeltTabsProps) {
       ref={root}
       role="group"
       aria-label="皮带选择"
-      className="belt-segmented-navigation sticky top-[calc(max(0.75rem,env(safe-area-inset-top))+3.25rem)] z-10 mb-4 grid h-11 grid-cols-3 gap-1 touch-pan-y select-none rounded-navigation bg-muted/95 p-1 shadow-card ring-1 ring-inset ring-border/70 backdrop-blur"
+      className="belt-segmented-navigation sticky top-[calc(max(0.75rem,env(safe-area-inset-top))+3.25rem)] z-10 mb-4 grid h-11 grid-cols-3 gap-1 touch-none select-none rounded-navigation bg-muted/95 p-1 shadow-card ring-1 ring-inset ring-border/70 backdrop-blur"
     >
       <span
         ref={thumb}

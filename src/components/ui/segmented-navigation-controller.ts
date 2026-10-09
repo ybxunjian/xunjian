@@ -20,10 +20,9 @@ export function createSegmentedNavigationMotion(root: HTMLElement, thumb: HTMLEl
   const fingerAt = (x: number) => clamp(x - firstCenter);
   let selected = initialIndex, position = selected * step(), target = position, visual = position, velocity = 0;
   let scale = 1, scaleTarget = 1, scaleVelocity = 0, stretch = 0, direction = 0;
-  let phase: "idle" | "pending" | "chase" | "blending" | "follow" = "idle";
-  let pointer: number | null = null, initialX = 0, finger = 0, fingerVelocity = 0, lastMove = 0;
+  let phase: "idle" | "chase" | "blending" | "follow" = "idle";
+  let pointer: number | null = null, finger = 0, fingerVelocity = 0, lastMove = 0;
   let holdStarted = 0, blendStarted = 0, lastFrame = 0, raf: number | null = null;
-  let timer: ReturnType<typeof setTimeout> | undefined;
   let samples: { time: number; x: number }[] = [];
   let suppressClick = false;
   function render() {
@@ -88,7 +87,7 @@ export function createSegmentedNavigationMotion(root: HTMLElement, thumb: HTMLEl
       if (raf !== null) cancelAnimationFrame(raf);
       raf = null;
       position = visual = phase === "chase" || phase === "blending" || phase === "follow" ? finger : target;
-      if (pointer !== null && phase !== "pending") phase = "follow";
+      if (pointer !== null) phase = "follow";
       velocity = scaleVelocity = stretch = 0;
       scale = scaleTarget = 1;
       render();
@@ -102,31 +101,24 @@ export function createSegmentedNavigationMotion(root: HTMLElement, thumb: HTMLEl
     animate();
     if (commit) onSelect(selected);
   }
-  function hold() {
-    if (pointer === null || phase !== "pending") return;
-    clearTimeout(timer);
-    phase = "chase";
-    holdStarted = performance.now();
-    scaleTarget = reduced ? 1 : 1.15;
-    root.setPointerCapture(pointer);
-    animate();
-  }
   function down(e: PointerEvent) {
     if (!e.isPrimary || e.button !== 0 || pointer !== null) return;
     suppressClick = false;
     pointer = e.pointerId;
-    initialX = local(e);
-    phase = "pending";
-    finger = fingerAt(initialX);
+    phase = "chase";
+    finger = fingerAt(local(e));
     fingerVelocity = 0;
     lastMove = performance.now();
     samples = [{ time: lastMove, x: finger }];
-    timer = setTimeout(hold, 140);
+    holdStarted = lastMove;
+    scaleTarget = reduced ? 1 : 1.15;
+    root.setPointerCapture(pointer);
+    // Start the spring from the current visual position; never teleport to the pointer.
+    position = visual;
+    animate();
   }
   function move(e: PointerEvent) {
     if (e.pointerId !== pointer) return;
-    const dx = local(e) - initialX;
-
     const now = performance.now();
     finger = fingerAt(local(e));
     samples.push({ time: now, x: finger });
@@ -134,13 +126,11 @@ export function createSegmentedNavigationMotion(root: HTMLElement, thumb: HTMLEl
     const first = samples[0];
     if (first && now - first.time > 8) fingerVelocity = clamp((finger - first.x) * 1000 / (now - first.time), -1800, 1800);
     lastMove = now;
-    if (phase === "pending" && Math.abs(dx) > 6) hold();
     if (phase === "follow") { position = visual = finger; render(); }
-    if (phase !== "pending") animate();
+    animate();
   }
   function release(e: PointerEvent, canceled = false) {
     if (pointer !== e.pointerId) return;
-    clearTimeout(timer);
     const holding = phase === "chase" || phase === "blending" || phase === "follow";
     suppressClick = canceled || holding;
     if (canceled) {
@@ -179,7 +169,6 @@ export function createSegmentedNavigationMotion(root: HTMLElement, thumb: HTMLEl
   }
   function reset() {
     if (raf !== null) cancelAnimationFrame(raf);
-    clearTimeout(timer);
     raf = null; lastFrame = 0;
     const captured = pointer; pointer = null;
     if (captured !== null && root.hasPointerCapture(captured)) root.releasePointerCapture(captured);
@@ -190,7 +179,7 @@ export function createSegmentedNavigationMotion(root: HTMLElement, thumb: HTMLEl
     scale = scaleTarget = 1;
     render();
   }
-  // Before hold activation there is no capture; outside releases cancel the timer.
+  // Fallback cancellation if a release reaches the window without pointer capture.
   function outsideUp(e: PointerEvent) {
     if (!(e.target instanceof Node) || !root.contains(e.target)) release(e, true);
   }
@@ -198,7 +187,7 @@ export function createSegmentedNavigationMotion(root: HTMLElement, thumb: HTMLEl
   window.addEventListener("pointercancel", outsideUp);
   window.addEventListener("blur", reset);
   function touchMove(e: TouchEvent) {
-    if (pointer !== null && phase !== "pending" && e.cancelable) e.preventDefault();
+    if (pointer !== null && e.cancelable) e.preventDefault();
   }
   root.addEventListener("touchmove", touchMove, { passive: false });
   const events = { pointerdown: down, pointermove: move, pointerup: up, pointercancel: cancel, lostpointercapture: cancel, click, keydown: key };
