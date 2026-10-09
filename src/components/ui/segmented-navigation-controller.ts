@@ -140,12 +140,10 @@ export function createSegmentedNavigationMotion(root: HTMLElement, thumb: HTMLEl
       const speed = performance.now() - lastMove < 90 ? fingerVelocity : 0;
       const at = fingerAt(local(e));
       const nearest = clamp(Math.round(at / step()), 0, count - 1);
-      const destination = Math.abs(speed) > 260
-        ? clamp(clamp(Math.round(clamp(at + speed * .18) / step()), nearest - 1, nearest + 1), 0, count - 1)
-        : nearest;
       position = visual;
       if (phase === "follow") velocity = clamp(speed, -1400, 1400);
-      select(destination);
+      // Release position owns selection; velocity only affects the settle animation.
+      select(nearest);
     } else { phase = "idle"; scaleTarget = 1; animate(); }
     const captured = pointer;
     pointer = null;
