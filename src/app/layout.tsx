@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { Toaster } from "sonner";
+import { AppearanceRuntime } from "./appearance-runtime";
+import { APPEARANCE_INIT_SCRIPT } from "@/lib/appearance";
 import { ServiceWorkerRegistration } from "./service-worker-registration";
 
 const basePath = process.env.PAGES_BASE_PATH ?? "";
@@ -26,15 +27,19 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#0f1f37",
+  colorScheme: "light dark",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="zh-CN">
+    <html lang="zh-CN" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: APPEARANCE_INIT_SCRIPT }} />
+      </head>
       <body>
         <ServiceWorkerRegistration basePath={basePath} />
         {children}
-        <Toaster position="top-center" richColors />
+        <AppearanceRuntime />
       </body>
     </html>
   );

@@ -28,7 +28,7 @@ export function TextField({
           className={cn(
             "min-h-13 w-full rounded-full border bg-card pl-13 text-base shadow-card outline-none transition focus:ring-4 focus:ring-primary/15 disabled:opacity-45",
             trailingAction ? "pr-13" : "pr-4",
-            error ? "border-destructive focus:border-destructive" : "border-border/80 focus:border-primary",
+            error ? "border-destructive focus:border-destructive" : "border-control-border focus:border-primary",
             className,
           )}
         />

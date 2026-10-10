@@ -16,6 +16,7 @@ import { motion, useIsPresent, useReducedMotion } from "framer-motion";
 import { AccountPasswordControls } from "./account-password-controls";
 import { PASSWORD_EXPAND_DURATION, PASSWORD_COLLAPSE_DURATION, PASSWORD_EASING, PASSWORD_COLLAPSE_EASING } from "./account-password-motion";
 import { AccountSignOutControls } from "./account-sign-out-controls";
+import { AppearancePicker } from "@/components/ui/appearance-picker";
 
 type AccountMenuProps = Pick<
   AccountDialogProps,
@@ -107,7 +108,7 @@ export function AccountMenu({
           type="button"
           disabled={avatarBusy || passwordBusy || !isPresent}
           onClick={() => inputRef.current?.click()}
-          className="relative mx-auto block size-20 rounded-full bg-primary text-xl font-black text-primary-foreground shadow-primary disabled:opacity-60"
+          className="relative mx-auto block size-20 rounded-full bg-primary-surface text-xl font-black text-primary-foreground shadow-primary disabled:opacity-60"
           aria-label={avatarUrl ? "更换头像" : "设置头像"}
         >
           <AvatarVisual email={email} avatarUrl={avatarUrl} />
@@ -186,6 +187,7 @@ export function AccountMenu({
           opacity: { duration: reduceMotion ? 0 : passwordOpen ? 0.16 : 0.22,
             delay: reduceMotion || passwordOpen ? 0 : 0.14 },
         }} className="overflow-hidden">
+        <AppearancePicker disabled={signingOut || confirmingAvatarRemoval || avatarBusy || !isPresent} />
         <NavigationOrderEditor
           navigationOrder={navigationOrder}
           onNavigationOrderChange={onNavigationOrderChange}

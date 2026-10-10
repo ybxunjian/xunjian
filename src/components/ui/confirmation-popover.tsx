@@ -176,14 +176,14 @@ function ConfirmationBubble({ id, busy, title, confirmLabel, busyLabel = "正在
       aria-busy={busy}
       aria-hidden={!isPresent || undefined}
       inert={!isPresent}
-      className="absolute left-1/2 top-full z-30 mt-2 w-48 rounded-confirmation-popover border border-border bg-card p-2.5 shadow-floating"
+      className="absolute left-1/2 top-full z-30 mt-2 w-48 rounded-confirmation-popover border border-border bg-surface-elevated p-2.5 shadow-floating"
       style={{
         transformOrigin: TRANSFORM_ORIGIN,
         transform: "translateX(-50%) scale(.16)",
         opacity: 0,
       }}
     >
-      <span aria-hidden="true" className="absolute left-1/2 -translate-x-1/2 rotate-45 border-l border-t border-border bg-card" style={{ top: TIP_TOP, width: TIP_SIZE, height: TIP_SIZE }} />
+      <span aria-hidden="true" className="absolute left-1/2 -translate-x-1/2 rotate-45 border-l border-t border-border bg-surface-elevated" style={{ top: TIP_TOP, width: TIP_SIZE, height: TIP_SIZE }} />
       <h3 id={`${id}-title`} className="sr-only">{title}</h3>
       <div className="relative flex flex-col gap-2">
         <Button type="button" variant="destructive" disabled={busy || !isPresent} onClick={onConfirm} className="w-full rounded-full shadow-none">

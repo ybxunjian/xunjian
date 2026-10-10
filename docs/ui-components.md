@@ -23,7 +23,19 @@
 
 组合类名统一用 `src/lib/utils.ts` 的 `cn()`；新增自定义字号变量需同步其 font-size 分组，避免与颜色类合并时丢失字号。
 
+## 外观基础
+
+[appearance.ts](../src/lib/appearance.ts) 管理 system/light/dark 三态解析、首绘脚本、系统外观/对比度和跨标签页 storage 订阅；[useAppearance](../src/hooks/use-appearance.ts) 用外部快照订阅，服务端快照固定，不读取浏览器存储。
+
+[AppearanceRuntime](../src/app/appearance-runtime.tsx) 常驻根布局，更新浏览器 theme-color 与 Sonner 外观；根属性由首绘脚本设置，仅 html 使用 suppressHydrationWarning。[AppearancePicker](../src/components/ui/appearance-picker.tsx) 位于账号面板，三项有图标、文字和 aria-pressed，复用 Button；请求/退场禁用，修改密码展开时随偏好区收起。
+
+系统变化仅在跟随系统模式改变实际外观，手动模式保持选择；其他标签页更新和删除外观偏好会同步。存储键、格式与账号隔离规则见 [数据与同步](./data-and-sync.md#浏览器存储)。
+
+所有颜色消费 globals.css；填充按钮和文字强调色分别使用 surface 与普通颜色令牌。浅色保留原有配色和控件边界，深色独立解析；TextField 使用 control-border，原生 select 使用 select-border / select-focus-border。Sheet、气泡和深色提示使用抬升表面，浅色提示保留 Sonner 默认配色；两层滑块使用 navigation-selection；尺寸、留白、曲线不因主题变化而改变。
+
 ## 尺寸与表单
+
+下表的白底、深字等配色描述以浅色外观为基准；深色使用同一语义令牌解析，不更改尺寸和动画。
 
 | 控件 | 当前尺寸和反馈 |
 | --- | --- |
@@ -38,7 +50,7 @@
 | 历史详情入口 | 可见浅色圆形 34px、点击区域 44px、箭头 18px |
 | 历史菜单 | 切换 SVG 28px、功能 Lucide 21px，均保留 44×44px 点击范围；切换按压 0.92，功能项不缩放 |
 
-两层导航分别使用 aria-current 和 aria-pressed。主导航文字统一 800 字重、不随选中放大，保持浅灰轨道、白色滑块、深色选中文字与灰色未选中文字；皮带子导航保持 700 字重、白底蓝字选中。文字始终在滑块上方。主导航平时无滑块阴影，按住浮起时复用 shadow-floating。
+两层导航分别使用 aria-current 和 aria-pressed。主导航文字统一 800 字重、不随选中放大，浅色保持浅灰轨道、白色滑块、深色选中文字与灰色未选中文字；深色由 navigation 令牌提供深色轨道与更亮滑块；皮带子导航保持 700 字重、白底蓝字选中。文字始终在滑块上方。主导航平时无滑块阴影，按住浮起时复用 shadow-floating。
 
 两层导航共用 [segmented-navigation-controller.ts](../src/components/ui/segmented-navigation-controller.ts) 分别维护常驻滑块和独立手势状态，坐标相对各自轨道，快速切换沿用当前速度。项间距通过按钮实际坐标测量，兼容主导航四项与皮带子导航三项及其 4px 间隙。移动速度驱动最多 10% 横向拉伸，纵向压缩为拉伸量的 22%，方向偏移为拉伸量 × 项宽 × 12%；拉伸强度在 45–595px/s 映射，增长/恢复时间常数 35/115ms，方向平滑 50ms。文字高亮跟随滑块最近项，实际页面在点击或松手确认后切换。
 
@@ -84,7 +96,7 @@ Portal 内的实时菜单仅在 `isPresent && !selectedRecord` 时渲染，退�
 
 `SplitConfirmationButton` 复用 Button。关闭/打开内容采用固定绝对居中层交叉淡入淡出，不测量、裁切或缩放文字；调用方提供当前 aria-label，视觉层 aria-hidden。
 
-公共几何参数：展开 280ms、`[0.25, 0.1, 0.25, 1]`；合回 220ms、`[0.25, 0.1, 0.35, 1]`。文字同等时长 easeInOut，无延迟。`getSplitConfirmationTransition` 提供统一参数；`useSplitConfirmationMotion` 在打断后从当前进度接续，清理停止自身动画，退场不重新启动。需要渐变的调用方用 `useSplitConfirmationColor` 解析语义令牌再插值。减少动态效果立即切换。
+公共几何参数：展开 280ms、`[0.25, 0.1, 0.25, 1]`；合回 220ms、`[0.25, 0.1, 0.35, 1]`。文字同等时长 easeInOut，无延迟。`getSplitConfirmationTransition` 提供统一参数；`useSplitConfirmationMotion` 在打断后从当前进度接续，清理停止自身动画，退场不重新启动。需要渐变的调用方用 `useSplitConfirmationColor` 解析语义令牌再插值；外观和系统对比度变化时重新解析，不重启几何动画。减少动态效果立即切换。
 
 | 调用方 | 默认 → 确认布局和配色 |
 | --- | --- |
@@ -95,7 +107,7 @@ Portal 内的实时菜单仅在 `isPresent && !selectedRecord` 时渲染，退�
 三组均不使用彩色阴影，入口、确认与取消的按压缩放均为 0.99。打开聚焦取消，主动取消后恢复入口焦点，均 preventScroll；Escape 取消，滚动保持展开，退场禁用。业务确认及防重复提交留在调用方。
 
 - 退出登录：初始由完整覆盖按钮承接点击，展开后隐藏入口，两侧独立操作；按压 0.99。外部轻点抬起取消，移动超过 8px、滚动或取消手势保持展开。请求时禁用，右侧“正在退出…”通过 openContentKey 交叉切换，失败保留确认供重试。
-- 详情：左侧蓝色返回渐变为白底取消；右侧底色在几何进度 0–60% 从 destructive-soft 加深为 destructive，居中垃圾桶淡出，白色“确认删除”淡入，无图标占位。每条记录独立挂载，离开不保留确认。
+- 详情：左侧蓝色返回渐变为白底取消；右侧底色在几何进度 0–60% 从 destructive-soft 加深为 destructive-surface，居中垃圾桶淡出，白色“确认删除”淡入，无图标占位。每条记录独立挂载，离开不保留确认。
 - 批量：160px 容器预留左侧空间，不推已选数量；右侧原有完整点击区域和中心全程不变。取消右偏移 52→84px，从右侧按钮下方移出；背景固定 card 白色，仅淡入淡出，文字不与背景叠乘透明度，取消按压 0.99。零选择禁用；包括同数量替换在内的改选立即合回，不抢记录焦点，取消保留勾选。
 
 ## 修改密码原位展开

@@ -41,11 +41,11 @@ function AuthLogo() {
         </linearGradient>
       </defs>
       <path
-        fill="#0f1f37"
+        fill="var(--brand-ink)"
         d="M1042 1223H1300C1364 1223 1412 1249 1460 1301L2847 2832C2896 2886 2914 2939 2882 2977C2862 3002 2830 3011 2784 3011H2369C2277 3011 2202 2975 2141 2907L944 1399C891 1332 901 1272 952 1239C977 1223 1006 1223 1042 1223Z"
       />
       <path
-        fill="#0f1f37"
+        fill="var(--brand-ink)"
         d="M1402 2222C1441 2183 1481 2185 1521 2224L1687 2393C1724 2431 1725 2470 1690 2511L1459 2768C1415 2818 1360 2843 1294 2843H1017C952 2843 916 2818 905 2775C895 2736 910 2695 950 2652L1402 2222Z"
       />
       <path
@@ -206,7 +206,7 @@ export function AuthScreen({
       <div className="auth-content relative z-10 mx-auto flex min-h-[calc(100svh-4rem)] w-full flex-col">
         <div className="mb-[var(--space-auth-form)] mt-8 text-center sm:mt-10">
           {mode === "reset-password" ? (
-            <div className="mx-auto mb-[var(--space-auth-logo)] flex size-14 items-center justify-center rounded-card bg-primary text-primary-foreground shadow-primary">
+            <div className="mx-auto mb-[var(--space-auth-logo)] flex size-14 items-center justify-center rounded-card bg-primary-surface text-primary-foreground shadow-primary">
               <KeyRound className="size-7" />
             </div>
           ) : (

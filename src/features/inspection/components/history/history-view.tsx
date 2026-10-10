@@ -210,7 +210,7 @@ function HistoryList({
                 className="flex min-h-22 w-full items-center gap-3 rounded-card p-4 text-left"
               >
                   <span
-                    className={`grid size-6 shrink-0 place-items-center rounded-full border-2 ${selectedRecordIds.includes(record.id) ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}
+                    className={`grid size-6 shrink-0 place-items-center rounded-full border-2 ${selectedRecordIds.includes(record.id) ? "border-primary bg-primary-surface text-primary-foreground" : "border-border bg-card"}`}
                   >
                     {selectedRecordIds.includes(record.id) && (
                       <Check size={14} strokeWidth={3} />

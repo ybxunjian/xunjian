@@ -59,7 +59,7 @@ export function BeltTabs({ value, onChange }: BeltTabsProps) {
       <span
         ref={thumb}
         aria-hidden="true"
-        className="segmented-navigation-thumb pointer-events-none absolute left-1 top-1 z-0 h-9 rounded-navigation-item bg-card shadow-card"
+        className="segmented-navigation-thumb pointer-events-none absolute left-1 top-1 z-0 h-9 rounded-navigation-item bg-navigation-selection shadow-card"
         style={{
           width: "calc((100% - 1rem) / 3)",
           transform: "translate3d(calc(" + initialIndex + " * (100% + 0.25rem)),0,0)",

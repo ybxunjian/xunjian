@@ -224,6 +224,7 @@ export function Sheet({
   const interactive = isPresent && isTopMost;
   return (
     <motion.div
+      data-sheet-overlay=""
       className="fixed inset-0 z-50 flex items-end justify-center bg-overlay px-page pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-[2px]"
       style={{ pointerEvents: isPresent ? "auto" : "none", ...(topOffset === undefined ? {} : { alignItems: "flex-start", paddingTop: topOffset }) }}
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -240,7 +241,7 @@ export function Sheet({
         role="dialog" aria-modal={interactive ? "true" : undefined}
         aria-labelledby={labelledBy} aria-hidden={!interactive}
         inert={!interactive} tabIndex={-1}
-        className="max-h-[calc(100svh-2rem)] w-full max-w-md overflow-y-auto overscroll-contain rounded-sheet border border-border/80 bg-card p-4 text-card-foreground shadow-floating"
+        className="max-h-[calc(100svh-2rem)] w-full max-w-md overflow-y-auto overscroll-contain rounded-sheet border border-border/80 bg-surface-elevated p-4 text-card-foreground shadow-floating"
         initial={{ y: reduceMotion ? 0 : 40, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: reduceMotion ? 0 : 40, opacity: 0 }}

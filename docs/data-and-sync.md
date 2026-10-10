@@ -34,8 +34,11 @@ type InspectionDraft = {
 | `night-inspection-owner`、`night-inspection-account:{user_id}` | inspection/storage：工作区归属与按账号缓存 |
 | `night-inspection-last-backup`、`night-inspection-import-undo` | inspection/storage：导出时间和有效期恢复快照 |
 | `night-inspection-sync-queue:{user_id}` | inspection/sync：持久化历史操作队列 |
+| `night-inspection-appearance` | [lib/appearance.ts](../src/lib/appearance.ts)：当前设备的外观偏好 |
 | `night-inspection-offline-identity` | auth/storage：上次已验证账号的离线标识 |
 | `night-inspection-preferences:{user_id}`、`night-inspection-avatar-url:{user_id}` | account/storage：偏好待同步字段与头像 URL 缓存 |
+
+外观偏好只存 `system` / `light` / `dark`，首次、非法值和删除该键均回到 system；存储受限时仅当前会话生效。它独立于登录账号，不进入巡检备份、账号缓存、退出清理或 Supabase 表；切换与订阅见 [公共 UI](./ui-components.md#外观基础)。
 
 草稿当前保存完整对象，读取时继续兼容仅有 values 的格式。`StoredInspectionState.hasDraft` 区分空白草稿与无草稿，不能按 values 是否有键判断。队列读取时给无 operationId 的项补稳定 ID；账号偏好保留旧 pending 格式读取。
 

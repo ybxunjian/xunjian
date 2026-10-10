@@ -26,10 +26,12 @@ export function DetailRecordActions({
   const rightRef = useRef<HTMLButtonElement>(null);
   const wasConfirming = useRef(false);
   const deleting = useRef(false);
-  const { progress: expansion, transition } = useSplitConfirmationMotion(confirming, reduceMotion, isPresent);
+  const { progress: expansion } = useSplitConfirmationMotion(confirming, reduceMotion, isPresent);
   const leftWidth = useTransform(expansion, leftWidthAt);
   const rightWidth = useTransform(expansion, rightWidthAt);
-  const backgroundColor = useSplitConfirmationColor(expansion, "--destructive-soft", "--destructive", 0.6);
+  const backgroundColor = useSplitConfirmationColor(expansion, "--destructive-soft", "--destructive-surface", 0.6);
+  const returnBackground = useSplitConfirmationColor(expansion, "--primary-surface", "--card");
+  const returnColor = useSplitConfirmationColor(expansion, "--primary-foreground", "--foreground");
 
   useEffect(() => {
     if (!isPresent) return;
@@ -58,16 +60,11 @@ export function DetailRecordActions({
         onClick={() => confirming ? setConfirming(false) : onReturn()}
         variant="ghost"
         className="absolute left-0 top-0 h-12 rounded-full p-0 transition-transform hover:bg-transparent active:scale-[.99]"
-        style={{ width: leftWidth }}
+        style={{ width: leftWidth, backgroundColor: returnBackground, color: returnColor }}
         open={confirming}
         reduceMotion={reduceMotion}
         closedContent={returnLabel}
         openContent="取消"
-        animate={{
-          backgroundColor: confirming ? "var(--card)" : "var(--primary)",
-          color: confirming ? "var(--foreground)" : "var(--primary-foreground)",
-        }}
-        transition={transition}
         aria-label={confirming ? "取消删除" : returnLabel}
       />
       <SplitConfirmationButton

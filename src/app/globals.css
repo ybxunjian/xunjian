@@ -6,12 +6,21 @@
  * below rather than introducing a new visual scale ad hoc.
  */
 :root {
+  color-scheme: light;
   --background: #f2f2f7;
   --foreground: #0f172a;
   --foreground-strong: #020617;
   --card: #ffffff;
+  --surface-elevated: #ffffff;
+  --brand-ink: #0f1f37;
+  --control-border: color-mix(in oklab, var(--border) 80%, transparent);
+  --select-border: color-mix(in srgb, var(--primary) 16%, white);
+  --select-focus-border: color-mix(in srgb, var(--primary) 64%, white);
+  --select-inset: rgb(255 255 255 / 0.85);
+  --browser-theme-color: #0f1f37;
   --card-foreground: #0f172a;
   --primary: #0a84ff;
+  --primary-surface: var(--primary);
   --primary-foreground: #ffffff;
   --secondary: #e8f2ff;
   --secondary-foreground: #0a5fc2;
@@ -20,6 +29,7 @@
   --subtle-foreground: #94a3b8;
   --border: #e2e8f0;
   --navigation-track: #f7f7f7;
+  --navigation-selection: #ffffff;
   --navigation-foreground: #1c1c1c;
   --navigation-muted: #707070;
   --navigation-border: #e6e6e6;
@@ -36,6 +46,7 @@
   --warning-foreground: #ffffff;
   --warning-soft: #fffbeb;
   --destructive: #ef4444;
+  --destructive-surface: var(--destructive);
   --destructive-foreground: #ffffff;
   --destructive-soft: #fff1f2;
 
@@ -79,13 +90,69 @@
   --size-history-entry-circle: 2.125rem;
 }
 
+/* Depth comes from separate surfaces; components keep semantic roles. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #111114;
+  --foreground: #f2f2f7;
+  --foreground-strong: #ffffff;
+  --card: #1c1c20;
+  --surface-elevated: #28282e;
+  --card-foreground: #f2f2f7;
+  --brand-ink: #dce8f8;
+  --primary: #74b8ff;
+  --primary-surface: #0867cf;
+  --secondary: #183454;
+  --secondary-foreground: #91c6ff;
+  --muted: #34343c;
+  --muted-foreground: #bebec8;
+  --subtle-foreground: #aaaab6;
+  --border: #565662;
+  --control-border: #93939f;
+  --select-border: var(--control-border);
+  --select-focus-border: var(--primary);
+  --browser-theme-color: var(--background);
+  --navigation-track: #242428;
+  --navigation-selection: #484850;
+  --navigation-foreground: #f2f2f7;
+  --navigation-muted: #b4b4c0;
+  --navigation-border: #565662;
+  --overlay: rgb(0 0 0 / 0.6);
+  --input-foreground: #f2f2f7;
+  --success: #74d99a;
+  --success-soft: #183a27;
+  --warning: #f5c46d;
+  --warning-soft: #3c301b;
+  --destructive: #ff959c;
+  --destructive-surface: #b92d3e;
+  --destructive-soft: #43242c;
+  --select-inset: rgb(255 255 255 / 0.06);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.2);
+  --shadow-floating: 0 12px 28px rgb(0 0 0 / 0.5);
+}
+
+/* Dark contrast enhancements do not restyle the original light appearance. */
+@media (prefers-contrast: more) {
+  :root[data-theme="dark"] {
+    --muted-foreground: #ededf2;
+    --subtle-foreground: #d3d3df;
+    --border: #93939f;
+    --control-border: #d3d3df;
+    --navigation-muted: #ededf2;
+    --navigation-border: #93939f;
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-foreground-strong: var(--foreground-strong);
   --color-card: var(--card);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-control-border: var(--control-border);
   --color-card-foreground: var(--card-foreground);
   --color-primary: var(--primary);
+  --color-primary-surface: var(--primary-surface);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -94,6 +161,7 @@
   --color-subtle-foreground: var(--subtle-foreground);
   --color-border: var(--border);
   --color-navigation-track: var(--navigation-track);
+  --color-navigation-selection: var(--navigation-selection);
   --color-navigation-foreground: var(--navigation-foreground);
   --color-navigation-muted: var(--navigation-muted);
   --color-navigation-border: var(--navigation-border);
@@ -110,6 +178,7 @@
   --color-warning-foreground: var(--warning-foreground);
   --color-warning-soft: var(--warning-soft);
   --color-destructive: var(--destructive);
+  --color-destructive-surface: var(--destructive-surface);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-destructive-soft: var(--destructive-soft);
   --radius-small: var(--radius-small);
@@ -194,14 +263,14 @@ select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%230a84ff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
   background-position: right 14px center !important;
   background-repeat: no-repeat !important;
-  border: 1px solid color-mix(in srgb, var(--primary) 16%, white);
-  box-shadow: var(--shadow-card), inset 0 0 0 1px rgb(255 255 255 / 0.85);
+  border: 1px solid var(--select-border);
+  box-shadow: var(--shadow-card), inset 0 0 0 1px var(--select-inset);
   padding-right: 44px !important;
   transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
 }
 
 select:focus {
-  border-color: color-mix(in srgb, var(--primary) 64%, white);
+  border-color: var(--select-focus-border);
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 14%, transparent);
 }
 
@@ -236,6 +305,7 @@ select:focus {
   );
 }
 
+:root[data-theme="dark"] input::placeholder { color: var(--subtle-foreground); opacity: 1; }
 input { color: var(--input-foreground) !important; }
 
 /* Edge 会为密码框额外绘制原生眼睛；项目已有独立的显示按钮，只保留一个入口。 */
@@ -286,5 +356,42 @@ select option:disabled { color: var(--muted-foreground); background: var(--muted
 
   .history-selection-actions--stuck::before {
     background: var(--background);
+  }
+}
+
+/* Sonner uses the same surfaces and status hierarchy as sheets and forms. */
+:root[data-theme="dark"] [data-sonner-toaster][data-sonner-theme][data-x-position] {
+  --normal-bg: var(--surface-elevated);
+  --normal-text: var(--foreground);
+  --normal-border: var(--border);
+  --success-bg: var(--success-soft);
+  --success-text: var(--success);
+  --success-border: var(--success);
+  --error-bg: var(--destructive-soft);
+  --error-text: var(--destructive);
+  --error-border: var(--destructive);
+  --warning-bg: var(--warning-soft);
+  --warning-text: var(--warning);
+  --warning-border: var(--warning);
+  --info-bg: var(--secondary);
+  --info-text: var(--secondary-foreground);
+  --info-border: var(--primary);
+}
+:root[data-theme="dark"] [data-sonner-toaster][data-sonner-theme][data-x-position] [data-sonner-toast] [data-description] {
+  color: var(--muted-foreground);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root[data-theme="dark"] [data-sheet-overlay] { backdrop-filter: none; }
+  :root[data-theme="dark"] .belt-segmented-navigation {
+    background: var(--muted);
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root[data-theme="dark"] button:focus-visible { outline-color: var(--primary); }
+  :root[data-theme="dark"] .segmented-item:focus-visible {
+    box-shadow: inset 0 0 0 2px var(--primary);
   }
 }

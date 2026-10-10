@@ -46,6 +46,10 @@
 
 数据格式、迁移兼容和完整同步流程只在 [数据与同步](./docs/data-and-sync.md) 维护。
 
+## 外观
+
+`src/lib/appearance.ts` 独立管理设备本地主题偏好与浏览器外观事件，`src/hooks/use-appearance.ts` 提供 React 外部快照订阅。根布局在内容首绘前解析偏好，常驻 AppearanceRuntime 保持 Toast 和 theme-color 一致；账号面板调用公共 AppearancePicker。业务组件只消费语义令牌，颜色解析集中在 globals.css，不将主题状态混入巡检数据或用户云偏好。
+
 ## UI 组合
 
 - `InspectionTabs` 与 `BeltTabs` 保留各自布局、语义和选择回调，共用 `segmented-navigation-controller.ts` 的滑块与手势实现，以及 `segmented-navigation-motion.ts` 的弹簧参数；控制器不持有业务页面或存储状态。

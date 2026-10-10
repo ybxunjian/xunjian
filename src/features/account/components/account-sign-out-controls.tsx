@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { motion, useIsPresent, useReducedMotion } from "framer-motion";
 import { LogOut } from "lucide-react";
-import { getSplitConfirmationTransition, SplitConfirmationButton } from "@/components/ui/split-confirmation-button";
+import { getSplitConfirmationTransition, SplitConfirmationButton, useSplitConfirmationMotion, useSplitConfirmationColor } from "@/components/ui/split-confirmation-button";
 
 const SPLIT_WIDTH = "calc(50% - 0.25rem)";
 const JOINED_WIDTH = "calc(50% - 0rem)";
@@ -27,6 +27,8 @@ export function AccountSignOutControls({
   const wasOpenRef = useRef(false);
   const disabled = busy || !isPresent;
   const transition = getSplitConfirmationTransition(open, Boolean(reduceMotion));
+  const { progress } = useSplitConfirmationMotion(open, Boolean(reduceMotion), isPresent);
+  const cancelBackground = useSplitConfirmationColor(progress, "--destructive-surface", "--muted");
 
   useEffect(() => {
     if (!open || busy || !isPresent) return;
@@ -82,12 +84,11 @@ export function AccountSignOutControls({
     <div ref={rootRef} className="relative mt-5 h-11 w-full" role="group" aria-label={open ? "确认退出登录" : "退出登录"} aria-busy={busy}>
       <motion.div
         className="absolute left-0 top-0 h-11"
-        style={{ borderTopLeftRadius: CAPSULE_RADIUS, borderBottomLeftRadius: CAPSULE_RADIUS }}
+        style={{ borderTopLeftRadius: CAPSULE_RADIUS, borderBottomLeftRadius: CAPSULE_RADIUS, backgroundColor: cancelBackground }}
         initial={false}
         animate={{ width: open ? SPLIT_WIDTH : JOINED_WIDTH,
           borderTopRightRadius: open ? CAPSULE_RADIUS : "0rem",
-          borderBottomRightRadius: open ? CAPSULE_RADIUS : "0rem",
-          backgroundColor: open ? "var(--muted)" : "var(--destructive)" }}
+          borderBottomRightRadius: open ? CAPSULE_RADIUS : "0rem" }}
         transition={transition}
       >
         <SplitConfirmationButton ref={cancelRef} type="button" variant="ghost"
@@ -100,7 +101,7 @@ export function AccountSignOutControls({
         />
       </motion.div>
       <motion.div
-        className="absolute right-0 top-0 h-11 bg-destructive"
+        className="absolute right-0 top-0 h-11 bg-destructive-surface"
         style={{ borderTopRightRadius: CAPSULE_RADIUS, borderBottomRightRadius: CAPSULE_RADIUS }}
         initial={false}
         animate={{ width: open ? SPLIT_WIDTH : JOINED_WIDTH,

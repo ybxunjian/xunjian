@@ -3,6 +3,7 @@
 import { forwardRef, useEffect, type ComponentProps, type ReactNode } from "react";
 import { AnimatePresence, animate, mix, motion, useMotionValue, useTransform, type HTMLMotionProps, type MotionValue } from "framer-motion";
 import { Button } from "./button";
+import { subscribeAppearance } from "@/lib/appearance";
 
 const MotionButton = motion.create(Button);
 const SPLIT_TRANSITIONS = {
@@ -32,9 +33,12 @@ export function useSplitConfirmationColor(progress: MotionValue<number>, fromTok
   const to = useMotionValue(`var(${toToken})`);
   const colorProgress = useTransform(progress, [0, end], [0, 1]);
   useEffect(() => {
-    const tokens = getComputedStyle(document.documentElement);
-    from.set(tokens.getPropertyValue(fromToken).trim());
-    to.set(tokens.getPropertyValue(toToken).trim());
+    const update = () => {
+      const tokens = getComputedStyle(document.documentElement);
+      from.set(tokens.getPropertyValue(fromToken).trim());
+      to.set(tokens.getPropertyValue(toToken).trim());
+    };
+    return subscribeAppearance(update);
   }, [from, to, fromToken, toToken]);
   return useTransform(() => mix(from.get(), to.get())(colorProgress.get()));
 }
