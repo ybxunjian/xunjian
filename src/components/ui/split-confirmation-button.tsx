@@ -1,7 +1,7 @@
 "use client";
 
-import { forwardRef, useEffect, type ComponentProps, type ReactNode } from "react";
-import { AnimatePresence, animate, mix, motion, useMotionValue, useTransform, type HTMLMotionProps, type MotionValue } from "framer-motion";
+import { forwardRef, useEffect, type ComponentProps, type ReactNode, type RefObject } from "react";
+import { AnimatePresence, animate, mix, motion, useMotionValue, type HTMLMotionProps, type MotionValue } from "framer-motion";
 import { Button } from "./button";
 import { subscribeAppearance } from "@/lib/appearance";
 
@@ -28,19 +28,29 @@ export function useSplitConfirmationMotion(open: boolean, reduceMotion: boolean,
 }
 
 /** Resolve semantic tokens before mixing, so CSS variable strings cannot jump. */
-export function useSplitConfirmationColor(progress: MotionValue<number>, fromToken: string, toToken: string, end = 1) {
-  const from = useMotionValue(`var(${fromToken})`);
-  const to = useMotionValue(`var(${toToken})`);
-  const colorProgress = useTransform(progress, [0, end], [0, 1]);
+export function useSplitConfirmationColor(
+  progress: MotionValue<number>, fromToken: string, toToken: string,
+  target: RefObject<HTMLElement | null>, property: "backgroundColor" | "color" = "backgroundColor", end = 1,
+) {
+  const color = useMotionValue(`var(${fromToken})`);
   useEffect(() => {
-    const update = () => {
-      const tokens = getComputedStyle(document.documentElement);
-      from.set(tokens.getPropertyValue(fromToken).trim());
-      to.set(tokens.getPropertyValue(toToken).trim());
+    let mixer: (value: number) => string;
+    const updateProgress = () => {
+      color.set(mixer(Math.max(0, Math.min(1, progress.get() / end))));
     };
-    return subscribeAppearance(update);
-  }, [from, to, fromToken, toToken]);
-  return useTransform(() => mix(from.get(), to.get())(colorProgress.get()));
+    const updateAppearance = () => {
+      const tokens = getComputedStyle(document.documentElement);
+      mixer = mix(tokens.getPropertyValue(fromToken).trim(), tokens.getPropertyValue(toToken).trim());
+      updateProgress();
+      // Motion schedules its DOM render for the next frame. Write the same
+      // resolved value now so CSS surfaces and this layer share the first paint.
+      if (target.current) target.current.style[property] = color.get();
+    };
+    const unsubscribeAppearance = subscribeAppearance(updateAppearance);
+    const unsubscribeProgress = progress.on("change", updateProgress);
+    return () => { unsubscribeAppearance(); unsubscribeProgress(); };
+  }, [color, progress, fromToken, toToken, target, property, end]);
+  return color;
 }
 
 type SplitConfirmationButtonProps = Omit<HTMLMotionProps<"button">, "children"> &

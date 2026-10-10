@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import vm from "node:vm";
 import { readFileSync } from "node:fs";
-import { APPEARANCE_INIT_SCRIPT, normalizeAppearance, resolveAppearance } from "../src/lib/appearance.ts";
+import { APPEARANCE_INIT_SCRIPT, APPEARANCE_STORAGE_KEY, getAppearanceSnapshot, normalizeAppearance, resolveAppearance, setAppearancePreference, subscribeAppearance } from "../src/lib/appearance.ts";
 
 test("appearance preference keeps system distinct from its current resolution", () => {
   assert.equal(normalizeAppearance(null), "system");
@@ -26,6 +26,77 @@ test("prepaint script applies saved overrides and follows the system with blocke
   }
 });
 
+test("appearance updates share listeners, synchronize consumers and survive rapid reversal and storage failure", () => {
+  const keys = ["document", "window", "localStorage", "matchMedia", "getComputedStyle", "requestAnimationFrame", "cancelAnimationFrame"];
+  const originals = new Map(keys.map((key) => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
+  class Media extends EventTarget {
+    matches = false;
+    count = 0;
+    addEventListener(...args) { this.count++; super.addEventListener(...args); }
+    removeEventListener(...args) { this.count--; super.removeEventListener(...args); }
+    change(matches) { this.matches = matches; this.dispatchEvent(new Event("change")); }
+  }
+  const scheme = new Media();
+  const increased = new Media();
+  const root = { dataset: { appearance: "system", theme: "light" } };
+  const windowTarget = new EventTarget();
+  const frames = new Map();
+  let frameId = 0;
+  const paint = () => {
+    for (const [id, callback] of [...frames]) { frames.delete(id); callback(); }
+  };
+  const observed = [];
+  const disposers = [];
+  Object.assign(globalThis, {
+    document: { documentElement: root, querySelectorAll: () => [] },
+    window: windowTarget,
+    localStorage: { setItem() { throw new Error("blocked storage"); } },
+    matchMedia: (query) => query.includes("color-scheme") ? scheme : increased,
+    getComputedStyle: () => ({ getPropertyValue: () => "#111114" }),
+    requestAnimationFrame: (callback) => { frames.set(++frameId, callback); return frameId; },
+    cancelAnimationFrame: (id) => frames.delete(id),
+  });
+  try {
+    for (let index = 0; index < 2; index++) {
+      disposers.push(subscribeAppearance(() => observed.push([index, getAppearanceSnapshot(), "appearanceChanging" in root.dataset])));
+    }
+    assert.equal(scheme.count, 1);
+    assert.equal(increased.count, 1);
+    observed.length = 0;
+    setAppearancePreference("dark");
+    assert.deepEqual(observed, [[0, "dark:dark", true], [1, "dark:dark", true]]);
+    paint();
+    setAppearancePreference("light");
+    paint();
+    assert.ok("appearanceChanging" in root.dataset);
+    paint();
+    assert.ok(!("appearanceChanging" in root.dataset));
+
+    scheme.change(true);
+    assert.equal(getAppearanceSnapshot(), "light:light", "manual appearance overrides the system");
+    assert.ok(!("appearanceChanging" in root.dataset));
+    const unrelated = Object.assign(new Event("storage"), { key: "inspection-records", newValue: null });
+    observed.length = 0;
+    windowTarget.dispatchEvent(unrelated);
+    assert.equal(observed.length, 0);
+    windowTarget.dispatchEvent(Object.assign(new Event("storage"), { key: APPEARANCE_STORAGE_KEY, newValue: null }));
+    assert.equal(getAppearanceSnapshot(), "system:dark", "removing a preference follows the current system");
+    paint(); paint();
+    increased.change(true);
+    assert.ok("appearanceChanging" in root.dataset, "contrast changes also suppress mixed color transitions");
+    paint(); paint();
+    assert.ok(!("appearanceChanging" in root.dataset));
+  } finally {
+    for (const dispose of disposers) dispose();
+    assert.equal(scheme.count, 0);
+    assert.equal(increased.count, 0);
+    for (const [key, descriptor] of originals) {
+      if (descriptor) Object.defineProperty(globalThis, key, descriptor);
+      else delete globalThis[key];
+    }
+  }
+});
+
 function luminance(hex) {
   const rgb = [1, 3, 5].map((index) => Number.parseInt(hex.slice(index, index + 2), 16) / 255)
     .map((value) => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4);
@@ -44,7 +115,7 @@ test("dark semantic text, action and control colors meet contrast targets", () =
   const increased = css.slice(css.indexOf("@media (prefers-contrast: more)"), css.indexOf("@theme inline"));
   const darkMore = { ...dark, ...values(increased.match(/:root\[data-theme="dark"\]\s*\{([^}]+)\}/s)[1]) };
   for (const [name, palette] of Object.entries({ dark, darkMore })) {
-    for (const foreground of ["foreground", "muted-foreground", "subtle-foreground"]) {
+    for (const foreground of ["foreground", "muted-foreground", "subtle-foreground", "destructive"]) {
       for (const background of ["background", "card", "muted", "surface-elevated"]) {
         const ratio = contrast(palette[foreground], palette[background]);
         assert.ok(ratio >= 4.5, `${name} ${foreground}/${background}: ${ratio.toFixed(2)}`);

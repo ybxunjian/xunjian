@@ -29,9 +29,9 @@ export function DetailRecordActions({
   const { progress: expansion } = useSplitConfirmationMotion(confirming, reduceMotion, isPresent);
   const leftWidth = useTransform(expansion, leftWidthAt);
   const rightWidth = useTransform(expansion, rightWidthAt);
-  const backgroundColor = useSplitConfirmationColor(expansion, "--destructive-soft", "--destructive-surface", 0.6);
-  const returnBackground = useSplitConfirmationColor(expansion, "--primary-surface", "--card");
-  const returnColor = useSplitConfirmationColor(expansion, "--primary-foreground", "--foreground");
+  const backgroundColor = useSplitConfirmationColor(expansion, "--destructive-soft", "--destructive-surface", rightRef, "backgroundColor", 0.6);
+  const returnBackground = useSplitConfirmationColor(expansion, "--primary-surface", "--card", leftRef);
+  const returnColor = useSplitConfirmationColor(expansion, "--primary-foreground", "--foreground", leftRef, "color");
 
   useEffect(() => {
     if (!isPresent) return;

@@ -6,6 +6,7 @@ import type { InspectionValues, PumpAreaId } from "../../model/types";
 import { InspectionField } from "../inspection-field";
 import { SectionHeading } from "../section-heading";
 import { StatusToggle } from "../status-toggle";
+import { ChevronDown } from "lucide-react";
 
 type PumpAreaProps = {
   area: PumpAreaId;
@@ -40,25 +41,29 @@ export function PumpArea({
                 <div className="mb-3 flex items-center justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-3">
                     <b className="shrink-0 text-body text-foreground">{group}</b>
-                    <select
-                      value={
-                        values[fieldKey(area, group, String(index), "no")] || ""
-                      }
-                      onChange={(event) =>
-                        onSelectPump(
-                          area,
-                          group,
-                          index,
-                          event.target.value,
-                        )
-                      }
-                      className="w-[108px] rounded-control bg-muted p-3 font-semibold leading-[18px] text-primary outline-none"
-                    >
-                      <option value="">选择</option>
-                      {pumpNumbers.map((pumpNumber) => (
-                        <option key={pumpNumber}>{pumpNumber}</option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        value={
+                          values[fieldKey(area, group, String(index), "no")] || ""
+                        }
+                        onChange={(event) =>
+                          onSelectPump(
+                            area,
+                            group,
+                            index,
+                            event.target.value,
+                          )
+                        }
+                        className="w-[108px] rounded-control bg-muted p-3 font-semibold leading-[18px] text-primary outline-none"
+                      >
+                        <option value="">选择</option>
+                        {pumpNumbers.map((pumpNumber) => (
+                          <option key={pumpNumber}>{pumpNumber}</option>
+                        ))}
+                      </select>
+                      <ChevronDown aria-hidden="true" strokeWidth={2.5}
+                        className="pointer-events-none absolute right-3.5 top-1/2 size-5 -translate-y-1/2 text-primary" />
+                    </div>
                   </div>
                   <ClearButton onClick={() => onClearPump(area, group, index)} />
                 </div>

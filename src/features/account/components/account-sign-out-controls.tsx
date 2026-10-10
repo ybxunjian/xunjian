@@ -22,13 +22,14 @@ export function AccountSignOutControls({
   const isPresent = useIsPresent();
   const reduceMotion = useReducedMotion();
   const rootRef = useRef<HTMLDivElement>(null);
+  const cancelSurfaceRef = useRef<HTMLDivElement>(null);
   const cancelRef = useRef<HTMLButtonElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const wasOpenRef = useRef(false);
   const disabled = busy || !isPresent;
   const transition = getSplitConfirmationTransition(open, Boolean(reduceMotion));
   const { progress } = useSplitConfirmationMotion(open, Boolean(reduceMotion), isPresent);
-  const cancelBackground = useSplitConfirmationColor(progress, "--destructive-surface", "--muted");
+  const cancelBackground = useSplitConfirmationColor(progress, "--destructive-surface", "--muted", cancelSurfaceRef);
 
   useEffect(() => {
     if (!open || busy || !isPresent) return;
@@ -83,6 +84,7 @@ export function AccountSignOutControls({
   return (
     <div ref={rootRef} className="relative mt-5 h-11 w-full" role="group" aria-label={open ? "确认退出登录" : "退出登录"} aria-busy={busy}>
       <motion.div
+        ref={cancelSurfaceRef}
         className="absolute left-0 top-0 h-11"
         style={{ borderTopLeftRadius: CAPSULE_RADIUS, borderBottomLeftRadius: CAPSULE_RADIUS, backgroundColor: cancelBackground }}
         initial={false}

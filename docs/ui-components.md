@@ -31,7 +31,9 @@
 
 系统变化仅在跟随系统模式改变实际外观，手动模式保持选择；其他标签页更新和删除外观偏好会同步。存储键、格式与账号隔离规则见 [数据与同步](./data-and-sync.md#浏览器存储)。
 
-所有颜色消费 globals.css；填充按钮和文字强调色分别使用 surface 与普通颜色令牌。浅色保留原有配色和控件边界，深色独立解析；TextField 使用 control-border，原生 select 使用 select-border / select-focus-border。Sheet、气泡和深色提示使用抬升表面，浅色提示保留 Sonner 默认配色；两层滑块使用 navigation-selection；尺寸、留白、曲线不因主题变化而改变。
+所有订阅者共用一组系统外观/对比度与 storage 监听。实际外观或系统对比度变化时，根属性 `data-appearance-changing` 暂时排除 CSS 颜色、边框与阴影过渡，保留 transform/translate/scale/rotate/opacity；新配色绘制后解除，快速反向会取消上一次解除回调。日常悬停、聚焦和操作反馈仍用原有过渡。
+
+所有颜色消费 globals.css；填充按钮和文字强调色分别使用 surface 与普通颜色令牌。浅色保留原有配色和控件边界，深色独立解析；TextField 使用 control-border，原生 select 使用 select-border / select-focus-border，箭头用 Lucide ChevronDown 消费 primary，保持 20px、2.5px 线宽、右侧 14px。Sheet、气泡和深色提示使用抬升表面，浅色提示保留 Sonner 默认配色；两层滑块使用 navigation-selection；尺寸、留白、曲线不因主题变化而改变。
 
 ## 尺寸与表单
 
@@ -96,7 +98,7 @@ Portal 内的实时菜单仅在 `isPresent && !selectedRecord` 时渲染，退�
 
 `SplitConfirmationButton` 复用 Button。关闭/打开内容采用固定绝对居中层交叉淡入淡出，不测量、裁切或缩放文字；调用方提供当前 aria-label，视觉层 aria-hidden。
 
-公共几何参数：展开 280ms、`[0.25, 0.1, 0.25, 1]`；合回 220ms、`[0.25, 0.1, 0.35, 1]`。文字同等时长 easeInOut，无延迟。`getSplitConfirmationTransition` 提供统一参数；`useSplitConfirmationMotion` 在打断后从当前进度接续，清理停止自身动画，退场不重新启动。需要渐变的调用方用 `useSplitConfirmationColor` 解析语义令牌再插值；外观和系统对比度变化时重新解析，不重启几何动画。减少动态效果立即切换。
+公共几何参数：展开 280ms、`[0.25, 0.1, 0.25, 1]`；合回 220ms、`[0.25, 0.1, 0.35, 1]`。文字同等时长 easeInOut，无延迟。`getSplitConfirmationTransition` 提供统一参数；`useSplitConfirmationMotion` 在打断后从当前进度接续，清理停止自身动画，退场不重新启动。需要渐变的调用方用 `useSplitConfirmationColor` 解析语义令牌再插值；传入承载元素 ref 与颜色属性，在外观和系统对比度变化时按当前进度重新解析，同时更新 MotionValue 和 DOM 色值，使其与 CSS 表面同帧换色，不重启几何动画。混色算法沿用 Motion mix，进度插值不变。减少动态效果立即切换。
 
 | 调用方 | 默认 → 确认布局和配色 |
 | --- | --- |

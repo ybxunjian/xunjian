@@ -123,7 +123,7 @@
   --success-soft: #183a27;
   --warning: #f5c46d;
   --warning-soft: #3c301b;
-  --destructive: #ff959c;
+  --destructive: #ff7080;
   --destructive-surface: #b92d3e;
   --destructive-soft: #43242c;
   --select-inset: rgb(255 255 255 / 0.06);
@@ -260,13 +260,17 @@ select {
   appearance: none;
   -webkit-appearance: none;
   background-color: var(--card) !important;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%230a84ff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
-  background-position: right 14px center !important;
-  background-repeat: no-repeat !important;
   border: 1px solid var(--select-border);
   box-shadow: var(--shadow-card), inset 0 0 0 1px var(--select-inset);
   padding-right: 44px !important;
   transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+/* Switch every color layer together; interaction geometry and fades keep running. */
+:root[data-appearance-changing] *,
+:root[data-appearance-changing] *::before,
+:root[data-appearance-changing] *::after {
+  transition-property: transform, translate, scale, rotate, opacity !important;
 }
 
 select:focus {
