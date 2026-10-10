@@ -258,7 +258,7 @@ button:focus-visible {
 .history-record-time { grid-area: 1 / 3; line-height: 30px; overflow-wrap: anywhere; transform: translateY(-3px); }
 .history-record-time-caption { grid-area: 2 / 3; line-height: 17px; overflow-wrap: anywhere; }
 .history-detail-entry-circle { width: var(--size-history-entry-circle); height: var(--size-history-entry-circle); }
-:root[data-theme="dark"] .history-record-selection { border-width: 0; }
+:root[data-theme="dark"] [aria-pressed="true"] > .history-record-selection { border-width: 0; }
 :root[data-theme="dark"] [aria-pressed="false"] > .history-record-selection { background-color: var(--muted); }
 /* Match the summary Card's outer edges using the shared page gutter. */
 .history-detail-actions {
