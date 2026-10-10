@@ -260,9 +260,25 @@ button:focus-visible {
 .history-detail-entry-circle { width: var(--size-history-entry-circle); height: var(--size-history-entry-circle); }
 :root[data-theme="dark"] .history-record-selection { border-width: 0; }
 :root[data-theme="dark"] [aria-pressed="false"] > .history-record-selection { background-color: var(--muted); }
-/* Match the summary's page gutter, Card border and p-4 content inset. */
+/* Match the summary Card's outer edges using the shared page gutter. */
 .history-detail-actions {
-  width: calc(min(100%, var(--container-md)) - 2 * var(--space-page) - 8 * var(--spacing) - 2px);
+  width: calc(min(100%, var(--container-md)) - 2 * var(--space-page));
+}
+/* Separate fixed controls from scrolling cards, including the bottom Safe Area. */
+.history-detail-actions::before,
+.history-detail-actions::after {
+  position: absolute;
+  left: 50%;
+  z-index: -1;
+  width: min(100vw, var(--container-md));
+  transform: translateX(-50%);
+  content: "";
+  pointer-events: none;
+}
+.history-detail-actions::before {
+  top: 0;
+  bottom: calc(-1 * max(1rem, env(safe-area-inset-bottom)));
+  background: var(--background);
 }
 @media (max-width: 350px) {
   .history-record-info { grid-template-columns: 76px 1px minmax(0, 1fr); column-gap: 10px; }
@@ -306,11 +322,10 @@ select:focus {
   background: var(--background);
 }
 
-.history-selection-actions--stuck::before {
+.history-selection-actions--stuck::before,
+.history-detail-actions::after {
   position: absolute;
-  right: 0;
   bottom: 100%;
-  left: 0;
   height: 2rem;
   content: "";
   pointer-events: none;
@@ -320,6 +335,10 @@ select:focus {
     color-mix(in srgb, var(--background) 94%, transparent) 28%,
     transparent
   );
+}
+.history-selection-actions--stuck::before {
+  right: 0;
+  left: 0;
 }
 
 :root[data-theme="dark"] input::placeholder { color: var(--subtle-foreground); opacity: 1; }
@@ -371,7 +390,8 @@ select option:disabled { color: var(--muted-foreground); background: var(--muted
     background: var(--background);
   }
 
-  .history-selection-actions--stuck::before {
+  .history-selection-actions--stuck::before,
+  .history-detail-actions::after {
     background: var(--background);
   }
 }
