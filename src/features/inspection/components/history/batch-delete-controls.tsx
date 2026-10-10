@@ -72,7 +72,7 @@ export function BatchDeleteControls({
         style={{ right: leftOffset }}
         surface={(
           <motion.span
-            className="pointer-events-none absolute inset-0 rounded-full bg-card"
+            className="pointer-events-none absolute inset-0 rounded-full bg-neutral-control-surface"
             style={{ opacity: progress }}
             aria-hidden="true"
           />

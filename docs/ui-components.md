@@ -33,7 +33,9 @@
 
 所有订阅者共用一组系统外观/对比度与 storage 监听。实际外观或系统对比度变化时，根属性 `data-appearance-changing` 暂时排除 CSS 颜色、边框与阴影过渡，保留 transform/translate/scale/rotate/opacity；新配色绘制后解除，快速反向会取消上一次解除回调。日常悬停、聚焦和操作反馈仍用原有过渡。
 
-所有颜色消费 globals.css；填充按钮和文字强调色分别使用 surface 与普通颜色令牌。浅色保留原有配色和控件边界，深色独立解析；TextField 使用 control-border，原生 select 使用 select-border / select-focus-border，箭头用 Lucide ChevronDown 消费 primary，保持 20px、2.5px 线宽、右侧 14px。Sheet、气泡和深色提示使用抬升表面，浅色提示保留 Sonner 默认配色；两层滑块使用 navigation-selection；尺寸、留白、曲线不因主题变化而改变。
+所有颜色消费 globals.css；填充按钮和文字强调色分别使用 surface 与普通颜色令牌。浅色保留原有控件边界，深色独立解析；TextField 使用 control-border，原生 select 使用 select-border / select-focus-border，箭头用 Lucide ChevronDown 消费 primary，保持 20px、2.5px 线宽、右侧 14px。Sheet、气泡和深色提示使用抬升表面，浅色提示保留 Sonner 默认配色；两层滑块使用 navigation-selection；尺寸、留白、曲线不因主题变化而改变。
+
+Sonner 的普通、成功、错误、警告和信息提示底色、文字及边框均由 html 的 data-theme 同帧解析；描述文字与撤销操作沿用对应配色，不等待 React 的 data-sonner-theme 更新，不卸载或隐藏已有提示。
 
 ## 尺寸与表单
 
@@ -105,14 +107,16 @@ Portal 内的实时菜单仅在 `isPresent && !selectedRecord` 时渲染，退�
 | 调用方 | 默认 → 确认布局和配色 |
 | --- | --- |
 | `AccountSignOutControls` | 完整 44px 高红胶囊 → 两个等宽胶囊，各从原 50% 减 4px，中缝 8px，内圆角从 0 到 22px；取消 muted 灰底灰字，确认红底白字 |
-| `DetailRecordActions` | 48px 高蓝色返回胶囊 + 48px 浅红删除圆形 → 白底深字取消 + 红底白字确认删除；两侧各占 `(100% - 8px)/2`，保持 8px 间距 |
-| `BatchDeleteControls` | 76×44px 红色“垃圾桶＋删除” → 原尺寸原位置红色“确认” + 左侧 76×44px 白底深字取消，间距 8px |
+| `DetailRecordActions` | 48px 高蓝色返回胶囊 + 48px 浅红删除圆形 → 中性底色取消 + 红底白字确认删除；两侧各占 `(100% - 8px)/2`，保持 8px 间距 |
+| `BatchDeleteControls` | 76×44px 红色“垃圾桶＋删除” → 原尺寸原位置红色“确认” + 左侧 76×44px 中性底色取消，间距 8px |
+
+详情与批量的取消按钮使用 neutral-control-surface，浅色 #dce2eb、深色 #484850，文字使用 foreground。该令牌独立于 card / muted，不改退出登录、修改密码或头像气泡的取消配色。
 
 三组均不使用彩色阴影，入口、确认与取消的按压缩放均为 0.99。打开聚焦取消，主动取消后恢复入口焦点，均 preventScroll；Escape 取消，滚动保持展开，退场禁用。业务确认及防重复提交留在调用方。
 
 - 退出登录：初始由完整覆盖按钮承接点击，展开后隐藏入口，两侧独立操作；按压 0.99。外部轻点抬起取消，移动超过 8px、滚动或取消手势保持展开。请求时禁用，右侧“正在退出…”通过 openContentKey 交叉切换，失败保留确认供重试。
-- 详情：左侧蓝色返回渐变为白底取消；右侧底色在几何进度 0–60% 从 destructive-soft 加深为 destructive-surface，居中垃圾桶淡出，白色“确认删除”淡入，无图标占位。每条记录独立挂载，离开不保留确认。
-- 批量：160px 容器预留左侧空间，不推已选数量；右侧原有完整点击区域和中心全程不变。取消右偏移 52→84px，从右侧按钮下方移出；背景固定 card 白色，仅淡入淡出，文字不与背景叠乘透明度，取消按压 0.99。零选择禁用；包括同数量替换在内的改选立即合回，不抢记录焦点，取消保留勾选。
+- 详情：左侧蓝色返回渐变为中性底色取消；右侧底色在几何进度 0–60% 从 destructive-soft 加深为 destructive-surface，居中垃圾桶淡出，白色“确认删除”淡入，无图标占位。每条记录独立挂载，离开不保留确认。
+- 批量：160px 容器预留左侧空间，不推已选数量；右侧原有完整点击区域和中心全程不变。取消右偏移 52→84px，从右侧按钮下方移出；背景固定 neutral-control-surface，仅淡入淡出，文字不与背景叠乘透明度，取消按压 0.99。零选择禁用；包括同数量替换在内的改选立即合回，不抢记录焦点，取消保留勾选。
 
 ## 修改密码原位展开
 

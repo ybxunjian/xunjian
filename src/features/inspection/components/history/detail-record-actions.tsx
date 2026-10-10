@@ -30,7 +30,7 @@ export function DetailRecordActions({
   const leftWidth = useTransform(expansion, leftWidthAt);
   const rightWidth = useTransform(expansion, rightWidthAt);
   const backgroundColor = useSplitConfirmationColor(expansion, "--destructive-soft", "--destructive-surface", rightRef, "backgroundColor", 0.6);
-  const returnBackground = useSplitConfirmationColor(expansion, "--primary-surface", "--card", leftRef);
+  const returnBackground = useSplitConfirmationColor(expansion, "--primary-surface", "--neutral-control-surface", leftRef);
   const returnColor = useSplitConfirmationColor(expansion, "--primary-foreground", "--foreground", leftRef, "color");
 
   useEffect(() => {

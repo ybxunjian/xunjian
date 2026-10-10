@@ -12,6 +12,7 @@
   --foreground-strong: #020617;
   --card: #ffffff;
   --surface-elevated: #ffffff;
+  --neutral-control-surface: #dce2eb;
   --brand-ink: #0f1f37;
   --control-border: color-mix(in oklab, var(--border) 80%, transparent);
   --select-border: color-mix(in srgb, var(--primary) 16%, white);
@@ -102,6 +103,7 @@
   --foreground-strong: #ffffff;
   --card: #1c1c20;
   --surface-elevated: #28282e;
+  --neutral-control-surface: #484850;
   --card-foreground: #f2f2f7;
   --brand-ink: #dce8f8;
   --primary: #74b8ff;
@@ -153,6 +155,7 @@
   --color-foreground-strong: var(--foreground-strong);
   --color-card: var(--card);
   --color-surface-elevated: var(--surface-elevated);
+  --color-neutral-control-surface: var(--neutral-control-surface);
   --color-control-border: var(--control-border);
   --color-card-foreground: var(--card-foreground);
   --color-primary: var(--primary);
@@ -378,7 +381,33 @@ select option:disabled { color: var(--muted-foreground); background: var(--muted
   }
 }
 
-/* Sonner uses the same surfaces and status hierarchy as sheets and forms. */
+/* Root appearance owns both palettes, including the frame before Sonner's
+ * React theme prop catches up. Keep Sonner's original light colors. */
+:root[data-theme="light"] [data-sonner-toaster][data-sonner-theme][data-x-position] {
+  --normal-bg: #fff;
+  --normal-text: hsl(0, 0%, 9%);
+  --normal-border: hsl(0, 0%, 93%);
+  --success-bg: hsl(143, 85%, 96%);
+  --success-text: hsl(140, 100%, 27%);
+  --success-border: hsl(145, 92%, 87%);
+  --error-bg: hsl(359, 100%, 97%);
+  --error-text: hsl(360, 100%, 45%);
+  --error-border: hsl(359, 100%, 94%);
+  --warning-bg: hsl(49, 100%, 97%);
+  --warning-text: hsl(31, 92%, 45%);
+  --warning-border: hsl(49, 91%, 84%);
+  --info-bg: hsl(208, 100%, 97%);
+  --info-text: hsl(210, 92%, 45%);
+  --info-border: hsl(221, 91%, 93%);
+}
+:root[data-theme="light"] [data-sonner-toaster][data-sonner-theme][data-x-position] [data-sonner-toast] [data-description] {
+  color: #3f3f3f;
+}
+:root[data-theme="light"] [data-sonner-toaster][data-sonner-theme][data-x-position] [data-sonner-toast][data-rich-colors="true"] [data-description] {
+  color: inherit;
+}
+
+/* Dark Sonner surfaces follow the app's status hierarchy. */
 :root[data-theme="dark"] [data-sonner-toaster][data-sonner-theme][data-x-position] {
   --normal-bg: var(--surface-elevated);
   --normal-text: var(--foreground);

@@ -18,6 +18,7 @@
 | --- | --- |
 | 页面与文字 | `background`、`foreground`、`foreground-strong` |
 | 容器与辅助 | `card`、`surface-elevated`、`control-border`、`muted`、`muted-foreground`、`subtle-foreground`、`border` |
+| 中性操作底色 | `neutral-control-surface`；详情与批量删除的取消按钮使用独立底色，避免与滚动经过的卡片融为一体 |
 | 一级导航 | `navigation-track`、`navigation-selection`、`navigation-foreground`、`navigation-muted`、`navigation-border`；选中块使用 `navigation-selection` |
 | 操作与状态 | `primary`、`primary-surface`、`secondary`、`success`、`warning`、`destructive`、`destructive-surface` 及各自前景/弱底色 |
 | 圆角 | `radius-small`、`radius-control`、`radius-navigation`、`radius-navigation-item`、`radius-card`、`radius-sheet`、`radius-confirmation-popover` |
@@ -45,7 +46,7 @@
 - `primary` / `destructive` 用于链接、图标、状态；实色按钮使用 `primary-surface` / `destructive-surface`，配白色前景，避免把适合暗底的亮色直接用作白字按钮底色。
 - 顶部卡片在两种外观中均为深蓝色；其“新建”使用独立的 inverse 令牌，两种外观固定白底深字与浅灰悬停底色，不随普通 card/foreground 变暗。“保存”继续使用各主题的 primary-surface。
 - 深色危险文字/图标使用 `#ff7080`，兼顾原有红色观感与暗底可读性；实色危险按钮保留独立的深红填充，不能共用文字强调色。
-- 浅色保持原有按钮、辅助文字、输入框/下拉边界、placeholder 和 Sonner 配色，不随深色适配加深；浏览器 theme-color 保持原有品牌墨色。新增深色配色的普通文字目标至少 4.5:1，关键图形至少 3:1；浅色既有配色不宣称达到这些目标。深色的 `prefers-contrast: more` 集中增强次级文字、分隔线和控件边界。
+- 浅色保持原有辅助文字、输入框/下拉边界、placeholder 和 Sonner 配色，不随深色适配加深；按钮按已确认的语义底色使用，详情与批量删除的取消底色独立于卡片。浏览器 theme-color 保持原有品牌墨色。新增深色配色的普通文字目标至少 4.5:1，关键图形至少 3:1；浅色既有配色不宣称达到这些目标。深色的 `prefers-contrast: more` 集中增强次级文字、分隔线和控件边界。
 - 输入文字、placeholder、原生 select、日历今天/有记录、错误和同步状态使用同一语义体系。状态继续配图标/文字，不能只用红绿区分。
 - 登录 Logo 使用独立浅色墨色适配深背景，保留青色品牌渐变与路径；头像、照片、分享图与安装图标保持原图，不全局反色。资源规则见品牌文档。
 - 页面首绘前解析主题，刷新避免先出现浅色界面。切换时所有表面、文字、图标与边界直接同步换色，不经过灰色中间态；不新增全页动画，按压、分裂与页面动画继续运行。现有减少动态效果规则继续生效。深色减少透明效果时移除 Sheet 与皮带导航模糊；浅色保留已有规则，历史底部栏在两种外观都使用实色。
