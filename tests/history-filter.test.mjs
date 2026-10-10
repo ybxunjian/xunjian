@@ -6,7 +6,6 @@ import {
   getLatestHistoryDate,
   groupHistoryRecordsByDate,
   shiftHistoryMonth,
-  toggleVisibleRecordIds,
 } from "../src/features/inspection/model/history-filter.ts";
 
 const records = [
@@ -30,11 +29,4 @@ test("calendar aligns Monday first and crosses year boundaries", () => {
   assert.equal(dates.at(-1), null);
   assert.equal(shiftHistoryMonth("2026-01", -1), "2025-12");
   assert.equal(shiftHistoryMonth("2026-12", 1), "2027-01");
-});
-
-test("selecting visible records leaves unrelated ids alone and toggles back", () => {
-  const selected = toggleVisibleRecordIds(["hidden"], ["new", "old"]);
-  assert.deepEqual(selected, ["hidden", "new", "old"]);
-  assert.deepEqual(toggleVisibleRecordIds(selected, ["new", "old"]), ["hidden"]);
-  assert.deepEqual(toggleVisibleRecordIds(selected, []), selected);
 });

@@ -53,14 +53,3 @@ export function shiftHistoryMonth(monthKey: string, offset: number) {
   const shifted = new Date(Date.UTC(year, month - 1 + offset, 1));
   return `${shifted.getUTCFullYear()}-${String(shifted.getUTCMonth() + 1).padStart(2, "0")}`;
 }
-
-export function toggleVisibleRecordIds(current: string[], visible: string[]) {
-  if (visible.length === 0) return current;
-  const selected = new Set(current);
-  if (visible.every((id) => selected.has(id))) {
-    visible.forEach((id) => selected.delete(id));
-  } else {
-    visible.forEach((id) => selected.add(id));
-  }
-  return [...selected];
-}
