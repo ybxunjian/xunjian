@@ -1,4 +1,4 @@
-import { SEGMENT_SELECTION_TRANSITION } from "./segmented-navigation-motion";
+import { SEGMENT_DRAG_FEEDBACK, SEGMENT_SELECTION_TRANSITION } from "./segmented-navigation-motion";
 
 /** V9 motion in track-local coordinates; no shared layout projection. */
 export function createSegmentedNavigationMotion(root: HTMLElement, thumb: HTMLElement, count: number, initialIndex: number, reduced: boolean, onSelect: (index: number) => void) {
@@ -25,14 +25,22 @@ export function createSegmentedNavigationMotion(root: HTMLElement, thumb: HTMLEl
   let holdStarted = 0, blendStarted = 0, lastFrame = 0, raf: number | null = null;
   let samples: { time: number; x: number }[] = [];
   let suppressClick = false;
+  let pointerStartX = 0, dragFeedback = false;
+  function startDragFeedback() {
+    dragFeedback = true;
+    scaleTarget = reduced ? 1 : SEGMENT_DRAG_FEEDBACK.scale;
+  }
   function render() {
     const lean = direction * stretch * step() * .12;
     thumb.style.transform = "translate3d(" + (visual + lean) + "px,0,0) scale(" + scale * (1 + stretch) + "," + scale * (1 - stretch * .22) + ")";
-    thumb.style.setProperty("--navigation-press", String(clamp((scale - 1) / .15, 0, 1)));
+    thumb.style.setProperty("--navigation-press", String(clamp((scale - 1) / (SEGMENT_DRAG_FEEDBACK.scale - 1), 0, 1)));
     const active = clamp(Math.round(visual / step()), 0, count - 1);
     buttons.forEach((button, i) => button.setAttribute("data-preview-active", String(i === active)));
   }
   function tick(now: number) {
+    if (pointer !== null && !dragFeedback && now - holdStarted >= SEGMENT_DRAG_FEEDBACK.holdDelay) {
+      startDragFeedback();
+    }
     const dt = lastFrame ? Math.min((now - lastFrame) / 1000, .035) : 0;
     lastFrame = now;
     const iterations = Math.ceil(dt / .0035);
@@ -63,11 +71,11 @@ export function createSegmentedNavigationMotion(root: HTMLElement, thumb: HTMLEl
     else visual = clamp(position);
     if (phase === "follow" && now - lastMove > 85) fingerVelocity = 0;
     const speed = phase === "follow" ? fingerVelocity : velocity;
-    const stretchTarget = .1 * clamp((Math.abs(speed) - 45) / 550, 0, 1);
+    const stretchTarget = dragFeedback ? .1 * clamp((Math.abs(speed) - 45) / 550, 0, 1) : 0;
     stretch += (stretchTarget - stretch) * (1 - Math.exp(-dt / (stretchTarget > stretch ? .035 : .115)));
     direction += (Math.sign(speed) - direction) * (1 - Math.exp(-dt / .05));
     render();
-    const moving = phase === "chase" || phase === "blending" ||
+    const moving = (pointer !== null && !dragFeedback) || phase === "chase" || phase === "blending" ||
       (phase !== "follow" && (Math.abs(position - target) > .06 || Math.abs(velocity) > .15)) ||
       Math.abs(scale - scaleTarget) > .0005 || Math.abs(scaleVelocity) > .002 ||
       Math.abs(stretch - stretchTarget) > .0003 ||
@@ -93,10 +101,11 @@ export function createSegmentedNavigationMotion(root: HTMLElement, thumb: HTMLEl
       render();
     } else if (raf === null) { lastFrame = 0; raf = requestAnimationFrame(tick); }
   }
-  function select(index: number, commit = true) {
+  function select(index: number, commit = true, fromDrag = false) {
     selected = clamp(index, 0, count - 1);
     target = selected * step();
     scaleTarget = 1;
+    dragFeedback = fromDrag;
     phase = "idle";
     animate();
     if (commit) onSelect(selected);
@@ -105,13 +114,15 @@ export function createSegmentedNavigationMotion(root: HTMLElement, thumb: HTMLEl
     if (!e.isPrimary || e.button !== 0 || pointer !== null) return;
     suppressClick = false;
     pointer = e.pointerId;
+    pointerStartX = e.clientX;
+    dragFeedback = false;
     phase = "chase";
     finger = fingerAt(local(e));
     fingerVelocity = 0;
     lastMove = performance.now();
     samples = [{ time: lastMove, x: finger }];
     holdStarted = lastMove;
-    scaleTarget = reduced ? 1 : 1.15;
+    scaleTarget = 1;
     root.setPointerCapture(pointer);
     // Start the spring from the current visual position; never teleport to the pointer.
     position = visual;
@@ -119,6 +130,10 @@ export function createSegmentedNavigationMotion(root: HTMLElement, thumb: HTMLEl
   }
   function move(e: PointerEvent) {
     if (e.pointerId !== pointer) return;
+    // Ignore tap jitter for scale/stretch, while tracking every position immediately.
+    if (!dragFeedback && Math.abs(e.clientX - pointerStartX) > SEGMENT_DRAG_FEEDBACK.distance) {
+      startDragFeedback();
+    }
     const now = performance.now();
     finger = fingerAt(local(e));
     samples.push({ time: now, x: finger });
@@ -135,7 +150,7 @@ export function createSegmentedNavigationMotion(root: HTMLElement, thumb: HTMLEl
     suppressClick = canceled || holding;
     if (canceled) {
       position = visual;
-      select(selected, false);
+      select(selected, false, dragFeedback);
     } else if (holding) {
       const speed = performance.now() - lastMove < 90 ? fingerVelocity : 0;
       const at = fingerAt(local(e));
@@ -143,7 +158,7 @@ export function createSegmentedNavigationMotion(root: HTMLElement, thumb: HTMLEl
       position = visual;
       if (phase === "follow") velocity = clamp(speed, -1400, 1400);
       // Release position owns selection; velocity only affects the settle animation.
-      select(nearest);
+      select(nearest, true, dragFeedback);
     } else { phase = "idle"; scaleTarget = 1; animate(); }
     const captured = pointer;
     pointer = null;
@@ -171,6 +186,7 @@ export function createSegmentedNavigationMotion(root: HTMLElement, thumb: HTMLEl
     const captured = pointer; pointer = null;
     if (captured !== null && root.hasPointerCapture(captured)) root.releasePointerCapture(captured);
     phase = "idle";
+    dragFeedback = false;
     measure();
     position = target = visual = selected * step();
     velocity = scaleVelocity = stretch = direction = 0;
