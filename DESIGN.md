@@ -43,6 +43,7 @@
 - 页面只声明语义颜色，不散落浅深色条件；`globals.css` 的 `:root` / `data-theme="dark"` 统一解析颜色。默认跟随 `prefers-color-scheme`，用户保存的是 system/light/dark 偏好，而非系统当前深色布尔值。
 - 深色使用页面、卡片、二级内容和抬升表面四类亮度；Sheet、头像气泡和 Toast 使用 `surface-elevated`。卡片层级依靠亮度差与分隔线，阴影仅辅助，不增加蓝/红按钮投影。
 - `primary` / `destructive` 用于链接、图标、状态；实色按钮使用 `primary-surface` / `destructive-surface`，配白色前景，避免把适合暗底的亮色直接用作白字按钮底色。
+- 顶部卡片在两种外观中均为深蓝色；其“新建”使用独立的 inverse 令牌，两种外观固定白底深字与浅灰悬停底色，不随普通 card/foreground 变暗。“保存”继续使用各主题的 primary-surface。
 - 深色危险文字/图标使用 `#ff7080`，兼顾原有红色观感与暗底可读性；实色危险按钮保留独立的深红填充，不能共用文字强调色。
 - 浅色保持原有按钮、辅助文字、输入框/下拉边界、placeholder 和 Sonner 配色，不随深色适配加深；浏览器 theme-color 保持原有品牌墨色。新增深色配色的普通文字目标至少 4.5:1，关键图形至少 3:1；浅色既有配色不宣称达到这些目标。深色的 `prefers-contrast: more` 集中增强次级文字、分隔线和控件边界。
 - 输入文字、placeholder、原生 select、日历今天/有记录、错误和同步状态使用同一语义体系。状态继续配图标/文字，不能只用红绿区分。

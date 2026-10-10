@@ -12,7 +12,7 @@ const buttonVariants = cva(
         destructive: "bg-destructive-surface text-destructive-foreground hover:bg-destructive-surface/90",
         outline: "border border-border bg-card text-foreground shadow-card hover:bg-muted",
         ghost: "bg-transparent text-muted-foreground shadow-none hover:bg-muted",
-        inverse: "bg-card text-foreground shadow-none hover:bg-muted",
+        inverse: "bg-inverse-surface text-inverse-foreground shadow-none hover:bg-inverse-hover",
       },
       size: {
         default: "px-4",

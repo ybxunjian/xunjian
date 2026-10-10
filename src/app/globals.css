@@ -22,6 +22,10 @@
   --primary: #0a84ff;
   --primary-surface: var(--primary);
   --primary-foreground: #ffffff;
+  /* Inverse controls sit on the header's dark surface in both appearances. */
+  --inverse-surface: #ffffff;
+  --inverse-foreground: #0f172a;
+  --inverse-hover: #f1f5f9;
   --secondary: #e8f2ff;
   --secondary-foreground: #0a5fc2;
   --muted: #f1f5f9;
@@ -154,6 +158,9 @@
   --color-primary: var(--primary);
   --color-primary-surface: var(--primary-surface);
   --color-primary-foreground: var(--primary-foreground);
+  --color-inverse-surface: var(--inverse-surface);
+  --color-inverse-foreground: var(--inverse-foreground);
+  --color-inverse-hover: var(--inverse-hover);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -251,6 +258,12 @@ button:focus-visible {
 .history-record-time { grid-area: 1 / 3; line-height: 30px; overflow-wrap: anywhere; transform: translateY(-3px); }
 .history-record-time-caption { grid-area: 2 / 3; line-height: 17px; overflow-wrap: anywhere; }
 .history-detail-entry-circle { width: var(--size-history-entry-circle); height: var(--size-history-entry-circle); }
+:root[data-theme="dark"] .history-record-selection { border-width: 0; }
+:root[data-theme="dark"] [aria-pressed="false"] > .history-record-selection { background-color: var(--muted); }
+/* Match the summary's page gutter, Card border and p-4 content inset. */
+.history-detail-actions {
+  width: calc(min(100%, var(--container-md)) - 2 * var(--space-page) - 8 * var(--spacing) - 2px);
+}
 @media (max-width: 350px) {
   .history-record-info { grid-template-columns: 76px 1px minmax(0, 1fr); column-gap: 10px; }
 }

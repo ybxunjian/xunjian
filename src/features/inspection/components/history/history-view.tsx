@@ -138,7 +138,7 @@ export function HistoryView({
         {selectedRecord && (
           <motion.div
             key={`actions-${selectedRecord.id}`}
-            className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 z-30 grid w-[calc(100%-2rem)] max-w-[416px] -translate-x-1/2"
+            className="history-detail-actions fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 z-30 grid -translate-x-1/2"
             initial={{ opacity: 0, y: reduceMotion ? 0 : 10 }}
             animate={{
               opacity: 1,
@@ -210,7 +210,7 @@ function HistoryList({
                 className="flex min-h-22 w-full items-center gap-3 rounded-card p-4 text-left"
               >
                   <span
-                    className={`grid size-6 shrink-0 place-items-center rounded-full border-2 ${selectedRecordIds.includes(record.id) ? "border-primary bg-primary-surface text-primary-foreground" : "border-border bg-card"}`}
+                    className={`history-record-selection grid size-6 shrink-0 place-items-center rounded-full border-2 ${selectedRecordIds.includes(record.id) ? "border-primary bg-primary-surface text-primary-foreground" : "border-border bg-card"}`}
                   >
                     {selectedRecordIds.includes(record.id) && (
                       <Check size={14} strokeWidth={3} />
