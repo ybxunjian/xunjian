@@ -29,7 +29,7 @@ export function AccountSignOutControls({
   const disabled = busy || !isPresent;
   const transition = getSplitConfirmationTransition(open, Boolean(reduceMotion));
   const { progress } = useSplitConfirmationMotion(open, Boolean(reduceMotion), isPresent);
-  const cancelBackground = useSplitConfirmationColor(progress, "--destructive-surface", "--muted", cancelSurfaceRef);
+  const cancelBackground = useSplitConfirmationColor(progress, "--destructive-surface", "--secondary-action-surface", cancelSurfaceRef);
 
   useEffect(() => {
     if (!open || busy || !isPresent) return;
@@ -99,7 +99,7 @@ export function AccountSignOutControls({
           disabled={disabled || !open} aria-hidden={!open} tabIndex={open ? 0 : -1}
           aria-label="取消退出登录"
           onClick={onCancel}
-          className={`relative h-11 w-full rounded-[inherit] bg-transparent p-0 hover:bg-transparent active:scale-[.99] ${busy ? "" : "disabled:opacity-100"}`}
+          className={`relative h-11 w-full rounded-[inherit] bg-transparent p-0 text-secondary-action-foreground hover:bg-transparent active:scale-[.99] ${busy ? "" : "disabled:opacity-100"}`}
         />
       </motion.div>
       <motion.div

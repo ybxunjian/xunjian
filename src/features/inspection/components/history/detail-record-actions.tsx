@@ -29,7 +29,7 @@ export function DetailRecordActions({
   const { progress: expansion } = useSplitConfirmationMotion(confirming, reduceMotion, isPresent);
   const leftWidth = useTransform(expansion, leftWidthAt);
   const rightWidth = useTransform(expansion, rightWidthAt);
-  const backgroundColor = useSplitConfirmationColor(expansion, "--destructive-soft", "--destructive-surface", rightRef, "backgroundColor", 0.6);
+  const backgroundColor = useSplitConfirmationColor(expansion, "--detail-delete-entry-surface", "--destructive-surface", rightRef, "backgroundColor", 0.6);
   const returnBackground = useSplitConfirmationColor(expansion, "--primary-surface", "--neutral-control-surface", leftRef);
   const returnColor = useSplitConfirmationColor(expansion, "--primary-foreground", "--foreground", leftRef, "color");
 
@@ -82,7 +82,7 @@ export function DetailRecordActions({
           }
         }}
         variant="ghost"
-        className="absolute right-0 top-0 h-12 overflow-hidden rounded-full bg-destructive-soft p-0 text-destructive transition-transform hover:bg-destructive-soft active:scale-[.99]"
+        className="absolute right-0 top-0 h-12 overflow-hidden rounded-full bg-detail-delete-entry-surface p-0 text-destructive transition-transform hover:bg-detail-delete-entry-surface active:scale-[.99]"
         style={{ width: rightWidth, backgroundColor }}
         open={confirming}
         reduceMotion={reduceMotion}

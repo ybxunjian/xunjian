@@ -4,6 +4,7 @@ import { ConfirmationPopover } from "@/components/ui/confirmation-popover";
 import {
   Camera,
   CheckCircle2,
+  CircleAlert,
   Trash2,
   X,
 } from "lucide-react";
@@ -130,8 +131,8 @@ export function AccountMenu({
         <p className="mt-3 truncate text-card-title font-bold text-foreground">
           {email}
         </p>
-        <p className="mt-1 inline-flex items-center gap-1 text-caption font-semibold text-success">
-          <CheckCircle2 className="size-3.5" />
+        <p className={`mt-1 inline-flex items-center gap-1 text-caption font-semibold ${emailVerified ? "text-success" : "text-pending-foreground"}`}>
+          {emailVerified ? <CheckCircle2 className="size-3.5" /> : <CircleAlert className="size-3.5" />}
           {emailVerified ? "邮箱已验证" : "邮箱待验证"}
         </p>
         {avatarUrl && (

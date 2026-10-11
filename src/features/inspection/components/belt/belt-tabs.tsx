@@ -71,7 +71,7 @@ export function BeltTabs({ value, onChange }: BeltTabsProps) {
           type="button"
           data-segment-index={index}
           aria-pressed={value === belt}
-          className={"segmented-item relative z-10 h-full rounded-navigation-item py-0 text-label font-bold before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] " + (value === belt ? "text-primary" : "text-muted-foreground")}
+          className={"segmented-item relative z-10 h-full rounded-navigation-item py-0 text-label font-bold before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] " + (value === belt ? "text-belt-selection-foreground" : "text-muted-foreground")}
         >
           <span>{belt}</span>
         </button>

@@ -43,7 +43,7 @@ export function SaveValidationDialog({
           variant="ghost"
           disabled={!isPresent}
           onClick={onSave}
-          className="rounded-full bg-muted text-foreground"
+          className="rounded-full bg-secondary-action-surface text-foreground hover:bg-secondary-action-surface"
         >
           仍然保存
         </Button>

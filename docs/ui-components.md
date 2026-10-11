@@ -35,6 +35,8 @@
 
 所有颜色消费 globals.css；填充按钮和文字强调色分别使用 surface 与普通颜色令牌。浅色保留原有控件边界，深色独立解析；TextField 使用 control-border，原生 select 使用 select-border / select-focus-border，箭头用 Lucide ChevronDown 消费 primary，保持 20px、2.5px 线宽、右侧 14px。Sheet、气泡和深色提示使用抬升表面，浅色提示保留 Sonner 默认配色；两层滑块使用 navigation-selection；尺寸、留白、曲线不因主题变化而改变。
 
+账号邮箱已验证使用绿色 CheckCircle2；待验证使用 CircleAlert 和 pending-foreground，浅色 #9a520b，深色沿用 warning（#f5c46d）。状态文案与验证逻辑保持不变。
+
 Sonner 的普通、成功、错误、警告和信息提示底色、文字及边框均由 html 的 data-theme 同帧解析；描述文字与撤销操作沿用对应配色，不等待 React 的 data-sonner-theme 更新，不卸载或隐藏已有提示。
 
 ## 尺寸与表单
@@ -54,7 +56,7 @@ Sonner 的普通、成功、错误、警告和信息提示底色、文字及边�
 | 历史详情入口 | 可见浅色圆形 34px、点击区域 44px、箭头 18px |
 | 历史菜单 | 切换 SVG 28px、功能 Lucide 21px，均保留 44×44px 点击范围；切换按压 0.92，功能项不缩放 |
 
-两层导航分别使用 aria-current 和 aria-pressed。主导航文字统一 800 字重、不随选中放大，浅色保持浅灰轨道、白色滑块、深色选中文字与灰色未选中文字；深色由 navigation 令牌提供深色轨道与更亮滑块；皮带子导航保持 700 字重、白底蓝字选中。文字始终在滑块上方。主导航平时无滑块阴影，按住浮起时复用 shadow-floating。
+两层导航分别使用 aria-current 和 aria-pressed。主导航文字统一 800 字重、不随选中放大，浅色保持浅灰轨道、白色滑块、深色选中文字与灰色未选中文字；深色由 navigation 令牌提供深色轨道与更亮滑块；皮带子导航保持 700 字重，选中文字使用 belt-selection-foreground，浅色白底蓝字，深色在灰色滑块上使用 #91c6ff。文字始终在滑块上方。主导航平时无滑块阴影，按住浮起时复用 shadow-floating。
 
 两层导航共用 [segmented-navigation-controller.ts](../src/components/ui/segmented-navigation-controller.ts) 分别维护常驻滑块和独立手势状态，坐标相对各自轨道，快速切换沿用当前速度。项间距通过按钮实际坐标测量，兼容主导航四项与皮带子导航三项及其 4px 间隙。移动速度驱动最多 10% 横向拉伸，纵向压缩为拉伸量的 22%，方向偏移为拉伸量 × 项宽 × 12%；拉伸强度在 45–595px/s 映射，增长/恢复时间常数 35/115ms，方向平滑 50ms。文字高亮跟随滑块最近项，实际页面在点击或松手确认后切换。
 
@@ -66,9 +68,11 @@ Sonner 的普通、成功、错误、警告和信息提示底色、文字及边�
 
 `PasswordField` 只切换原生 `password` / `text`，不使用 CSS 密码遮罩。`TextField` 关联 label、aria-invalid、aria-describedby 和错误 alert；`useFieldFeedback` 的 report 递增错误字段抖动序号，输入时 clear，模式切换时 reset。`field-shake` 在全局定义一次：360ms ease-out，横向位移 0、−6、6、−4、4、0；CSS 减少动态效果规则压缩它。
 
+历史详情入口圆底使用 history-entry-surface，浅色为 background，悬停为 muted；深色普通与悬停均为 #484850。详情删除圆底使用 detail-delete-entry-surface，浅色为 destructive-soft，深色为 #633542；危险图标与展开后的确认红色不变。
+
 历史卡片至少 88px 高。日期 22px / 700，日期辅助行 11px；填写时分 15px / 600，说明 11px。两列使用共享网格和基线，填写时分上移 3px；辅助行独立对齐。完整时间保留在 title 和辅助朗读中。
 
-历史批量选择圆圈为 24px、勾号 14px。浅色保留 2px 边框；深色未选中保留 2px 边框并使用 muted 底色，选中不显示边框，使用 primary-surface 和白色勾号。
+历史批量选择圆圈为 24px、勾号 14px。浅色保留 2px 边框；深色未选中保留 2px 边框并使用 muted 底色，边框使用 history-selection-border（普通 #83838f，高对比度 #93939f）；选中不显示边框，使用 primary-surface 和白色勾号。
 
 ## Sheet 与页面切换
 
@@ -106,16 +110,16 @@ Portal 内的实时菜单仅在 `isPresent && !selectedRecord` 时渲染，退�
 
 | 调用方 | 默认 → 确认布局和配色 |
 | --- | --- |
-| `AccountSignOutControls` | 完整 44px 高红胶囊 → 两个等宽胶囊，各从原 50% 减 4px，中缝 8px，内圆角从 0 到 22px；取消 muted 灰底灰字，确认红底白字 |
+| `AccountSignOutControls` | 完整 44px 高红胶囊 → 两个等宽胶囊，各从原 50% 减 4px，中缝 8px，内圆角从 0 到 22px；取消使用 secondary-action-surface / secondary-action-foreground，确认红底白字 |
 | `DetailRecordActions` | 48px 高蓝色返回胶囊 + 48px 浅红删除圆形 → 中性底色取消 + 红底白字确认删除；两侧各占 `(100% - 8px)/2`，保持 8px 间距 |
 | `BatchDeleteControls` | 76×44px 红色“垃圾桶＋删除” → 原尺寸原位置红色“确认” + 左侧 76×44px 中性底色取消，间距 8px |
 
-详情与批量的取消按钮使用 neutral-control-surface，浅色 #dce2eb、深色 #484850，文字使用 foreground。该令牌独立于 card / muted，不改退出登录、修改密码或头像气泡的取消配色。
+详情与批量的取消按钮使用 neutral-control-surface，浅色 #dce2eb、深色 #484850，文字使用 foreground。该令牌独立于 card / muted。退出登录和头像气泡取消使用 secondary-action-surface / secondary-action-foreground，浅色仍为 muted 灰底和 muted-foreground 灰字，深色解析为 #484850 和 foreground；保存校验“仍然保存”复用该底色，文字继续使用 foreground。修改密码取消保持自身配色。
 
 三组均不使用彩色阴影，入口、确认与取消的按压缩放均为 0.99。打开聚焦取消，主动取消后恢复入口焦点，均 preventScroll；Escape 取消，滚动保持展开，退场禁用。业务确认及防重复提交留在调用方。
 
 - 退出登录：初始由完整覆盖按钮承接点击，展开后隐藏入口，两侧独立操作；按压 0.99。外部轻点抬起取消，移动超过 8px、滚动或取消手势保持展开。请求时禁用，右侧“正在退出…”通过 openContentKey 交叉切换，失败保留确认供重试。
-- 详情：左侧蓝色返回渐变为中性底色取消；右侧底色在几何进度 0–60% 从 destructive-soft 加深为 destructive-surface，居中垃圾桶淡出，白色“确认删除”淡入，无图标占位。每条记录独立挂载，离开不保留确认。
+- 详情：左侧蓝色返回渐变为中性底色取消；右侧底色在几何进度 0–60% 从 detail-delete-entry-surface 加深为 destructive-surface，居中垃圾桶淡出，白色“确认删除”淡入，无图标占位。每条记录独立挂载，离开不保留确认。
 - 批量：160px 容器预留左侧空间，不推已选数量；右侧原有完整点击区域和中心全程不变。取消右偏移 52→84px，从右侧按钮下方移出；背景固定 neutral-control-surface，仅淡入淡出，文字不与背景叠乘透明度，取消按压 0.99。零选择禁用；包括同数量替换在内的改选立即合回，不抢记录焦点，取消保留勾选。
 
 ## 修改密码原位展开

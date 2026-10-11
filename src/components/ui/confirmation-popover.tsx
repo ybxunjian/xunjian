@@ -189,7 +189,7 @@ function ConfirmationBubble({ id, busy, title, confirmLabel, busyLabel = "正在
         <Button type="button" variant="destructive" disabled={busy || !isPresent} onClick={onConfirm} className="w-full rounded-full shadow-none">
           {busy ? busyLabel : confirmLabel}
         </Button>
-        <Button ref={cancelRef} type="button" variant="ghost" disabled={busy || !isPresent} onClick={onClose} className="w-full rounded-full bg-muted">
+        <Button ref={cancelRef} type="button" variant="ghost" disabled={busy || !isPresent} onClick={onClose} className="w-full rounded-full bg-secondary-action-surface text-secondary-action-foreground hover:bg-secondary-action-surface">
           取消
         </Button>
       </div>

@@ -210,7 +210,7 @@ function HistoryList({
                 className="flex min-h-22 w-full items-center gap-3 rounded-card p-4 text-left"
               >
                   <span
-                    className={`history-record-selection grid size-6 shrink-0 place-items-center rounded-full border-2 ${selectedRecordIds.includes(record.id) ? "border-primary bg-primary-surface text-primary-foreground" : "border-border bg-card"}`}
+                    className={`history-record-selection grid size-6 shrink-0 place-items-center rounded-full border-2 ${selectedRecordIds.includes(record.id) ? "border-primary bg-primary-surface text-primary-foreground" : "border-history-selection-border bg-card"}`}
                   >
                     {selectedRecordIds.includes(record.id) && (
                       <Check size={14} strokeWidth={3} />
@@ -233,7 +233,7 @@ function HistoryList({
                     onClick={() => onSelectRecord(record)}
                     className="group rounded-full hover:bg-transparent"
                   >
-                    <span className="history-detail-entry-circle grid place-items-center rounded-full bg-background text-muted-foreground group-hover:bg-muted">
+                    <span className="history-detail-entry-circle grid place-items-center rounded-full bg-history-entry-surface text-muted-foreground group-hover:bg-history-entry-hover-surface">
                       <ChevronRight size={18} />
                     </span>
                   </Button>

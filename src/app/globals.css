@@ -13,6 +13,14 @@
   --card: #ffffff;
   --surface-elevated: #ffffff;
   --neutral-control-surface: #dce2eb;
+  --secondary-action-surface: var(--muted);
+  --secondary-action-foreground: var(--muted-foreground);
+  --history-entry-surface: var(--background);
+  --history-entry-hover-surface: var(--muted);
+  --detail-delete-entry-surface: var(--destructive-soft);
+  --history-selection-border: var(--border);
+  --belt-selection-foreground: var(--primary);
+  --pending-foreground: #9a520b;
   --brand-ink: #0f1f37;
   --control-border: color-mix(in oklab, var(--border) 80%, transparent);
   --select-border: color-mix(in srgb, var(--primary) 16%, white);
@@ -104,6 +112,14 @@
   --card: #1c1c20;
   --surface-elevated: #28282e;
   --neutral-control-surface: #484850;
+  --secondary-action-surface: var(--neutral-control-surface);
+  --secondary-action-foreground: var(--foreground);
+  --history-entry-surface: var(--neutral-control-surface);
+  --history-entry-hover-surface: var(--history-entry-surface);
+  --detail-delete-entry-surface: #633542;
+  --history-selection-border: #83838f;
+  --belt-selection-foreground: #91c6ff;
+  --pending-foreground: var(--warning);
   --card-foreground: #f2f2f7;
   --brand-ink: #dce8f8;
   --primary: #74b8ff;
@@ -143,6 +159,7 @@
     --muted-foreground: #ededf2;
     --subtle-foreground: #d3d3df;
     --border: #93939f;
+    --history-selection-border: var(--border);
     --control-border: #d3d3df;
     --navigation-muted: #ededf2;
     --navigation-border: #93939f;
@@ -156,6 +173,14 @@
   --color-card: var(--card);
   --color-surface-elevated: var(--surface-elevated);
   --color-neutral-control-surface: var(--neutral-control-surface);
+  --color-secondary-action-surface: var(--secondary-action-surface);
+  --color-secondary-action-foreground: var(--secondary-action-foreground);
+  --color-history-entry-surface: var(--history-entry-surface);
+  --color-history-entry-hover-surface: var(--history-entry-hover-surface);
+  --color-detail-delete-entry-surface: var(--detail-delete-entry-surface);
+  --color-history-selection-border: var(--history-selection-border);
+  --color-belt-selection-foreground: var(--belt-selection-foreground);
+  --color-pending-foreground: var(--pending-foreground);
   --color-control-border: var(--control-border);
   --color-card-foreground: var(--card-foreground);
   --color-primary: var(--primary);
@@ -240,7 +265,7 @@ button:focus-visible {
 }
 .primary-segmented-navigation [data-preview-active="true"] { color: var(--navigation-foreground); }
 .primary-segmented-navigation [data-preview-active="false"] { color: var(--navigation-muted); }
-.belt-segmented-navigation [data-preview-active="true"] { color: var(--primary); }
+.belt-segmented-navigation [data-preview-active="true"] { color: var(--belt-selection-foreground); }
 .belt-segmented-navigation [data-preview-active="false"] { color: var(--muted-foreground); }
 @media (prefers-reduced-motion: reduce) {
   .segmented-navigation-thumb { will-change: auto; }
