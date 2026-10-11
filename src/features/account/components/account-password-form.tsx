@@ -101,6 +101,7 @@ export function AccountPasswordForm({
       >
         <PasswordField
           id="account-current-password"
+          className="bg-nested-surface"
           label="当前密码"
           autoComplete="current-password"
           required
@@ -116,6 +117,7 @@ export function AccountPasswordForm({
         />
         <PasswordField
           id="account-new-password"
+          className="bg-nested-surface"
           label="新密码"
           autoComplete="new-password"
           required
@@ -132,6 +134,7 @@ export function AccountPasswordForm({
         />
         <PasswordField
           id="account-confirm-password"
+          className="bg-nested-surface"
           label="确认新密码"
           autoComplete="new-password"
           required

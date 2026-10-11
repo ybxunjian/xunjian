@@ -113,7 +113,7 @@ export function AccountMenu({
           aria-label={avatarUrl ? "更换头像" : "设置头像"}
         >
           <AvatarVisual email={email} avatarUrl={avatarUrl} />
-          <span className="absolute -bottom-1 -right-1 grid size-8 place-items-center rounded-full border-2 border-muted bg-card text-primary shadow-card">
+          <span className="absolute -bottom-1 -right-1 grid size-8 place-items-center rounded-full border-2 border-muted bg-nested-surface text-primary shadow-card">
             <Camera className="size-4" />
           </span>
         </button>

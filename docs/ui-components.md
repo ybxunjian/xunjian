@@ -35,6 +35,8 @@
 
 所有颜色消费 globals.css；填充按钮和文字强调色分别使用 surface 与普通颜色令牌。浅色保留原有控件边界，深色独立解析；TextField 使用 control-border，原生 select 使用 select-border / select-focus-border，箭头用 Lucide ChevronDown 消费 primary，保持 20px、2.5px 线宽、右侧 14px。Sheet、气泡和深色提示使用抬升表面，浅色提示保留 Sonner 默认配色；两层滑块使用 navigation-selection；尺寸、留白、曲线不因主题变化而改变。
 
+内层底色共用 nested-surface：浅色解析为 card（#ffffff），深色解析为 surface-elevated（#28282e）。ActionTile 的改密钥匙、备份导入/导出底座，以及头像相机底座、账号改密的三个 PasswordField、巡检汇总数值块使用该令牌。TextField 仍保留默认 card 底色，改密通过既有 className 插槽指定内层底色，不影响登录、注册及密码恢复。汇总数值块仅深色去掉小块阴影，浅色保留 shadow-card；其他图标底座阴影、边框、尺寸和字体保持不变。AppearancePicker 选中项及悬停底色复用 navigation-selection，浅色 #ffffff、深色 #484850，未选项保持透明。
+
 账号邮箱已验证使用绿色 CheckCircle2；待验证使用 CircleAlert 和 pending-foreground，浅色 #9a520b，深色沿用 warning（#f5c46d）。状态文案与验证逻辑保持不变。
 
 Sonner 的普通、成功、错误、警告和信息提示底色、文字及边框均由 html 的 data-theme 同帧解析；描述文字与撤销操作沿用对应配色，不等待 React 的 data-sonner-theme 更新，不卸载或隐藏已有提示。

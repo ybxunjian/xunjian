@@ -21,7 +21,7 @@ export function AppearancePicker({ disabled = false }: { disabled?: boolean }) {
           <Button key={value} type="button" variant="ghost" disabled={disabled}
             aria-pressed={preference === value}
             onClick={() => setAppearancePreference(value)}
-            className={`flex-col gap-1 px-1 py-2 text-caption ${preference === value ? "bg-card text-foreground shadow-card hover:bg-card" : "hover:bg-transparent"}`}>
+            className={`flex-col gap-1 px-1 py-2 text-caption ${preference === value ? "bg-navigation-selection text-foreground shadow-card hover:bg-navigation-selection" : "hover:bg-transparent"}`}>
             <Icon className="size-4" aria-hidden="true" />{label}
           </Button>
         ))}

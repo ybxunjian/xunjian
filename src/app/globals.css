@@ -12,6 +12,7 @@
   --foreground-strong: #020617;
   --card: #ffffff;
   --surface-elevated: #ffffff;
+  --nested-surface: var(--card);
   --neutral-control-surface: #dce2eb;
   --secondary-action-surface: var(--muted);
   --secondary-action-foreground: var(--foreground);
@@ -113,6 +114,7 @@
   --foreground-strong: #ffffff;
   --card: #1c1c20;
   --surface-elevated: #28282e;
+  --nested-surface: var(--surface-elevated);
   --neutral-control-surface: #484850;
   --secondary-action-surface: var(--neutral-control-surface);
   --secondary-action-foreground: var(--foreground);
@@ -176,6 +178,7 @@
   --color-foreground-strong: var(--foreground-strong);
   --color-card: var(--card);
   --color-surface-elevated: var(--surface-elevated);
+  --color-nested-surface: var(--nested-surface);
   --color-neutral-control-surface: var(--neutral-control-surface);
   --color-secondary-action-surface: var(--secondary-action-surface);
   --color-secondary-action-foreground: var(--secondary-action-foreground);
@@ -294,6 +297,7 @@ button:focus-visible {
 .history-detail-entry-circle { width: var(--size-history-entry-circle); height: var(--size-history-entry-circle); }
 :root[data-theme="dark"] [aria-pressed="true"] > .history-record-selection { border-width: 0; }
 :root[data-theme="dark"] [aria-pressed="false"] > .history-record-selection { background-color: var(--muted); }
+:root[data-theme="dark"] .inspection-summary-reading { box-shadow: none; }
 /* Match summary content: page gutter + CardContent padding + 1px card border. */
 .history-detail-actions {
   width: calc(min(100%, var(--container-md)) - 4 * var(--space-page) - 2px);

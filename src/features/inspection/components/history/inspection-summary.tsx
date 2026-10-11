@@ -122,7 +122,7 @@ function PumpSummary({
                   {readings.length ? (
                     readings.map(([label, field]) => (
                       <span
-                        className="rounded-small bg-card px-2 py-1 text-caption text-muted-foreground shadow-card"
+                        className="inspection-summary-reading rounded-small bg-nested-surface px-2 py-1 text-caption text-muted-foreground shadow-card"
                         key={field}
                       >
                         {label}{" "}
