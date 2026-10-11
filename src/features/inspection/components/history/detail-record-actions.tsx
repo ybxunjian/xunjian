@@ -12,6 +12,11 @@ export const DETAIL_ACTION_WIDTHS = {
 const leftWidthAt = mix(DETAIL_ACTION_WIDTHS.closed.left, DETAIL_ACTION_WIDTHS.open.left);
 const rightWidthAt = mix(DETAIL_ACTION_WIDTHS.closed.right, DETAIL_ACTION_WIDTHS.open.right);
 
+function smoothContentOpacity(value: number) {
+  const progress = Math.max(0, Math.min(1, value));
+  return progress * progress * (3 - 2 * progress);
+}
+
 export function DetailRecordActions({
   returnLabel, reduceMotion, onReturn, onDelete,
 }: {
@@ -29,6 +34,9 @@ export function DetailRecordActions({
   const { progress: expansion } = useSplitConfirmationMotion(confirming, reduceMotion, isPresent);
   const leftWidth = useTransform(expansion, leftWidthAt);
   const rightWidth = useTransform(expansion, rightWidthAt);
+  // Separate the text phases on the same geometry timeline, including reversals.
+  const returnOpacity = useTransform(expansion, (value) => 1 - smoothContentOpacity(value / 0.35));
+  const cancelOpacity = useTransform(expansion, (value) => smoothContentOpacity((value - 0.45) / 0.55));
   const backgroundColor = useSplitConfirmationColor(expansion, "--detail-delete-entry-surface", "--destructive-surface", rightRef, "backgroundColor", 0.6);
   const returnBackground = useSplitConfirmationColor(expansion, "--primary-surface", "--neutral-control-surface", leftRef);
   const returnColor = useSplitConfirmationColor(expansion, "--primary-foreground", "--foreground", leftRef, "color");
@@ -65,6 +73,8 @@ export function DetailRecordActions({
         reduceMotion={reduceMotion}
         closedContent={returnLabel}
         openContent="取消"
+        closedContentOpacity={returnOpacity}
+        openContentOpacity={cancelOpacity}
         aria-label={confirming ? "取消删除" : returnLabel}
       />
       <SplitConfirmationButton

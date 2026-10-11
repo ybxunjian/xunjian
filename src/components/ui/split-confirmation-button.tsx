@@ -63,13 +63,16 @@ type SplitConfirmationButtonProps = Omit<HTMLMotionProps<"button">, "children"> 
     surface?: ReactNode;
     closedContentClassName?: string;
     openContentClassName?: string;
+    closedContentOpacity?: MotionValue<number>;
+    openContentOpacity?: MotionValue<number>;
   };
 
-/** Stable content layers crossfade without measuring, clipping or scaling text. */
+/** Stable layers crossfade by default; callers can supply progress-driven opacity. */
 export const SplitConfirmationButton = forwardRef<HTMLButtonElement, SplitConfirmationButtonProps>(
   function SplitConfirmationButton({
     open, reduceMotion, closedContent, openContent, openContentKey, surface,
-    closedContentClassName = "", openContentClassName = "", ...props
+    closedContentClassName = "", openContentClassName = "",
+    closedContentOpacity, openContentOpacity, ...props
   }, ref) {
     const { duration } = getSplitConfirmationTransition(open, reduceMotion);
     const textTransition = { duration, ease: "easeInOut" as const };
@@ -79,7 +82,8 @@ export const SplitConfirmationButton = forwardRef<HTMLButtonElement, SplitConfir
         key={openContentKey}
         className={`${contentClassName} ${openContentClassName}`}
         initial={openContentKey ? { opacity: 0 } : false}
-        animate={{ opacity: open ? 1 : 0 }}
+        style={openContentOpacity ? { opacity: openContentOpacity } : undefined}
+        animate={openContentOpacity ? undefined : { opacity: open ? 1 : 0 }}
         exit={{ opacity: 0 }}
         transition={textTransition}
         aria-hidden="true"
@@ -92,7 +96,8 @@ export const SplitConfirmationButton = forwardRef<HTMLButtonElement, SplitConfir
           <motion.span
             className={`${contentClassName} ${closedContentClassName}`}
             initial={false}
-            animate={{ opacity: open ? 0 : 1 }}
+            style={closedContentOpacity ? { opacity: closedContentOpacity } : undefined}
+            animate={closedContentOpacity ? undefined : { opacity: open ? 0 : 1 }}
             transition={textTransition}
             aria-hidden="true"
           >{closedContent}</motion.span>
