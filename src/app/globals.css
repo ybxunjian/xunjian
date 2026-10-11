@@ -14,7 +14,7 @@
   --surface-elevated: #ffffff;
   --neutral-control-surface: #dce2eb;
   --secondary-action-surface: var(--muted);
-  --secondary-action-foreground: var(--muted-foreground);
+  --secondary-action-foreground: var(--foreground);
   --credential-cancel-surface: var(--card);
   --credential-cancel-hover-surface: var(--muted);
   --history-entry-surface: var(--background);

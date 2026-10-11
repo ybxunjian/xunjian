@@ -114,7 +114,7 @@ Portal 内的实时菜单仅在 `isPresent && !selectedRecord` 时渲染，退�
 | `DetailRecordActions` | 48px 高蓝色返回胶囊 + 48px 浅红删除圆形 → 中性底色取消 + 红底白字确认删除；两侧各占 `(100% - 8px)/2`，保持 8px 间距 |
 | `BatchDeleteControls` | 76×44px 红色“垃圾桶＋删除” → 原尺寸原位置红色“确认” + 左侧 76×44px 中性底色取消，间距 8px |
 
-详情与批量的取消按钮使用 neutral-control-surface，浅色 #dce2eb、深色 #484850，文字使用 foreground。该令牌独立于 card / muted。退出登录和头像气泡取消使用 secondary-action-surface / secondary-action-foreground，浅色仍为 muted 灰底和 muted-foreground 灰字，深色解析为 #484850 和 foreground；保存校验“仍然保存”复用该底色，文字继续使用 foreground。修改密码取消通过 credential-cancel-surface 在深色复用该底色，浅色保持白底深字。
+详情与批量的取消按钮使用 neutral-control-surface，浅色 #dce2eb、深色 #484850，文字使用 foreground。该令牌独立于 card / muted。退出登录和头像气泡取消使用 secondary-action-surface / secondary-action-foreground，浅色为 muted 灰底 #f1f5f9 和 foreground 深字 #0f172a，深色解析为 #484850 和 foreground；保存校验“仍然保存”复用该底色，文字使用 foreground。修改密码取消通过 credential-cancel-surface 在深色复用该底色，浅色保持白底深字。
 
 三组均不使用彩色阴影，入口、确认与取消的按压缩放均为 0.99。打开聚焦取消，主动取消后恢复入口焦点，均 preventScroll；Escape 取消，滚动保持展开，退场禁用。业务确认及防重复提交留在调用方。
 
