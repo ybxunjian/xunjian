@@ -52,7 +52,7 @@ Sonner 的普通、成功、错误、警告和信息提示底色、文字及边�
 | 原生泵号 select | 108px 宽、当前盒高 44px，焦点过渡 180ms |
 | TextField 邮箱/密码 | 最小 52px、字体 16px，胶囊；普通错误区另预留 24px，带忘记密码操作行最小 44px |
 | 认证提交按钮 | 登录、注册、发送恢复邮件及恢复页保存密码最小 48px、字体 16px |
-| 账号改密取消/保存 | 44px 胶囊、8px 间距、按压 0.99；取消白底深字、无边框，保存蓝底白字 |
+| 账号改密取消/保存 | 44px 胶囊、8px 间距、按压 0.99；取消使用 credential-cancel-surface / credential-cancel-hover-surface，浅色白底深字、悬停 muted，深色普通与悬停均为 #484850、foreground 浅字；无边框，保存蓝底白字 |
 | 历史详情入口 | 可见浅色圆形 34px、点击区域 44px、箭头 18px |
 | 历史菜单 | 切换 SVG 28px、功能 Lucide 21px，均保留 44×44px 点击范围；切换按压 0.92，功能项不缩放 |
 
@@ -114,7 +114,7 @@ Portal 内的实时菜单仅在 `isPresent && !selectedRecord` 时渲染，退�
 | `DetailRecordActions` | 48px 高蓝色返回胶囊 + 48px 浅红删除圆形 → 中性底色取消 + 红底白字确认删除；两侧各占 `(100% - 8px)/2`，保持 8px 间距 |
 | `BatchDeleteControls` | 76×44px 红色“垃圾桶＋删除” → 原尺寸原位置红色“确认” + 左侧 76×44px 中性底色取消，间距 8px |
 
-详情与批量的取消按钮使用 neutral-control-surface，浅色 #dce2eb、深色 #484850，文字使用 foreground。该令牌独立于 card / muted。退出登录和头像气泡取消使用 secondary-action-surface / secondary-action-foreground，浅色仍为 muted 灰底和 muted-foreground 灰字，深色解析为 #484850 和 foreground；保存校验“仍然保存”复用该底色，文字继续使用 foreground。修改密码取消保持自身配色。
+详情与批量的取消按钮使用 neutral-control-surface，浅色 #dce2eb、深色 #484850，文字使用 foreground。该令牌独立于 card / muted。退出登录和头像气泡取消使用 secondary-action-surface / secondary-action-foreground，浅色仍为 muted 灰底和 muted-foreground 灰字，深色解析为 #484850 和 foreground；保存校验“仍然保存”复用该底色，文字继续使用 foreground。修改密码取消通过 credential-cancel-surface 在深色复用该底色，浅色保持白底深字。
 
 三组均不使用彩色阴影，入口、确认与取消的按压缩放均为 0.99。打开聚焦取消，主动取消后恢复入口焦点，均 preventScroll；Escape 取消，滚动保持展开，退场禁用。业务确认及防重复提交留在调用方。
 
