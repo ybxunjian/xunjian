@@ -12,7 +12,7 @@
 
 ## 令牌与布局
 
-唯一界面令牌来源是 [globals.css](./src/app/globals.css)，通过语义 Tailwind 类使用。
+唯一界面令牌来源是 [globals.css](./src/app/globals.css)，通过语义 Tailwind 类使用。同一外观中需要共同调整的同色令牌引用基础变量，保留语义名称，不重复写色值；具体复用关系见 [公共 UI 与交互](./docs/ui-components.md#外观基础)。
 
 | 类别 | 令牌与用途 |
 | --- | --- |

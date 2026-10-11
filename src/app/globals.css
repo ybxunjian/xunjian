@@ -124,9 +124,9 @@
   --history-entry-hover-surface: var(--history-entry-surface);
   --detail-delete-entry-surface: #633542;
   --history-selection-border: #83838f;
-  --belt-selection-foreground: #91c6ff;
+  --belt-selection-foreground: var(--secondary-foreground);
   --pending-foreground: var(--warning);
-  --card-foreground: #f2f2f7;
+  --card-foreground: var(--foreground);
   --brand-ink: #dce8f8;
   --primary: #74b8ff;
   --primary-surface: #0867cf;
@@ -140,13 +140,13 @@
   --select-border: var(--control-border);
   --select-focus-border: var(--primary);
   --browser-theme-color: var(--background);
-  --navigation-track: #242428;
-  --navigation-selection: #484850;
-  --navigation-foreground: #f2f2f7;
-  --navigation-muted: #b4b4c0;
-  --navigation-border: #565662;
+  --navigation-track: var(--surface-elevated);
+  --navigation-selection: var(--neutral-control-surface);
+  --navigation-foreground: var(--foreground);
+  --navigation-muted: var(--muted-foreground);
+  --navigation-border: var(--border);
   --overlay: rgb(0 0 0 / 0.6);
-  --input-foreground: #f2f2f7;
+  --input-foreground: var(--foreground);
   --success: #74d99a;
   --success-soft: #183a27;
   --warning: #f5c46d;
@@ -167,8 +167,8 @@
     --border: #93939f;
     --history-selection-border: var(--border);
     --control-border: #d3d3df;
-    --navigation-muted: #ededf2;
-    --navigation-border: #93939f;
+    --navigation-muted: var(--muted-foreground);
+    --navigation-border: var(--border);
   }
 }
 
