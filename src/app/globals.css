@@ -294,9 +294,9 @@ button:focus-visible {
 .history-detail-entry-circle { width: var(--size-history-entry-circle); height: var(--size-history-entry-circle); }
 :root[data-theme="dark"] [aria-pressed="true"] > .history-record-selection { border-width: 0; }
 :root[data-theme="dark"] [aria-pressed="false"] > .history-record-selection { background-color: var(--muted); }
-/* Match the summary Card's outer edges using the shared page gutter. */
+/* Match summary content: page gutter + CardContent padding + 1px card border. */
 .history-detail-actions {
-  width: calc(min(100%, var(--container-md)) - 2 * var(--space-page));
+  width: calc(min(100%, var(--container-md)) - 4 * var(--space-page) - 2px);
 }
 @media (max-width: 350px) {
   .history-record-info { grid-template-columns: 76px 1px minmax(0, 1fr); column-gap: 10px; }
