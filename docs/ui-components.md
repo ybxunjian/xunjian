@@ -104,7 +104,7 @@ Portal 内的实时菜单仅在 `isPresent && !selectedRecord` 时渲染，退�
 
 ## 公共分裂确认
 
-`SplitConfirmationButton` 复用 Button。关闭/打开内容采用固定绝对居中层，默认交叉淡入淡出；调用方可通过 closedContentOpacity / openContentOpacity 提供由几何进度驱动的透明度，不测量、裁切或缩放文字。调用方提供当前 aria-label，视觉层 aria-hidden。
+`SplitConfirmationButton` 复用 Button。关闭/打开内容采用固定绝对居中层，默认交叉淡入淡出；调用方可通过 closedContentOpacity / openContentOpacity 提供自定义透明度，不测量、裁切或缩放文字。调用方提供当前 aria-label，视觉层 aria-hidden。
 
 公共几何参数：展开 280ms、`[0.25, 0.1, 0.25, 1]`；合回 220ms、`[0.25, 0.1, 0.35, 1]`。默认文字同等时长 easeInOut，无延迟。`getSplitConfirmationTransition` 提供统一参数；`useSplitConfirmationMotion` 在打断后从当前进度接续，清理停止自身动画，退场不重新启动。需要渐变的调用方用 `useSplitConfirmationColor` 解析语义令牌再插值；传入承载元素 ref 与颜色属性，在外观和系统对比度变化时按当前进度重新解析，同时更新 MotionValue 和 DOM 色值，使其与 CSS 表面同帧换色，不重启几何动画。混色算法沿用 Motion mix，进度插值不变。减少动态效果立即切换。
 
@@ -119,7 +119,7 @@ Portal 内的实时菜单仅在 `isPresent && !selectedRecord` 时渲染，退�
 三组均不使用彩色阴影，入口、确认与取消的按压缩放均为 0.99。打开聚焦取消，主动取消后恢复入口焦点，均 preventScroll；Escape 取消，滚动保持展开，退场禁用。业务确认及防重复提交留在调用方。
 
 - 退出登录：初始由完整覆盖按钮承接点击，展开后隐藏入口，两侧独立操作；按压 0.99。外部轻点抬起取消，移动超过 8px、滚动或取消手势保持展开。请求时禁用，右侧“正在退出…”通过 openContentKey 交叉切换，失败保留确认供重试。
-- 详情：左侧蓝色返回渐变为中性底色取消；左侧返回文字在几何进度 0–35% 淡出，取消文字在 45–100% 淡入，两段透明度分别用 smoothstep 平滑，互不重叠。合回沿同一进度反向，快速打断从当前状态接续。右侧底色在几何进度 0–60% 从 detail-delete-entry-surface 加深为 destructive-surface，居中垃圾桶淡出，白色“确认删除”淡入，无图标占位。每条记录独立挂载，离开不保留确认。
+- 详情：左侧蓝色返回渐变为中性底色取消；左侧文字独立于几何进度：每次切换先用 70ms easeInOut 淡出旧文字，80ms 后开始 linear 渐入新文字；展开时取消渐入 200ms，合回时返回文字渐入 140ms。两段文字互不重叠，展开/合回分别在 280/220ms 完成。中途反向停止旧动画及等待，从当前透明度接续；退场停止自身文字动画，减少动态效果立即切换。右侧底色在几何进度 0–60% 从 detail-delete-entry-surface 加深为 destructive-surface，居中垃圾桶淡出，白色“确认删除”淡入，无图标占位。每条记录独立挂载，离开不保留确认。
 - 批量：160px 容器预留左侧空间，不推已选数量；右侧原有完整点击区域和中心全程不变。取消右偏移 52→84px，从右侧按钮下方移出；背景固定 neutral-control-surface，仅淡入淡出，文字不与背景叠乘透明度，取消按压 0.99。零选择禁用；包括同数量替换在内的改选立即合回，不抢记录焦点，取消保留勾选。
 
 ## 修改密码原位展开

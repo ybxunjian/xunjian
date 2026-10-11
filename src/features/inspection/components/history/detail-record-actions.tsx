@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { mix, useIsPresent, useTransform } from "framer-motion";
+import { animate, mix, useIsPresent, useMotionValue, useTransform } from "framer-motion";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { SplitConfirmationButton, useSplitConfirmationColor, useSplitConfirmationMotion } from "@/components/ui/split-confirmation-button";
@@ -11,11 +11,6 @@ export const DETAIL_ACTION_WIDTHS = {
 };
 const leftWidthAt = mix(DETAIL_ACTION_WIDTHS.closed.left, DETAIL_ACTION_WIDTHS.open.left);
 const rightWidthAt = mix(DETAIL_ACTION_WIDTHS.closed.right, DETAIL_ACTION_WIDTHS.open.right);
-
-function smoothContentOpacity(value: number) {
-  const progress = Math.max(0, Math.min(1, value));
-  return progress * progress * (3 - 2 * progress);
-}
 
 export function DetailRecordActions({
   returnLabel, reduceMotion, onReturn, onDelete,
@@ -34,9 +29,22 @@ export function DetailRecordActions({
   const { progress: expansion } = useSplitConfirmationMotion(confirming, reduceMotion, isPresent);
   const leftWidth = useTransform(expansion, leftWidthAt);
   const rightWidth = useTransform(expansion, rightWidthAt);
-  // Separate the text phases on the same geometry timeline, including reversals.
-  const returnOpacity = useTransform(expansion, (value) => 1 - smoothContentOpacity(value / 0.35));
-  const cancelOpacity = useTransform(expansion, (value) => smoothContentOpacity((value - 0.45) / 0.55));
+  // Keep text timing independent of the geometry easing; stop delayed fades on reversal.
+  const returnOpacity = useMotionValue(1);
+  const cancelOpacity = useMotionValue(0);
+  useEffect(() => {
+    if (!isPresent) return;
+    if (reduceMotion) {
+      returnOpacity.set(confirming ? 0 : 1);
+      cancelOpacity.set(confirming ? 1 : 0);
+      return;
+    }
+    const outgoing = confirming ? returnOpacity : cancelOpacity;
+    const incoming = confirming ? cancelOpacity : returnOpacity;
+    const fadeOut = animate(outgoing, 0, { duration: 0.07, ease: "easeInOut" });
+    const fadeIn = animate(incoming, 1, { delay: 0.08, duration: confirming ? 0.2 : 0.14, ease: "linear" });
+    return () => { fadeOut.stop(); fadeIn.stop(); };
+  }, [confirming, reduceMotion, isPresent, returnOpacity, cancelOpacity]);
   const backgroundColor = useSplitConfirmationColor(expansion, "--detail-delete-entry-surface", "--destructive-surface", rightRef, "backgroundColor", 0.6);
   const returnBackground = useSplitConfirmationColor(expansion, "--primary-surface", "--neutral-control-surface", leftRef);
   const returnColor = useSplitConfirmationColor(expansion, "--primary-foreground", "--foreground", leftRef, "color");
