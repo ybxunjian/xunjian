@@ -12,6 +12,7 @@
   --foreground-strong: #020617;
   --card: #ffffff;
   --surface-elevated: #ffffff;
+  --reorder-drag-surface: var(--card);
   --nested-surface: var(--card);
   --neutral-control-surface: #dce2eb;
   --secondary-action-surface: var(--muted);
@@ -114,6 +115,7 @@
   --foreground-strong: #ffffff;
   --card: #1c1c20;
   --surface-elevated: #28282e;
+  --reorder-drag-surface: var(--neutral-control-surface);
   --nested-surface: var(--surface-elevated);
   --neutral-control-surface: #484850;
   --secondary-action-surface: var(--neutral-control-surface);
@@ -178,6 +180,7 @@
   --color-foreground-strong: var(--foreground-strong);
   --color-card: var(--card);
   --color-surface-elevated: var(--surface-elevated);
+  --color-reorder-drag-surface: var(--reorder-drag-surface);
   --color-nested-surface: var(--nested-surface);
   --color-neutral-control-surface: var(--neutral-control-surface);
   --color-secondary-action-surface: var(--secondary-action-surface);

@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState, type PointerEvent } from "react";
-import { motion, Reorder, useDragControls, useReducedMotion } from "framer-motion";
-import { GripVertical, RotateCcw } from "lucide-react";
+import { useRef, useState } from "react";
+import { motion, Reorder, useReducedMotion } from "framer-motion";
+import { RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { LongPressReorderItem } from "@/components/ui/long-press-reorder-item";
 import { INSPECTION_TABS } from "@/features/inspection/model/config";
 import type { InspectionTab } from "@/features/inspection/model/types";
 import { DEFAULT_NAVIGATION_ORDER } from "../model/user-preferences";
@@ -74,144 +75,21 @@ export function NavigationOrderEditor({
         className="space-y-2"
       >
         {draftOrder.map((tab, index) => (
-          <NavigationReorderItem
+          <LongPressReorderItem
             key={tab}
-            tab={tab}
-            index={index}
-            onCommit={() => void commitOrder()}
-          />
+            value={tab}
+            handleLabel={`长按移动${TAB_LABELS[tab]}`}
+            onReorderEnd={() => void commitOrder()}
+          >
+            <span className="flex-1 font-bold">{TAB_LABELS[tab]}</span>
+            {index === 0 && (
+              <span className="rounded-full bg-secondary px-2 py-1 text-label font-bold text-secondary-foreground">
+                首页
+              </span>
+            )}
+          </LongPressReorderItem>
         ))}
       </Reorder.Group>
     </section>
-  );
-}
-
-function NavigationReorderItem({
-  tab,
-  index,
-  onCommit,
-}: {
-  tab: InspectionTab;
-  index: number;
-  onCommit: () => void;
-}) {
-  const dragControls = useDragControls();
-  const handleRef = useRef<HTMLButtonElement>(null);
-  const longPressTimer = useRef<number | null>(null);
-  const draggingRef = useRef(false);
-  const pressStart = useRef<{
-    pointerId: number;
-    x: number;
-    y: number;
-  } | null>(null);
-  const [dragging, setDragging] = useState(false);
-
-  const clearLongPress = () => {
-    if (longPressTimer.current !== null) {
-      window.clearTimeout(longPressTimer.current);
-      longPressTimer.current = null;
-    }
-  };
-
-  useEffect(() => {
-    const handle = handleRef.current;
-    if (!handle) return clearLongPress;
-
-    const preventScrollAfterActivation = (event: TouchEvent) => {
-      if (draggingRef.current) event.preventDefault();
-    };
-
-    handle.addEventListener("touchmove", preventScrollAfterActivation, {
-      passive: false,
-    });
-
-    return () => {
-      clearLongPress();
-      handle.removeEventListener("touchmove", preventScrollAfterActivation);
-    };
-  }, []);
-
-  const startLongPress = (event: PointerEvent<HTMLButtonElement>) => {
-    if (event.pointerType === "mouse" && event.button !== 0) return;
-    clearLongPress();
-    pressStart.current = {
-      pointerId: event.pointerId,
-      x: event.clientX,
-      y: event.clientY,
-    };
-    longPressTimer.current = window.setTimeout(() => {
-      longPressTimer.current = null;
-      pressStart.current = null;
-      draggingRef.current = true;
-      setDragging(true);
-      dragControls.start(event, { distanceThreshold: 0 });
-      navigator.vibrate?.(8);
-    }, 350);
-  };
-
-  const moveLongPress = (event: PointerEvent<HTMLButtonElement>) => {
-    const start = pressStart.current;
-    if (!start || start.pointerId !== event.pointerId) return;
-
-    const x = event.clientX - start.x;
-    const y = event.clientY - start.y;
-    if (Math.hypot(x, y) <= 8) return;
-
-    clearLongPress();
-    pressStart.current = null;
-  };
-
-  const finishLongPress = () => {
-    clearLongPress();
-    pressStart.current = null;
-    if (!draggingRef.current) return;
-    draggingRef.current = false;
-    setDragging(false);
-  };
-
-  return (
-    <Reorder.Item
-      value={tab}
-      dragListener={false}
-      dragControls={dragControls}
-      onDragStart={() => {
-        draggingRef.current = true;
-        setDragging(true);
-      }}
-      onDragEnd={() => {
-        draggingRef.current = false;
-        setDragging(false);
-        onCommit();
-      }}
-      whileDrag={{ scale: 1.02 }}
-      transition={{ type: "spring", stiffness: 460, damping: 34 }}
-      className={`flex min-h-12 touch-pan-y select-none items-center gap-1 rounded-control px-2 pr-4 transition-colors ${
-        dragging
-          ? "relative z-10 bg-card shadow-floating"
-          : "bg-muted shadow-card"
-      }`}
-    >
-      <button
-        ref={handleRef}
-        type="button"
-        aria-label={`长按移动${TAB_LABELS[tab]}`}
-        onPointerDown={startLongPress}
-        onPointerMove={moveLongPress}
-        onPointerUp={finishLongPress}
-        onPointerCancel={finishLongPress}
-        onContextMenu={(event) => event.preventDefault()}
-        className={`grid size-10 shrink-0 place-items-center rounded-small text-subtle-foreground active:bg-border/60 ${
-          dragging ? "touch-none" : "touch-pan-y"
-        }`}
-      >
-        <GripVertical className="size-5" />
-      </button>
-      <span className="flex-1 font-bold">{TAB_LABELS[tab]}</span>
-      {index === 0 && (
-        <span className="rounded-full bg-secondary px-2 py-1 text-label font-bold text-secondary-foreground">
-          首页
-        </span>
-      )}
-    </Reorder.Item>
   );
 }

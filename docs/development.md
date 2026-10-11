@@ -1,5 +1,7 @@
 # 开发与发布
 
+本文件维护环境、验证与 GitHub Pages 发布。修改边界见 [治理约定](../GOVERNANCE.md)，业务与组件参数分别维护在对应专题。
+
 ## 环境与安装
 
 技术栈约束见 [AGENTS.md](../AGENTS.md)。精确版本及脚本见 [package.json](../package.json)，安装版本以 [package-lock.json](../package-lock.json) 为准。CI 使用 Node.js 22。
@@ -13,7 +15,11 @@ npm run dev
 
 ## Supabase 初始化
 
+### 客户端配置
+
 将 [.env.example](../.env.example) 复制为 `.env.local`，填写 `NEXT_PUBLIC_SUPABASE_URL` 和 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`。只有旧 anon key 时可填入后者；不要填写 service_role。未配置时可纯本地运行。
+
+### 数据库迁移
 
 在新数据库按文件名顺序执行 [supabase/migrations/](../supabase/migrations/) 的全部迁移：
 
@@ -28,11 +34,15 @@ npm run dev
 
 此表说明仓库初始化顺序，不证明任意生产数据库已经执行。更换项目时核验数据库迁移、RLS、Storage 与 Realtime 配置；数据约定见 [数据与同步](./data-and-sync.md)。
 
+### 邮件回跳与发布变量
+
 Authentication 保持邮箱注册开启。生产 Site URL 为 `https://ybxunjian.github.io/xunjian/`，Redirect URLs 加入同一完整地址；本地开发按需加入 `http://localhost:3000/`。注册验证与重置邮件都需要正确回到应用。
 
 GitHub 仓库 Actions secrets 配置上述两个环境变量，发布工作流在构建时注入客户端。
 
 ## 验证
+
+### 完整质量门禁
 
 代码改动执行：
 
@@ -49,13 +59,34 @@ npm run check
 
 `check` 顺序为 lint → `next typegen` 与 `tsc --noEmit` → tests → production build → Service Worker 生成。单独排查可运行 package.json 的 `lint`、`typecheck`、`test`、`build`；构建前保持 Pages basePath。任一步失败都不能算门禁通过。
 
-测试数量以当次完整运行输出为准，不沿用旧发布数字。自动化测试覆盖规则、存储、草稿、队列、映射、备份、偏好、离线身份、PWA 与公共 UI；涉及动画和触摸需要额外浏览器检查。
+### 自动化测试
+
+测试数量以当次完整运行输出为准，不沿用旧发布数字。`npm test` 自动发现 `tests/*.test.mjs`；`tests/helpers/` 提供测试辅助代码，不进入运行时。当前入口如下：
+
+| 领域 | 测试入口 |
+| --- | --- |
+| 设备、字段和保存校验 | [field-rules](../tests/field-rules.test.mjs)、[inspection-validation](../tests/inspection-validation.test.mjs) |
+| 历史时间、筛选和日历目标 | [history-record-display](../tests/history-record-display.test.mjs)、[history-filter](../tests/history-filter.test.mjs)、[calendar-paging](../tests/calendar-paging.test.mjs) |
+| 存储、草稿、备份和同步 | [inspection-storage](../tests/inspection-storage.test.mjs)、[draft-version](../tests/draft-version.test.mjs)、[inspection-backup](../tests/inspection-backup.test.mjs)、[inspection-sync-queue](../tests/inspection-sync-queue.test.mjs)、[inspection-cloud-mapping](../tests/inspection-cloud-mapping.test.mjs) |
+| 偏好、头像和离线身份 | [user-preferences](../tests/user-preferences.test.mjs)、[avatar-recovery](../tests/avatar-recovery.test.mjs)、[offline-identity](../tests/offline-identity.test.mjs) |
+| 外观与对比度 | [appearance](../tests/appearance.test.mjs)、[颜色解析辅助](../tests/helpers/appearance-palette.mjs) |
+| 导航行为 | [segmented-navigation](../tests/segmented-navigation.test.mjs)、[受控 DOM 与时钟](../tests/helpers/segmented-navigation-fixture.mjs) |
+| 公共 UI、详情操作和离线资源 | [shared-ui](../tests/shared-ui.test.mjs)、[detail-record-actions](../tests/detail-record-actions.test.mjs)、[service-worker](../tests/service-worker.test.mjs) |
+
+外观测试先排除 CSS 注释，再合并浅色基础、深色与高对比度覆盖并解析变量引用。解析器支持当前受测令牌的十六进制色值和完整 `var(--token)` 引用；缺失、循环或不支持的表达式明确失败，新增表达式应同步扩展解析及回归。
+
+导航行为测试直接运行公共控制器，以受控指针事件、布局和动画时钟验证预览/提交、快速反向、松手选择、取消、键盘、减少动态效果和清理。模拟 DOM 不负责浏览器原生捕获、真实布局、React 页面接线或移动端手感，相关情况继续按下表验收。
+
+### 浏览器与真机回归
+
+按修改领域选择检查；表中内容是验收要求，不表示已经全部执行。
 
 | 改动领域 | 必查回归 |
 | --- | --- |
 | 填写与保存 | 重复泵号交换、局部清空/撤销、全表缺项校验、仍然保存、刷新恢复与新建空白草稿 |
 | 历史与确认 | 列表/日历进入详情的返回方向；批量改选使确认失效；取消、打断、重复提交、删除及撤销 |
 | 两层导航 | 点击、快速反向、按下即动画追踪与甩动、上下偏移和轨道外松手、轨道内竖向手势保持拖动及导航外正常滚动；键盘、吸顶、窄屏、排序与减少动态效果；滑块预览不提前提交业务选择；快速左右甩动仍选择松手最近项，未过中线不额外跳项 |
+| 日历分页 | Chromium 与 WebKit 双向连续十二页、第三页前停顿、约 90% 到位时接管、反向、快滑后点击、键盘、滚轮、竖向滚动、边界/跨年和尺寸变化；停稳后标题、日期页、父月份一致，最多七页，不自行翻月 |
 | 历史菜单生命周期 | 展开、日历/备份箭头、批量管理勾状态下离开并立即切回，恢复列表与收起汉堡；检查出现/消失与形态变换各自时间线、退场 inert、控制台错误及重复 key 警告 |
 | 外观 | 默认跟随系统、手动覆盖、刷新首绘、非法/不可用存储、跨标签页更新；浅色/深色 × 普通/高对比度，减少透明/动态效果；巡检、历史/日历/详情/备份、登录/错误、账号改密/气泡/分裂确认和 Toast；文字放大、窄屏与横屏；双向逐帧与快速反向，输入聚焦、确认展开和分裂中途切换，检查同帧换色、文字对比度及过渡保护自动解除 |
 | 公共 UI | 所有调用方、实际字号/尺寸、焦点与 Esc、退出禁用、减少动态效果；细节按 [组件文档](./ui-components.md) |
@@ -66,13 +97,21 @@ npm run check
 
 浏览器模拟与静态检查不能替代 iPhone / Android 真机、微信工具栏伸缩及双设备联机检查。接手时核对 [已知限制和待复现场景](../PROJECT_HANDOFF.md#接手时注意)，不能把旧审计结论直接当作当前事实。
 
-纯文档变更检查链接、路径、参数、差异与源码范围，无需把历史测试/部署写成本轮验证。检查不通过时记录具体失败和验证范围。
+### 文档校验
+
+纯文档变更检查本地链接和锚点、代码路径、参数、职责归属及差异范围。按当前实现修正文档，历史测试和部署记录留在 Git / Actions，不写成本轮保证。若同时修改代码或测试，继续执行完整质量门禁。
+
+验证报告区分自动化、浏览器和真机范围，记录未执行或失败的项目；临时浏览器补验不等于 CI 已包含浏览器测试。
 
 ## GitHub Pages
+
+### 构建与工作流
 
 [next.config.ts](../next.config.ts) 使用 `output: "export"` 与构建环境的 `PAGES_BASE_PATH`；输出在 `out/`，`npm run start` 不作为该静态站点的预览方式。
 
 - [ci.yml](../.github/workflows/ci.yml)：面向 main 的 PR 或手动触发，执行同一质量门禁。
 - [deploy.yml](../.github/workflows/deploy.yml)：main 推送或手动触发，注入 `/xunjian` 基础路径和 Supabase secrets，门禁成功后上传并部署 Pages。
+
+### 上线核对
 
 正式地址：<https://ybxunjian.github.io/xunjian/>。发布结果须对应本次推送的提交 SHA，同时确认 build 与 deploy 成功，并核对该地址及静态资源加载；本项目使用 GitHub Pages，不用 Netlify。浏览器保留旧页面时检查刷新与 Service Worker 更新，不用改用户记录来验证上线。

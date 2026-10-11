@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import vm from "node:vm";
 import { readFileSync } from "node:fs";
+import { readAppearanceTokens, resolveHexColor } from "./helpers/appearance-palette.mjs";
 import { APPEARANCE_INIT_SCRIPT, APPEARANCE_STORAGE_KEY, getAppearanceSnapshot, normalizeAppearance, resolveAppearance, setAppearancePreference, subscribeAppearance } from "../src/lib/appearance.ts";
 
 test("appearance preference keeps system distinct from its current resolution", () => {
@@ -109,24 +110,79 @@ function contrast(a, b) {
 
 test("dark semantic text, action and control colors meet contrast targets", () => {
   const css = readFileSync(new URL("../src/app/globals.css", import.meta.url), "utf8");
-  const values = (block) => Object.fromEntries([...block.matchAll(/--([\w-]+):\s*(#[\da-f]{6});/g)].map((match) => [match[1], match[2]]));
-  const light = values(css.match(/:root\s*\{([^}]+)\}/s)[1]);
-  const dark = { ...light, ...values(css.match(/:root\[data-theme="dark"\]\s*\{([^}]+)\}/s)[1]) };
-  const increased = css.slice(css.indexOf("@media (prefers-contrast: more)"), css.indexOf("@theme inline"));
-  const darkMore = { ...dark, ...values(increased.match(/:root\[data-theme="dark"\]\s*\{([^}]+)\}/s)[1]) };
+  const { dark, darkMore } = readAppearanceTokens(css);
   for (const [name, palette] of Object.entries({ dark, darkMore })) {
+    const color = (token) => resolveHexColor(palette, token);
     for (const foreground of ["foreground", "muted-foreground", "subtle-foreground", "destructive"]) {
       for (const background of ["background", "card", "muted", "surface-elevated"]) {
-        const ratio = contrast(palette[foreground], palette[background]);
+        const ratio = contrast(color(foreground), color(background));
         assert.ok(ratio >= 4.5, `${name} ${foreground}/${background}: ${ratio.toFixed(2)}`);
       }
     }
     for (const [foreground, background] of [["primary", "secondary"], ["primary-foreground", "primary-surface"], ["destructive-foreground", "destructive-surface"], ["destructive", "destructive-soft"], ["success", "success-soft"], ["warning", "warning-soft"], ["navigation-foreground", "navigation-selection"], ["navigation-muted", "navigation-track"]]) {
-      const ratio = contrast(palette[foreground], palette[background]);
+      const ratio = contrast(color(foreground), color(background));
       assert.ok(ratio >= 4.5, `${name} ${foreground}/${background}: ${ratio.toFixed(2)}`);
     }
-    assert.ok(contrast(palette["control-border"], palette.card) >= 3, `${name} input boundary`);
-    assert.notEqual(palette.background, palette.card);
-    if (name.startsWith("dark")) assert.notEqual(palette.card, palette["surface-elevated"]);
+    assert.ok(contrast(color("control-border"), color("card")) >= 3, `${name} input boundary`);
+    assert.notEqual(color("background"), color("card"));
+    assert.notEqual(color("card"), color("surface-elevated"));
   }
+});
+
+test("appearance color references resolve after theme and contrast overrides", () => {
+  const palettes = readAppearanceTokens(`
+    :root { --foreground: #123; --alias: var(--foreground); --nested: var(--alias); }
+    :root[data-theme="dark"] { --foreground: #bebec8; }
+    @media (prefers-contrast: more) {
+      :root[data-theme="dark"] { --foreground: #ededf2; }
+    }
+  `);
+  assert.equal(resolveHexColor(palettes.light, "nested"), "#112233");
+  assert.equal(resolveHexColor(palettes.dark, "nested"), "#bebec8");
+  assert.equal(resolveHexColor(palettes.darkMore, "nested"), "#ededf2");
+});
+
+test("commented theme blocks and inline comments do not change the effective palette", () => {
+  const palettes = readAppearanceTokens(`
+    /* :root { --foreground: #ffffff; } */
+    :root { --foreground: #123; --alias: /* text alias */ var(--foreground); }
+    /* :root[data-theme="dark"] { --foreground: #000000; } */
+    :root[data-theme="dark"] {
+      --foreground: #bebec8;
+      /* Old example: { --foreground: #ffffff; } */
+    }
+    /* @media (prefers-contrast: more) {
+      :root[data-theme="dark"] { --foreground: #000000; }
+    } */
+    @media /* increased contrast */ (prefers-contrast: more) {
+      :root[data-theme="dark"] { --foreground: #ededf2; }
+    }
+  `);
+  assert.equal(resolveHexColor(palettes.light, "alias"), "#112233");
+  assert.equal(resolveHexColor(palettes.dark, "alias"), "#bebec8");
+  assert.equal(resolveHexColor(palettes.darkMore, "alias"), "#ededf2");
+});
+
+test("a commented old color cannot hide a low-contrast active alias", () => {
+  const { dark } = readAppearanceTokens(`
+    :root { --foreground: #64748b; --navigation-muted: var(--foreground); }
+    :root[data-theme="dark"] {
+      --foreground: #28282e;
+      --navigation-track: #28282e;
+      --navigation-muted: var(--foreground);
+      /* --navigation-muted: #bebec8; */
+    }
+    @media (prefers-contrast: more) {
+      :root[data-theme="dark"] { --foreground: #ededf2; }
+    }
+  `);
+  const text = resolveHexColor(dark, "navigation-muted");
+  assert.equal(text, "#28282e");
+  assert.equal(contrast(text, resolveHexColor(dark, "navigation-track")), 1);
+});
+
+test("invalid color references fail instead of silently testing another palette", () => {
+  assert.throws(() => resolveHexColor({ alias: "var(--missing)" }, "alias"), /Missing color token/);
+  assert.throws(() => resolveHexColor({ a: "var(--b)", b: "var(--a)" }, "a"), /Circular color reference/);
+  assert.throws(() => resolveHexColor({ foreground: "invalid" }, "foreground"), /Unsupported color value/);
 });

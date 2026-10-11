@@ -24,6 +24,8 @@
 
 [night-inspection-social-preview.svg](./night-inspection-social-preview.svg) 是分享卡片源稿，可增加背景与信息层级，内部品牌路径和色值保持母版一致。[src/assets/night-inspection-logo.svg](../../src/assets/night-inspection-logo.svg) 是独立透明导出，供核对及非页面用途，当前运行时不加载。
 
+## 裁切与安全区
+
 favicon 使用 `648 648 2800 2800` 正方形视觉裁切，提高 16px 主体占比。Maskable 使用不透明背景，全部重要品牌像素位于画布中心、半径为边长 40% 的安全圆内。
 
 ## 导出与验收

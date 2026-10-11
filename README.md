@@ -23,6 +23,19 @@ Supabase 环境变量、数据库初始化、质量门禁与 GitHub Pages 发布
 
 ## 文档入口与职责
 
+### 按任务阅读
+
+| 当前任务 | 阅读顺序 |
+| --- | --- |
+| 接手项目 | [交接](./PROJECT_HANDOFF.md) → [代理约束](./AGENTS.md) → [治理](./GOVERNANCE.md) → [架构](./ARCHITECTURE.md) |
+| 调整界面或动画 | [设计规范](./DESIGN.md) → [公共 UI](./docs/ui-components.md) → [验证](./docs/development.md#验证) |
+| 调整填写、历史或备份 | [业务规则](./docs/inspection-rules.md) → [数据与同步](./docs/data-and-sync.md) → [验证](./docs/development.md#验证) |
+| 排查账号、同步或离线 | [架构](./ARCHITECTURE.md) → [数据与同步](./docs/data-and-sync.md) → [开发与发布](./docs/development.md) |
+| 更新图标 | [品牌资源](./design/brand/README.md) → [验证](./docs/development.md#验证) |
+| 配置环境或发布 | [开发与发布](./docs/development.md) → [GitHub Pages](./docs/development.md#github-pages) |
+
+### 唯一维护入口
+
 每类规则只在对应文档维护，其他文档通过链接引用。文档与源码不一致时先核对当前实现及明确需求，再纠正文档；不要根据旧截图或历史提交恢复已经替换的实现。
 
 | 需要了解的内容 | 唯一维护入口 |
@@ -42,4 +55,4 @@ Supabase 环境变量、数据库初始化、质量门禁与 GitHub Pages 发布
 
 [src/app/page.tsx](./src/app/page.tsx) 保持路由入口；客户端应用由 [NightInspectionApp](./src/features/inspection/components/night-inspection-app.tsx) 组合巡检、认证和账号功能。
 
-业务代码在 `src/features/`，通用控件在 `src/components/ui/`，设计令牌在 `src/app/globals.css`。更完整的职责划分见架构文档。历史实施过程由 Git 历史保存，不作为现行规范重复维护。
+业务代码在 `src/features/`，通用控件在 `src/components/ui/`，设计令牌在 `src/app/globals.css`。更完整的职责划分见 [架构](./ARCHITECTURE.md)。测试入口与验收边界见 [开发与发布](./docs/development.md#验证)，历史实施过程由 Git / Actions 保存，不作为现行规范重复维护。

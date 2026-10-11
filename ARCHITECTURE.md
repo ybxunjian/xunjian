@@ -15,9 +15,11 @@
 | `src/features/inspection/sync/` | 云端读写、行映射和持久化历史操作队列 |
 | `src/features/auth/` | 认证表单、会话、密码恢复和离线身份 |
 | `src/features/account/` | 账号面板、头像、导航偏好及独立存储和同步 |
-| `src/lib/` | 通用工具与浏览器 Supabase 客户端 |
+| `src/hooks/` | 跨功能浏览器外观订阅与字段反馈 |
+| `src/lib/` | 通用工具、设备外观状态与浏览器 Supabase 客户端 |
 | `scripts/` | 静态导出后的 Service Worker 生成 |
 | `supabase/migrations/` | 数据库、权限、Storage 和 Realtime 初始化 |
+| `tests/`、`tests/helpers/` | 自动化回归及受控测试环境，不被运行时导入 |
 
 `src/assets/` 的透明品牌导出用于核对，当前运行时不加载；生产图标和设计源稿由 [品牌文档](./design/brand/README.md) 说明。
 
@@ -42,13 +44,13 @@
 | 队列与网络 | `inspection-sync-queue.ts` 管理持久化项；`inspection-cloud-sync.ts` 决定新增、删除、恢复和 RPC 策略 |
 | 数据库载荷 | `inspection-cloud-mapping.ts` 做行校验与转换，领域载荷校验复用 `model/validation.ts` |
 | 日历 | `HistoryCalendar` 展示；`use-calendar-pager.ts` 管理手势与运动；`calendar-paging.ts` 计算目标和速度限制 |
-| 偏好与头像 | `use-user-preferences.ts` 编排字段并发和恢复；`prepare-avatar.ts` 处理图片；`navigation-order-editor.tsx` 管理排序草稿和拖动 |
+| 偏好与头像 | `use-user-preferences.ts` 编排字段并发和恢复；`prepare-avatar.ts` 处理图片；`navigation-order-editor.tsx` 管理排序草稿与提交，公共 `LongPressReorderItem` 管理单项长按拖动 |
 
 数据格式、迁移兼容和完整同步流程只在 [数据与同步](./docs/data-and-sync.md) 维护。
 
-## 外观
+## 设备外观
 
-`src/lib/appearance.ts` 独立管理设备本地主题偏好与浏览器外观事件，`src/hooks/use-appearance.ts` 提供 React 外部快照订阅。根布局在内容首绘前解析偏好，常驻 AppearanceRuntime 保持 Toast 和 theme-color 一致；账号面板调用公共 AppearancePicker。业务组件只消费语义令牌，颜色解析集中在 globals.css，不将主题状态混入巡检数据或用户云偏好。
+`src/lib/appearance.ts` 独立管理设备本地主题偏好与浏览器外观事件，`src/hooks/use-appearance.ts` 提供 React 外部快照订阅。根布局在内容首绘前解析偏好，外观模块同步 theme-color，常驻 AppearanceRuntime 跟随主题显示 Toast；账号面板调用公共 AppearancePicker。业务组件只消费语义令牌，颜色解析集中在 globals.css，不将主题状态混入巡检数据或用户云偏好。
 
 ## UI 组合
 
@@ -61,3 +63,7 @@
 - 公共 `ConfirmationPopover` 管理气泡和自身 WAAPI 生命周期，头像请求由 `AccountDialog` 执行。WAAPI 是浏览器能力，不增加动画依赖。
 
 控件参数和调用约定见 [公共 UI 与交互](./docs/ui-components.md)，视觉原则见 [设计规范](./DESIGN.md)，修改和清理要求见 [治理约定](./GOVERNANCE.md)。
+
+## 验证入口
+
+测试辅助代码可以导入实际控制器与纯规则，运行时不反向依赖测试。测试用例、颜色解析支持范围与浏览器/真机验收职责统一见 [开发与发布](./docs/development.md#验证)，此处不维护测试数量或发布结果。
