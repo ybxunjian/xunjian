@@ -11,19 +11,20 @@ export const VIEW_TRANSITION = {
 const variants = {
   initial: (direction: ViewTransitionDirection) => ({
     opacity: 0,
-    x: direction === 1 ? 18 : -18,
+    transform: direction === 1 ? "translateX(18px)" : "translateX(-18px)",
   }),
-  animate: { opacity: 1, x: 0 },
+  // A complete transform is eligible for Motion's native animation path; x is not.
+  animate: { opacity: 1, transform: "translateX(0px)" },
   exit: (direction: ViewTransitionDirection) => ({
     opacity: 0,
-    x: direction === 1 ? -14 : 18,
+    transform: direction === 1 ? "translateX(-14px)" : "translateX(18px)",
   }),
 };
 
 const reducedMotionVariants = {
-  initial: { opacity: 1, x: 0 },
-  animate: { opacity: 1, x: 0 },
-  exit: { opacity: 1, x: 0 },
+  initial: { opacity: 1, transform: "translateX(0px)" },
+  animate: { opacity: 1, transform: "translateX(0px)" },
+  exit: { opacity: 1, transform: "translateX(0px)" },
 };
 export function DirectionalViewTransition({
   viewKey,
