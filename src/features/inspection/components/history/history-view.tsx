@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useIsPresent } from "framer-motion";
 import { Check, ChevronRight, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DirectionalViewTransition, VIEW_TRANSITION } from "@/components/ui/directional-view-transition";
+import { DirectionalViewTransition, VIEW_EXIT_TRANSITION, VIEW_TRANSITION } from "@/components/ui/directional-view-transition";
 import { useStickyEdgeState } from "../../hooks/use-sticky-edge-state";
 import { Card, CardContent } from "@/components/ui/card";
 import { getLatestHistoryDate } from "../../model/history-filter";
@@ -145,17 +145,14 @@ export function HistoryView({
               y: 0,
               transition: reduceMotion
                 ? { duration: 0 }
-                : {
-                  ...VIEW_TRANSITION,
-                  delay: VIEW_TRANSITION.duration,
-                },
+                : VIEW_TRANSITION,
             }}
             exit={{
               opacity: 0,
               y: reduceMotion ? 0 : 8,
               transition: reduceMotion
                 ? { duration: 0 }
-                : VIEW_TRANSITION,
+                : VIEW_EXIT_TRANSITION,
             }}
           >
             <DetailRecordActions
