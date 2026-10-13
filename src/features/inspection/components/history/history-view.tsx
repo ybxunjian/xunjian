@@ -200,7 +200,7 @@ function HistoryList({
       <SectionHeading title="历史记录" />
       {records.length ? (
         records.map((record) => (
-          <Card className="mb-2" key={record.id}>
+          <Card className="history-record-card mb-2" key={record.id}>
             <CardContent className="p-0">
               {manageHistory ? <button
                 type="button"

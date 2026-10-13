@@ -283,6 +283,14 @@ button:focus-visible {
   .segmented-navigation-thumb { will-change: auto; }
 }
 
+@supports (content-visibility: auto) and (contain-intrinsic-block-size: auto 1px) {
+  .history-record-card {
+    content-visibility: auto;
+    /* Match min-h-22 content; Card's two border pixels remain outside this size. */
+    contain-intrinsic-block-size: auto calc(var(--spacing) * 22);
+  }
+}
+
 /* History cards: align both primary values and both captions in shared rows. */
 .history-record-info {
   display: grid;
