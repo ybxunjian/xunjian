@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion, useAnimationControls, useIsPresent } from "framer-motion";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { motion, useAnimationControls, useIsPresent } from "framer-motion";
 import { ArchiveRestore, CalendarDays, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -14,6 +14,19 @@ type HistoryQuickMenuProps = {
   onDone: () => void;
   onBack: () => void;
 };
+
+const MENU_EASE = [0.22, 1, 0.36, 1] as const;
+const MENU_FADE_EASE = [0.25, 0.1, 0.25, 1] as const;
+const CLOSED_ACTIONS_TRANSFORM = "translateX(24px) scale(0.86)";
+const OPEN_ACTIONS_TRANSFORM = "translateX(0px) scale(1)";
+
+function getActionsTransition(reduceMotion: boolean) {
+  return reduceMotion ? { duration: 0 } : {
+    duration: 0.24,
+    ease: MENU_EASE,
+    opacity: { duration: 0.2, ease: MENU_FADE_EASE },
+  };
+}
 
 export function HistoryQuickMenu({
   recordCount, reduceMotion, manageHistory, showBack, onCalendar, onBatchDelete, onBackup, onDone, onBack,
@@ -34,15 +47,17 @@ export function HistoryQuickMenu({
   const collapseLines = {
     d: "M 14 14 L 14 14",
     opacity: 0,
-    transition: { duration: reduceMotion ? 0 : 0.34, ease: [0.22, 1, 0.36, 1] as const },
+    transition: { duration: reduceMotion ? 0 : 0.34, ease: MENU_EASE },
   };
   const shapeAnimation = useAnimationControls();
+  const actionsAnimation = useAnimationControls();
   const initialShape = useRef(paths.join("|"));
   const hasChangedShape = useRef(false);
   const previousPresence = useRef(isPresent);
   const centerVisible = showBack || (!open && !manageHistory);
+  const actionsVisible = open && !manageHistory && !showBack && isPresent;
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // Repeated Strict Mode setup must not turn the first appearance into a morph.
     if (paths.join("|") !== initialShape.current) hasChangedShape.current = true;
     const reentering = !previousPresence.current;
@@ -53,20 +68,29 @@ export function HistoryQuickMenu({
       shapeAnimation.set({ d: "M 14 14 L 14 14", opacity: 0, pathLength: 1 });
     }
     const duration = entering ? 0.34 : 0.3;
+    // Start both parts after the same commit; the action group keeps its DOM node.
+    void actionsAnimation.start({
+      opacity: Number(actionsVisible),
+      transform: actionsVisible || reduceMotion ? OPEN_ACTIONS_TRANSFORM : CLOSED_ACTIONS_TRANSFORM,
+      transition: getActionsTransition(reduceMotion),
+    });
     void shapeAnimation.start((index: number) => ({
       d: paths[index],
       opacity: index === 2 ? Number(centerVisible) : 1,
       ...(index === 2 ? { pathLength: Number(centerVisible) } : {}),
       transition: {
         duration: reduceMotion ? 0 : duration,
-        ease: [0.22, 1, 0.36, 1],
+        ease: MENU_EASE,
         ...(index === 2 ? {
           pathLength: { duration: reduceMotion ? 0 : 0.2, delay: showBack && !reduceMotion ? 0.08 : 0 },
-          opacity: { duration: reduceMotion ? 0 : 0.2, delay: showBack && !reduceMotion ? 0.08 : 0 },
+          opacity: {
+            duration: reduceMotion ? 0 : centerVisible ? 0.2 : 0.12,
+            delay: showBack && !reduceMotion ? 0.08 : 0,
+          },
         } : {}),
       },
     }));
-  }, [centerVisible, isPresent, paths, reduceMotion, shapeAnimation, showBack]);
+  }, [actionsAnimation, actionsVisible, centerVisible, isPresent, paths, reduceMotion, shapeAnimation, showBack]);
 
   const menuRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -105,25 +129,25 @@ export function HistoryQuickMenu({
   return (
     // SVG path morphs must not become scroll anchors near the viewport edge.
     <div ref={menuRef} style={{ overflowAnchor: "none" }} className="relative z-10 flex shrink-0 items-center" inert={!isPresent} aria-hidden={!isPresent || undefined}>
-      <AnimatePresence>
-        {open && !manageHistory && !showBack && isPresent && (
-          <motion.div
-            id="history-quick-menu-actions"
-            role="group"
-            aria-label="历史记录管理"
-            className="absolute right-full mr-1 flex items-center gap-1 sm:gap-2"
-            initial={{ opacity: 0, transform: reduceMotion ? "translateX(0px) scale(1)" : "translateX(24px) scale(0.86)" }}
-            animate={{ opacity: 1, transform: "translateX(0px) scale(1)" }}
-            exit={{ opacity: 0, transform: reduceMotion ? "translateX(0px) scale(1)" : "translateX(24px) scale(0.86)" }}
-            transition={reduceMotion ? { duration: 0 } : { duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
-          >
-            {[
-              { label: "巡检日历", icon: <CalendarDays size={21} />, action: () => choose(onCalendar), disabled: false },
-              { label: "备份与恢复", icon: <ArchiveRestore size={21} />, action: () => choose(onBackup), disabled: false },
-              { label: "批量删除", icon: <Trash2 size={21} />, action: onBatchDelete, disabled: recordCount === 0 },
-            ].map((item) => (
-              <div key={item.label} className="shrink-0">
-                <Button
+      <motion.div
+        id="history-quick-menu-actions"
+        role="group"
+        aria-label="历史记录管理"
+        inert={!actionsVisible}
+        aria-hidden={!actionsVisible || undefined}
+        className="absolute right-full mr-1 flex items-center gap-1 sm:gap-2"
+        initial={{ opacity: 0, transform: reduceMotion ? OPEN_ACTIONS_TRANSFORM : CLOSED_ACTIONS_TRANSFORM }}
+        animate={actionsAnimation}
+        exit={{ opacity: 0, transform: reduceMotion ? OPEN_ACTIONS_TRANSFORM : CLOSED_ACTIONS_TRANSFORM }}
+        transition={getActionsTransition(reduceMotion)}
+      >
+        {[
+          { label: "巡检日历", icon: <CalendarDays size={21} />, action: () => choose(onCalendar), disabled: false },
+          { label: "备份与恢复", icon: <ArchiveRestore size={21} />, action: () => choose(onBackup), disabled: false },
+          { label: "批量删除", icon: <Trash2 size={21} />, action: onBatchDelete, disabled: recordCount === 0 },
+        ].map((item) => (
+          <div key={item.label} className="shrink-0">
+            <Button
                   type="button"
                   variant="ghost"
                   size="icon"
@@ -137,8 +161,6 @@ export function HistoryQuickMenu({
               </div>
             ))}
           </motion.div>
-        )}
-      </AnimatePresence>
       <Button
         ref={toggleRef}
         type="button"
