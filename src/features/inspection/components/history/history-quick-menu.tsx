@@ -112,9 +112,9 @@ export function HistoryQuickMenu({
             role="group"
             aria-label="历史记录管理"
             className="absolute right-full mr-1 flex items-center gap-1 sm:gap-2"
-            initial={{ opacity: 0, x: reduceMotion ? 0 : 24, scale: reduceMotion ? 1 : 0.86 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: reduceMotion ? 0 : 24, scale: reduceMotion ? 1 : 0.86 }}
+            initial={{ opacity: 0, transform: reduceMotion ? "translateX(0px) scale(1)" : "translateX(24px) scale(0.86)" }}
+            animate={{ opacity: 1, transform: "translateX(0px) scale(1)" }}
+            exit={{ opacity: 0, transform: reduceMotion ? "translateX(0px) scale(1)" : "translateX(24px) scale(0.86)" }}
             transition={reduceMotion ? { duration: 0 } : { duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
           >
             {[
