@@ -71,6 +71,7 @@ npm run check
 | 偏好、头像和离线身份 | [user-preferences](../tests/user-preferences.test.mjs)、[avatar-recovery](../tests/avatar-recovery.test.mjs)、[offline-identity](../tests/offline-identity.test.mjs) |
 | 外观与对比度 | [appearance](../tests/appearance.test.mjs)、[颜色解析辅助](../tests/helpers/appearance-palette.mjs) |
 | 导航行为 | [segmented-navigation](../tests/segmented-navigation.test.mjs)、[受控 DOM 与时钟](../tests/helpers/segmented-navigation-fixture.mjs) |
+| 历史菜单变形 | [history-menu-paths](../tests/history-menu-paths.test.mjs)：上下线镜像、所有形态交接的端点方向与线段长度；实际淡入淡出与打断仍按浏览器回归验收 |
 | 公共 UI、详情操作和离线资源 | [shared-ui](../tests/shared-ui.test.mjs)、[detail-record-actions](../tests/detail-record-actions.test.mjs)、[service-worker](../tests/service-worker.test.mjs) |
 
 外观测试先排除 CSS 注释，再合并浅色基础、深色与高对比度覆盖并解析变量引用。解析器支持当前受测令牌的十六进制色值和完整 `var(--token)` 引用；缺失、循环或不支持的表达式明确失败，新增表达式应同步扩展解析及回归。
@@ -89,7 +90,7 @@ npm run check
 | 历史屏幕外渲染 | 少量/大量记录的重复进出详情与限速性能对比；快速深滚后无空白卡片、列表高度和入口位置稳定；窄屏、文字放大、旧格式时间换行、批量选择、键盘聚焦与不支持时的普通布局；Safari 真机验收不能由 Chromium 限速数据替代 |
 | 两层导航 | 点击、快速反向、按下即动画追踪与甩动、上下偏移和轨道外松手、轨道内竖向手势保持拖动及导航外正常滚动；键盘、吸顶、窄屏、排序与减少动态效果；滑块预览不提前提交业务选择；快速左右甩动仍选择松手最近项，未过中线不额外跳项 |
 | 日历分页 | Chromium 与 WebKit 双向连续十二页、第三页前停顿、约 90% 到位时接管、反向、快滑后点击、键盘、滚轮、竖向滚动、边界/跨年和尺寸变化；停稳后标题、日期页、父月份一致，最多七页，不自行翻月 |
-| 历史菜单生命周期 | 展开、日历/备份箭头、批量管理勾状态下离开并立即切回，恢复列表与收起汉堡；检查形态与按钮组同步启动、普通收起 DOM 保留且 inert / aria-hidden、淡入淡出进度与中线隐去；功能按钮组原生 transform/opacity 动画、快速反向和不支持 WAAPI 的回退；检查出现/消失与形态变换各自时间线、退场 inert、控制台错误及重复 key 警告 |
+| 历史菜单生命周期 | 展开、日历/备份箭头、批量管理勾状态下离开并立即切回，恢复列表与收起汉堡；逐帧检查汉堡/叉号上下线镜像、端点不反向交换，箭头/勾的连续变形；检查形态与按钮组同步启动、普通收起 DOM 保留且 inert / aria-hidden、淡入进度、中线隐去与收起 120ms 后图标组完全透明；功能按钮组原生 transform/opacity 动画、快速反向和不支持 WAAPI 的回退；检查出现/消失与形态变换各自时间线、退场 inert、控制台错误及重复 key 警告 |
 | 外观 | 默认跟随系统、手动覆盖、刷新首绘、非法/不可用存储、跨标签页更新；浅色/深色 × 普通/高对比度，减少透明/动态效果；巡检、历史/日历/详情/备份、登录/错误、账号改密/气泡/分裂确认和 Toast；文字放大、窄屏与横屏；双向逐帧与快速反向，输入聚焦、确认展开和分裂中途切换，检查同帧换色、文字对比度及过渡保护自动解除 |
 | 公共 UI | 所有调用方、实际字号/尺寸、焦点与 Esc、退出禁用、减少动态效果；细节按 [组件文档](./ui-components.md) |
 | 同步 | 离线操作后刷新、联网按序补交、并发追加项保留、旧结果拒绝、墓碑不复活、覆盖/恢复撤销 |

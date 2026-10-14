@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { motion, useAnimationControls, useIsPresent } from "framer-motion";
 import { ArchiveRestore, CalendarDays, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getHistoryMenuPaths } from "./history-menu-paths";
 
 type HistoryQuickMenuProps = {
   recordCount: number;
@@ -20,11 +21,11 @@ const MENU_FADE_EASE = [0.25, 0.1, 0.25, 1] as const;
 const CLOSED_ACTIONS_TRANSFORM = "translateX(24px) scale(0.86)";
 const OPEN_ACTIONS_TRANSFORM = "translateX(0px) scale(1)";
 
-function getActionsTransition(reduceMotion: boolean) {
+function getActionsTransition(expanded: boolean, reduceMotion: boolean) {
   return reduceMotion ? { duration: 0 } : {
     duration: 0.24,
     ease: MENU_EASE,
-    opacity: { duration: 0.2, ease: MENU_FADE_EASE },
+    opacity: { duration: expanded ? 0.2 : 0.12, ease: MENU_FADE_EASE },
   };
 }
 
@@ -39,11 +40,10 @@ export function HistoryQuickMenu({
     setPreviousRenderPresence(isPresent);
     setOpen(false);
   }
-  const paths = useMemo(() => [
-    showBack ? "M 4 14 L 14 24" : manageHistory ? "M 3 14 L 11 21" : open ? "M 4 4 L 24 24" : "M 2 4 L 26 4",
-    showBack ? "M 14 4 L 4 14" : manageHistory ? "M 11 21 L 25 5" : open ? "M 24 4 L 4 24" : "M 2 24 L 26 24",
-    showBack ? "M 4 14 L 26 14" : "M 2 14 L 26 14",
-  ], [showBack, manageHistory, open]);
+  const paths = useMemo(
+    () => getHistoryMenuPaths({ open, manageHistory, showBack }),
+    [showBack, manageHistory, open],
+  );
   const collapseLines = {
     d: "M 14 14 L 14 14",
     opacity: 0,
@@ -72,7 +72,7 @@ export function HistoryQuickMenu({
     void actionsAnimation.start({
       opacity: Number(actionsVisible),
       transform: actionsVisible || reduceMotion ? OPEN_ACTIONS_TRANSFORM : CLOSED_ACTIONS_TRANSFORM,
-      transition: getActionsTransition(reduceMotion),
+      transition: getActionsTransition(actionsVisible, reduceMotion),
     });
     void shapeAnimation.start((index: number) => ({
       d: paths[index],
@@ -138,8 +138,12 @@ export function HistoryQuickMenu({
         className="absolute right-full mr-1 flex items-center gap-1 sm:gap-2"
         initial={{ opacity: 0, transform: reduceMotion ? OPEN_ACTIONS_TRANSFORM : CLOSED_ACTIONS_TRANSFORM }}
         animate={actionsAnimation}
-        exit={{ opacity: 0, transform: reduceMotion ? OPEN_ACTIONS_TRANSFORM : CLOSED_ACTIONS_TRANSFORM }}
-        transition={getActionsTransition(reduceMotion)}
+        exit={{
+          opacity: 0,
+          transform: reduceMotion ? OPEN_ACTIONS_TRANSFORM : CLOSED_ACTIONS_TRANSFORM,
+          transition: getActionsTransition(false, reduceMotion),
+        }}
+        transition={getActionsTransition(actionsVisible, reduceMotion)}
       >
         {[
           { label: "巡检日历", icon: <CalendarDays size={21} />, action: () => choose(onCalendar), disabled: false },
@@ -148,19 +152,19 @@ export function HistoryQuickMenu({
         ].map((item) => (
           <div key={item.label} className="shrink-0">
             <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  aria-label={item.label}
-                  disabled={item.disabled}
-                  onClick={item.action}
-                  className="text-foreground-strong hover:bg-transparent active:scale-100"
-                >
-                  {item.icon}
-                </Button>
-              </div>
-            ))}
-          </motion.div>
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={item.label}
+              disabled={item.disabled}
+              onClick={item.action}
+              className="text-foreground-strong hover:bg-transparent active:scale-100"
+            >
+              {item.icon}
+            </Button>
+          </div>
+        ))}
+      </motion.div>
       <Button
         ref={toggleRef}
         type="button"
