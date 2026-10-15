@@ -186,7 +186,7 @@ function ConfirmationBubble({ id, busy, title, confirmLabel, busyLabel = "正在
       <span aria-hidden="true" className="absolute left-1/2 -translate-x-1/2 rotate-45 border-l border-t border-border bg-surface-elevated" style={{ top: TIP_TOP, width: TIP_SIZE, height: TIP_SIZE }} />
       <h3 id={`${id}-title`} className="sr-only">{title}</h3>
       <div className="relative flex flex-col gap-2">
-        <Button type="button" variant="destructive" disabled={busy || !isPresent} onClick={onConfirm} className="w-full rounded-full shadow-none">
+        <Button type="button" variant="destructive" disabled={busy || !isPresent} onClick={onConfirm} className="w-full rounded-full shadow-none hover:bg-destructive-surface">
           {busy ? busyLabel : confirmLabel}
         </Button>
         <Button ref={cancelRef} type="button" variant="ghost" disabled={busy || !isPresent} onClick={onClose} className="w-full rounded-full bg-secondary-action-surface text-secondary-action-foreground hover:bg-secondary-action-surface">

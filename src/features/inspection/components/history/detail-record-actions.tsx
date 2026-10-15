@@ -1,17 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import { animate, mix, useIsPresent, useMotionValue, useTransform } from "framer-motion";
+import { useIsPresent } from "framer-motion";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { SplitConfirmationButton, useSplitConfirmationColor, useSplitConfirmationMotion } from "@/components/ui/split-confirmation-button";
+import { getSplitConfirmationTransition, SplitConfirmationButton, useSplitConfirmationColor, useSplitConfirmationMotion } from "@/components/ui/split-confirmation-button";
+import { useNativeStyleTransition } from "@/components/ui/use-native-style-transition";
 
 import {
   DETAIL_ACTION_WIDTHS,
   DETAIL_ACTION_TEXT_TRANSITIONS,
   DETAIL_DELETE_COLOR_END,
 } from "./detail-record-actions-motion";
-
-const leftWidthAt = mix(DETAIL_ACTION_WIDTHS.closed.left, DETAIL_ACTION_WIDTHS.open.left);
-const rightWidthAt = mix(DETAIL_ACTION_WIDTHS.closed.right, DETAIL_ACTION_WIDTHS.open.right);
 
 export function DetailRecordActions({
   returnLabel, reduceMotion, onReturn, onDelete,
@@ -28,24 +26,23 @@ export function DetailRecordActions({
   const wasConfirming = useRef(false);
   const deleting = useRef(false);
   const { progress: expansion } = useSplitConfirmationMotion(confirming, reduceMotion, isPresent);
-  const leftWidth = useTransform(expansion, leftWidthAt);
-  const rightWidth = useTransform(expansion, rightWidthAt);
+  const widths = DETAIL_ACTION_WIDTHS[confirming ? "open" : "closed"];
+  const transition = getSplitConfirmationTransition(confirming, reduceMotion);
+  const leftWidth = useNativeStyleTransition({ targetRef: leftRef, property: "width",
+    initial: DETAIL_ACTION_WIDTHS.closed.left, value: widths.left, transition, active: isPresent });
+  const rightWidth = useNativeStyleTransition({ targetRef: rightRef, property: "width",
+    initial: DETAIL_ACTION_WIDTHS.closed.right, value: widths.right, transition, active: isPresent });
   // Keep text timing independent of the geometry easing; stop delayed fades on reversal.
-  const returnOpacity = useMotionValue(1);
-  const cancelOpacity = useMotionValue(0);
-  useEffect(() => {
-    if (!isPresent) return;
-    if (reduceMotion) {
-      returnOpacity.set(confirming ? 0 : 1);
-      cancelOpacity.set(confirming ? 1 : 0);
-      return;
-    }
-    const outgoing = confirming ? returnOpacity : cancelOpacity;
-    const incoming = confirming ? cancelOpacity : returnOpacity;
-    const fadeOut = animate(outgoing, 0, DETAIL_ACTION_TEXT_TRANSITIONS.outgoing);
-    const fadeIn = animate(incoming, 1, DETAIL_ACTION_TEXT_TRANSITIONS[confirming ? "cancel" : "return"]);
-    return () => { fadeOut.stop(); fadeIn.stop(); };
-  }, [confirming, reduceMotion, isPresent, returnOpacity, cancelOpacity]);
+  const returnTextRef = useRef<HTMLSpanElement>(null);
+  const cancelTextRef = useRef<HTMLSpanElement>(null);
+  const returnTransition = DETAIL_ACTION_TEXT_TRANSITIONS[confirming ? "outgoing" : "return"];
+  const cancelTransition = DETAIL_ACTION_TEXT_TRANSITIONS[confirming ? "cancel" : "outgoing"];
+  const returnOpacity = useNativeStyleTransition<number>({ targetRef: returnTextRef, property: "opacity",
+    initial: 1, value: confirming ? 0 : 1, active: isPresent,
+    transition: { ...returnTransition, duration: reduceMotion ? 0 : returnTransition.duration } });
+  const cancelOpacity = useNativeStyleTransition<number>({ targetRef: cancelTextRef, property: "opacity",
+    initial: 0, value: confirming ? 1 : 0, active: isPresent,
+    transition: { ...cancelTransition, duration: reduceMotion ? 0 : cancelTransition.duration } });
   const backgroundColor = useSplitConfirmationColor(expansion, "--detail-delete-entry-surface", "--destructive-surface", rightRef, "backgroundColor", DETAIL_DELETE_COLOR_END);
   const returnBackground = useSplitConfirmationColor(expansion, "--primary-surface", "--neutral-control-surface", leftRef);
   const returnColor = useSplitConfirmationColor(expansion, "--primary-foreground", "--foreground", leftRef, "color");
@@ -84,6 +81,8 @@ export function DetailRecordActions({
         openContent="取消"
         closedContentOpacity={returnOpacity}
         openContentOpacity={cancelOpacity}
+        closedContentRef={returnTextRef}
+        openContentRef={cancelTextRef}
         aria-label={confirming ? "取消删除" : returnLabel}
       />
       <SplitConfirmationButton

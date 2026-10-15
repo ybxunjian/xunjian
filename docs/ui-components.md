@@ -53,7 +53,7 @@
 
 ### 内层表面与外观选择器
 
-内层底色共用 nested-surface：浅色解析为 card（#ffffff），深色解析为 surface-elevated（#28282e）。ActionTile 的改密钥匙、备份导入/导出底座，以及头像相机底座、账号改密的三个 PasswordField、巡检汇总数值块使用该令牌。TextField 仍保留默认 card 底色，改密通过既有 className 插槽指定内层底色，不影响登录、注册及密码恢复。汇总数值块仅深色去掉小块阴影，浅色保留 shadow-card；其他图标底座阴影、边框、尺寸和字体保持不变。AppearancePicker 选中项及悬停底色复用 navigation-selection，浅色 #ffffff、深色 #484850，未选项保持透明。
+内层底色共用 nested-surface：浅色解析为 card（#ffffff），深色解析为 surface-elevated（#28282e）。ActionTile 的改密钥匙、备份导入/导出底座，以及头像相机底座、账号改密的三个 PasswordField、巡检汇总数值块使用该令牌。TextField 仍保留默认 card 底色，改密通过既有 className 插槽指定内层底色，不影响登录、注册及密码恢复。汇总数值块仅深色去掉小块阴影，浅色保留 shadow-card；其他图标底座阴影、边框、尺寸和字体保持不变。AppearancePicker 选中项底色复用 navigation-selection，浅色 #ffffff、深色 #484850，未选项保持透明；悬停不改变各自底色。
 
 ### 状态与提示
 
@@ -73,10 +73,31 @@ Sonner 的普通、成功、错误、警告和信息提示底色、文字及边�
 | 两层分段导航 | 44px 轨道、4px 内边距、36px 可见项；透明伪元素纵向扩充点击到 44px。外圆角 22px、项圆角 18px。滑块参数见 [两层导航](#两层导航) |
 | 原生泵号 select | 108px 宽、当前盒高 44px，焦点过渡 180ms；ChevronDown 为 20px、2.5px 线宽、右侧 14px |
 | TextField 邮箱/密码 | 最小 52px、字体 16px，胶囊；普通错误区另预留 24px，带忘记密码操作行最小 44px |
-| 认证提交按钮 | 登录、注册、发送恢复邮件及恢复页保存密码最小 48px、字体 16px |
+| 认证提交按钮 | 登录、创建账号、发送重置邮件及恢复页保存新密码均由 CredentialForm 渲染，复用 credentialPrimaryButtonClassName，最小 48px、字体 16px、胶囊圆角 |
+| 重置邮件发送后的返回登录 | 与登录提交按钮复用 CredentialForm 导出的 credentialPrimaryButtonClassName：主操作蓝底白字、最小 48px、字体 16px、胶囊圆角，沿用 Button 默认悬停与按压反馈；外部间距由所在页面维护 |
 | 账号改密取消/保存 | 44px 胶囊、8px 间距、按压 0.99，无边框；配色见[取消配色](#取消配色)，保存使用主操作色 |
 | 历史详情入口 | 可见浅色圆形 34px、点击区域 44px、箭头 18px |
 | 历史菜单 | 切换 SVG 28px、功能 Lucide 21px，均保留 44×44px 点击范围；切换按压 0.92，功能项不缩放 |
+| 日历有记录的日期 | 复用 Button 的 ghost，与日历翻月、账号关闭和恢复默认共用悬停反馈；高至少 44px、宽随网格且不超过 48px，无内边距；今天底色及记录跳转规则由日历维护，无记录日期保持不可点击的文本 |
+
+## 按钮悬停与复用
+
+公共 [Button](../src/components/ui/button.tsx) 维护各 variant 的基础颜色、悬停和按压反馈。调用方通过 variant、size 与 className 表达场景差异；保留业务组件明确覆盖的悬停规则，不给全站 button 添加统一变色层。分裂确认的颜色与几何动画继续由专属组件维护。
+
+| 当前入口 | 悬停规则与复用来源 |
+| --- | --- |
+| 首页保存、登录、创建账号、发送重置邮件、保存新密码、重置邮件发送后的返回登录、账号保存密码、返回补充、备份恢复新记录 | Button 默认主操作：primary-surface 背景透明度由 100% 变为 90%，文字不变；各场景的高度、字号、圆角按上表维护 |
+| 首页新建 | Button inverse：白底变 inverse-hover，浅深色相同 |
+| 账号关闭、导航排序恢复默认、清空、日历翻月及有记录日期 | Button ghost：悬停底色为 muted；日期的今天底色仍由业务提供 |
+| 修改密码取消 | 复用 inverse 基础配色，覆盖悬停为原白底；尺寸和按压仍采用账号改密规则 |
+| 头像移除气泡的确认移除与取消 | 两项均覆盖悬停为各自原底色；尺寸及焦点见[头像移除气泡](#头像移除气泡) |
+| 历史列表详情圆形箭头 | 外层保持透明；内圆悬停使用 history-entry-hover-surface，主题差异见[入口、卡片与复选框](#入口卡片与复选框) |
+| 详情返回/取消、详情删除/确认、批量删除/确认及取消、退出登录入口及取消 | 悬停不额外变色，保留分裂动画；退出登录展开后的确认退出沿用 destructive 的 90% 背景透明度悬停 |
+| 历史快捷菜单、外观选择、修改密码与备份导入/导出的 ActionTile | 悬停不变色；选择、按压及开合反馈按各自组件维护 |
+
+上述主操作悬停只改变背景色的 alpha，不改变整个按钮及文字的 opacity；最终颜色与按钮背后的表面有关。备份“没有需要新增的记录”处于 disabled，不呈现可用按钮的悬停反馈。公共 Button 禁用时通过 pointer-events-none 阻断指针交互，统一降低整体透明度；触屏是否呈现悬停由设备及浏览器决定，不能把截图中的底色直接当作悬停证据。
+
+重置邮件发送后的返回登录与认证提交按钮共用样式常量，外部间距分别由页面/表单提供。忘记密码表单上方的返回登录、邮箱验证提示中的返回登录仍是各自的辅助操作，不套用该主按钮尺寸。
 
 ## 两层导航
 
@@ -87,6 +108,8 @@ Sonner 的普通、成功、错误、警告和信息提示底色、文字及边�
 ### 滑块参数
 
 两层导航共用 [segmented-navigation-controller.ts](../src/components/ui/segmented-navigation-controller.ts)，分别维护常驻滑块与独立手势状态。坐标相对各自轨道，项间距通过按钮实际坐标测量，兼容主导航四项与皮带子导航三项及其 4px 间隙。文字高亮跟随滑块最近项，业务选择在点击或松手确认后提交。
+
+渲染跳过值完全相同的 transform 与按压透明度写入；高亮属性首次完整初始化，之后仅在最近项改变时更新旧项和新项。90ms 速度采样数组原位清除过期前缀，不逐次分配筛选数组；采样边界、运动计算、帧调度及坐标测量时机保持一致。
 
 | 参数 | 当前值 |
 | --- | --- |
@@ -198,7 +221,7 @@ Portal 内的实时菜单仅在 `isPresent && !selectedRecord` 时渲染，退�
 
 ### 公共实现与时间线
 
-`SplitConfirmationButton` 复用 Button。关闭/打开内容采用固定绝对居中层，默认交叉淡入淡出；调用方可通过 closedContentOpacity / openContentOpacity 提供自定义透明度，不测量、裁切或缩放文字。调用方提供当前 aria-label，视觉层 aria-hidden。
+`SplitConfirmationButton` 复用 Button。关闭/打开内容采用固定绝对居中层，默认交叉淡入淡出；调用方可通过 closedContentOpacity / openContentOpacity 提供自定义透明度，通过 closedContentRef / openContentRef 连接内容层原生动画，不测量、裁切或缩放文字。调用方提供当前 aria-label，视觉层 aria-hidden。
 
 | 方向 | 几何时长 | 曲线 |
 | --- | --- | --- |
@@ -206,6 +229,8 @@ Portal 内的实时菜单仅在 `isPresent && !selectedRecord` 时渲染，退�
 | 合回 | 220ms | `[0.25, 0.1, 0.35, 1]` |
 
 默认文字与几何同等时长，使用 easeInOut，无延迟。`getSplitConfirmationTransition` 提供统一参数；`useSplitConfirmationMotion` 在打断后从当前进度接续，清理停止自身动画，退场不重新启动。需要渐变的调用方用 `useSplitConfirmationColor` 解析语义令牌再插值；传入承载元素 ref 与颜色属性，在外观和系统对比度变化时按当前进度重新解析，同时更新 MotionValue 和 DOM 色值，使其与 CSS 表面同帧换色，不重启几何动画。混色算法沿用 Motion mix，进度插值不变。减少动态效果立即切换。
+
+详情两侧宽度及返回/取消文字透明度、批量取消的 right 偏移及独立背景透明度，由 [useNativeStyleTransition](../src/components/ui/use-native-style-transition.ts) 通过 WAAPI 执行，MotionValue 只维护基础样式与打断快照。原生动画采用 Motion 同源时钟，保持与详情混色进度的时间线对齐；打断时按当前进度插值并保留 calc 百分比，避免窗口变化后宽度冻结为像素。完成写回最终样式并取消动画层，退场或卸载仅清理自身动画；减少动态效果立即切换，无 WAAPI 时回退 Motion。宽度与 right 仍需布局，此路径减少 JS 逐帧样式写入，不保证固定帧率。退出登录保留现有实现。
 
 ### 三组布局
 
@@ -221,10 +246,10 @@ Portal 内的实时菜单仅在 `isPresent && !selectedRecord` 时渲染，退�
 | --- | --- | --- | --- |
 | 详情删除、批量删除取消 | `neutral-control-surface` / `foreground` | `#dce2eb` / `#0f172a` | `#484850` / `#f2f2f7` |
 | 退出登录、移除头像取消 | `secondary-action-surface` / `secondary-action-foreground` | `muted` / `foreground` | `neutral-control-surface` / `foreground` |
-| 修改密码取消 | `credential-cancel-surface` / `foreground` | `card` / `foreground`；悬停 `muted` | `secondary-action-surface` / `foreground`；悬停同底色 |
+| 修改密码取消 | 复用 Button 的 inverse 基础配色，单独保持悬停底色 | 白底 #ffffff / 深字 #0f172a；悬停保持白底 | 白底 #ffffff / 深字 #0f172a；悬停保持白底 |
 | 保存校验“仍然保存” | `secondary-action-surface` / `foreground` | `muted` / `foreground` | `neutral-control-surface` / `foreground` |
 
-详情与批量取消的底色独立于 `card` / `muted`，避免与滚动卡片融合。账号与保存校验的次要操作共用语义底色；修改密码保留浅色白底，取消按钮无边框、无阴影。
+详情与批量取消的底色独立于 `card` / `muted`，避免与滚动卡片融合。退出登录、头像气泡与保存校验的次要操作共用语义底色；修改密码取消复用 inverse，在浅深色下均为白底深字，悬停保持原底色，无边框、无阴影。
 
 ### 焦点与业务行为
 
@@ -248,6 +273,8 @@ Portal 内的实时菜单仅在 `isPresent && !selectedRecord` 时渲染，退�
 
 `AccountPasswordControls` 保留 ActionTile 标题和钥匙图标，入口不单独按压缩放；`AccountPasswordForm` 复用凭据控件。卡片高度展开/收回均 360ms，曲线分别 `[0.32, 0, 0.2, 1]`、`[0.4, 0, 0.35, 1]`，无回弹；表单原位淡入 220ms、进入延迟 90ms，退出无延迟，可中途重开。
 
+表单与偏好区的高度由账号专属 [useAccountHeightAnimation](../src/features/account/components/use-account-height-animation.ts) 测量并通过原生 WAAPI 执行，共用修改密码的展开/收回曲线；透明度仍由 Motion 管理。只在开始、结束、内容尺寸变化或打断时读写高度，中途反向先保存当前显示高度再接续，收起完成才解除表单 presence。偏好区展开完成恢复 auto 高度；不支持 WAAPI 时回退 Motion，减少动态效果立即切换。此路径减少 JS 逐帧高度写入，实际高度变化仍需浏览器布局，不保证合成线程执行或固定帧率。
+
 导航排序与退出区域展开时 160ms 淡出并收起，立即 inert；收回时恢复高度，延迟 140ms 淡入 220ms。展开前保存面板顶部与内容高度，保持顶部和已有滚动位置；超屏内部滚动，不主动聚焦输入开键盘。
 
 ### 请求与退出
@@ -255,6 +282,8 @@ Portal 内的实时菜单仅在 `isPresent && !selectedRecord` 时渲染，退�
 请求时禁用表单、取消、关闭和头像操作，并防重复提交；成功收起，失败保留输入。Escape 优先收回密码表单，取消或成功清除输入焦点。减少动态效果立即切换。
 
 ## 头像移除气泡
+
+确认移除与取消按钮在浅色、深色下悬停均保持原底色，保留公共 Button 的按压和键盘焦点反馈。
 
 ### 几何
 

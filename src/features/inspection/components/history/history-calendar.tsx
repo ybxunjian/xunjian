@@ -100,16 +100,17 @@ export function HistoryCalendar({
                         );
                       }
                       return (
-                        <button
+                        <Button
                           type="button"
+                          variant="ghost"
                           key={date}
                           onClick={() => { navigateTo(pageMonth); onSelectRecord(dayRecords[0]); }}
                           aria-label={`查看 ${date} 的巡检详情，${count} 条记录`}
                           aria-current={today ? "date" : undefined}
-                          className={`mx-auto flex min-h-11 w-full max-w-12 items-center justify-center rounded-control text-card-title font-bold text-foreground-strong transition hover:bg-muted active:scale-[.97] ${today ? "bg-secondary" : ""}`}
+                          className={`mx-auto w-full max-w-12 p-0 text-card-title font-bold text-foreground-strong ${today ? "bg-secondary" : ""}`}
                         >
                           {day}
-                        </button>
+                        </Button>
                       );
                     })}
                   </div>

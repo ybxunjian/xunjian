@@ -15,7 +15,7 @@ import { AvatarVisual } from "./avatar-visual";
 import { NavigationOrderEditor } from "./navigation-order-editor";
 import { motion, useIsPresent, useReducedMotion } from "framer-motion";
 import { AccountPasswordControls } from "./account-password-controls";
-import { PASSWORD_EXPAND_DURATION, PASSWORD_COLLAPSE_DURATION, PASSWORD_EASING, PASSWORD_COLLAPSE_EASING } from "./account-password-motion";
+import { useAccountHeightAnimation } from "./use-account-height-animation";
 import { AccountSignOutControls } from "./account-sign-out-controls";
 import { AppearancePicker } from "@/components/ui/appearance-picker";
 
@@ -77,6 +77,9 @@ export function AccountMenu({
   const isPresent = useIsPresent();
   const reduceMotion = useReducedMotion();
   const removalId = useId();
+  const { containerRef: preferencesRef, contentRef: preferencesContentRef } = useAccountHeightAnimation({
+    open: !passwordOpen, initialOpen: true, expandingPassword: passwordOpen, restoreAuto: true,
+  });
 
   const chooseAvatar = async (file: File) => {
     try {
@@ -180,22 +183,22 @@ export function AccountMenu({
           onBusyChange={onPasswordBusyChange} onChangePassword={onChangePassword} />
       </section>
 
-      <motion.div initial={false} inert={passwordOpen || !isPresent} aria-hidden={passwordOpen || !isPresent}
-        animate={{ height: passwordOpen ? 0 : "auto", opacity: passwordOpen ? 0 : 1 }}
+      <motion.div ref={preferencesRef} initial={false} inert={passwordOpen || !isPresent} aria-hidden={passwordOpen || !isPresent}
+        animate={{ opacity: passwordOpen ? 0 : 1 }}
         transition={{
-          height: { duration: reduceMotion ? 0 : passwordOpen ? PASSWORD_EXPAND_DURATION : PASSWORD_COLLAPSE_DURATION,
-            ease: passwordOpen ? PASSWORD_EASING : PASSWORD_COLLAPSE_EASING },
           opacity: { duration: reduceMotion ? 0 : passwordOpen ? 0.16 : 0.22,
             delay: reduceMotion || passwordOpen ? 0 : 0.14 },
         }} className="overflow-hidden">
-        <AppearancePicker disabled={signingOut || confirmingAvatarRemoval || avatarBusy || !isPresent} />
-        <NavigationOrderEditor
-          navigationOrder={navigationOrder}
-          onNavigationOrderChange={onNavigationOrderChange}
-        />
+        <div ref={preferencesContentRef} className="flow-root">
+          <AppearancePicker disabled={signingOut || confirmingAvatarRemoval || avatarBusy || !isPresent} />
+          <NavigationOrderEditor
+            navigationOrder={navigationOrder}
+            onNavigationOrderChange={onNavigationOrderChange}
+          />
 
-        <AccountSignOutControls open={signOutOpen} busy={signingOut}
-          onRequest={onRequestSignOut} onCancel={onCancelSignOut} onConfirm={onConfirmSignOut} />
+          <AccountSignOutControls open={signOutOpen} busy={signingOut}
+            onRequest={onRequestSignOut} onCancel={onCancelSignOut} onConfirm={onConfirmSignOut} />
+        </div>
       </motion.div>
     </div>
   );

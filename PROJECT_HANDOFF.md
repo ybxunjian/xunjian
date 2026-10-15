@@ -1,6 +1,6 @@
 # 项目交接
 
-文档核对日期：2026-10-11。本文只提供接手入口；完整文档索引见 [README](./README.md#文档入口与职责)。
+文档核对日期：2026-10-15。本文只提供接手入口；完整文档索引见 [README](./README.md#文档入口与职责)。
 
 ## 接手顺序
 
@@ -30,6 +30,8 @@
 | 保存、选择、删除与撤销 | [use-inspection-history.ts](./src/features/inspection/hooks/use-inspection-history.ts) |
 | 导入、导出与恢复撤销 | [use-inspection-backup.ts](./src/features/inspection/hooks/use-inspection-backup.ts) |
 | 两层导航滑块与手势 | [segmented-navigation-controller.ts](./src/components/ui/segmented-navigation-controller.ts)、[segmented-navigation-motion.ts](./src/components/ui/segmented-navigation-motion.ts)；业务包装见 InspectionTabs / BeltTabs |
+| 详情与批量分裂动画 | [split-confirmation-button.tsx](./src/components/ui/split-confirmation-button.tsx)、[use-native-style-transition.ts](./src/components/ui/use-native-style-transition.ts)；参数与业务边界见 [公共分裂确认](./docs/ui-components.md#公共分裂确认) |
+| 改密展开与偏好区收起 | [use-account-height-animation.ts](./src/features/account/components/use-account-height-animation.ts)；交互见 [修改密码原位展开](./docs/ui-components.md#修改密码原位展开) |
 | 历史菜单、日历与详情 | `src/features/inspection/components/history/`、[use-calendar-pager.ts](./src/features/inspection/hooks/use-calendar-pager.ts) |
 | 账号设置与头像 | `src/features/account/` |
 | 登录、密码恢复与会话 | `src/features/auth/` |
@@ -39,7 +41,7 @@
 
 ## 接手时注意
 
-- 数据兼容读取、隐藏的泵状态字段、持久化队列、墓碑和 RPC 回退仍有运行时用途，不能作为“旧代码”直接删除。
+- 数据兼容读取、旧巡检字段保留、持久化队列、墓碑和 RPC 回退仍有运行时用途，不能作为“旧代码”直接删除；字段兼容规则见[数据与同步](./docs/data-and-sync.md#兼容读取)。
 - 修改导航、历史菜单或 presence 逻辑后，按 [验证要求](./docs/development.md#浏览器与真机回归)检查快速反向、拖动和菜单重入；不能沿用旧审计的根因结论。
 - 浏览器自动化不能证明 iPhone 微信工具栏伸缩、真实多设备同步和移动端手感已完成验收；检查范围见开发文档。
 - APK 包装、第二套 UI 系统及独立状态库不属于当前实现。

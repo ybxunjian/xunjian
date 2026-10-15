@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { motion, useIsPresent, useTransform } from "framer-motion";
+import { motion, useIsPresent } from "framer-motion";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { SplitConfirmationButton, useSplitConfirmationMotion } from "@/components/ui/split-confirmation-button";
+import { getSplitConfirmationTransition, SplitConfirmationButton } from "@/components/ui/split-confirmation-button";
+import { useNativeStyleTransition } from "@/components/ui/use-native-style-transition";
 
 export function BatchDeleteControls({
   selectedRecordIds, reduceMotion, onDelete,
@@ -24,9 +25,13 @@ export function BatchDeleteControls({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const lastFocusState = useRef({ open: false, selectionKey });
   const deleting = useRef(false);
-  const { progress } = useSplitConfirmationMotion(open, reduceMotion, isPresent);
+  const surfaceRef = useRef<HTMLSpanElement>(null);
+  const transition = getSplitConfirmationTransition(open, reduceMotion);
   // Keep the original trigger's entire 76px hit area and center for confirmation.
-  const leftOffset = useTransform(progress, [0, 1], [52, 84]);
+  const leftOffset = useNativeStyleTransition({ targetRef: cancelRef, property: "right",
+    initial: "52px", value: open ? "84px" : "52px", transition, active: isPresent });
+  const surfaceOpacity = useNativeStyleTransition({ targetRef: surfaceRef, property: "opacity",
+    initial: 0, value: open ? 1 : 0, transition, active: isPresent });
   const cancel = () => setConfirmation({ selectionKey, open: false });
 
   useEffect(() => {
@@ -72,8 +77,9 @@ export function BatchDeleteControls({
         style={{ right: leftOffset }}
         surface={(
           <motion.span
+            ref={surfaceRef}
             className="pointer-events-none absolute inset-0 rounded-full bg-neutral-control-surface"
-            style={{ opacity: progress }}
+            style={{ opacity: surfaceOpacity }}
             aria-hidden="true"
           />
         )}

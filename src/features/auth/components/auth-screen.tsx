@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { ArrowLeft, CircleCheck, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   getAuthErrorCode,
@@ -17,6 +18,7 @@ import {
   type AuthFieldErrors,
 } from "../model/auth-validation";
 import { CredentialHeading } from "./credential-heading";
+import { credentialPrimaryButtonClassName } from "./credential-form";
 import { useFieldFeedback } from "@/hooks/use-field-feedback";
 import { AuthForm } from "./auth-form";
 import type { AuthMode, AuthScreenProps } from "./auth-screen-types";
@@ -257,9 +259,8 @@ export function AuthScreen({
               >
                 <Button
                   type="button"
-                  variant="secondary"
                   onClick={() => changeMode("sign-in")}
-                  className="mt-5 w-full"
+                  className={cn(credentialPrimaryButtonClassName, "mt-5")}
                 >
                   返回登录
                 </Button>

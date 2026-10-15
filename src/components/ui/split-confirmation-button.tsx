@@ -64,6 +64,8 @@ type SplitConfirmationButtonProps = Omit<HTMLMotionProps<"button">, "children"> 
     openContentClassName?: string;
     closedContentOpacity?: MotionValue<number>;
     openContentOpacity?: MotionValue<number>;
+    closedContentRef?: RefObject<HTMLSpanElement | null>;
+    openContentRef?: RefObject<HTMLSpanElement | null>;
   };
 
 /** Stable layers crossfade by default; callers can supply progress-driven opacity. */
@@ -71,13 +73,14 @@ export const SplitConfirmationButton = forwardRef<HTMLButtonElement, SplitConfir
   function SplitConfirmationButton({
     open, reduceMotion, closedContent, openContent, openContentKey, surface,
     closedContentClassName = "", openContentClassName = "",
-    closedContentOpacity, openContentOpacity, ...props
+    closedContentOpacity, openContentOpacity, closedContentRef, openContentRef, ...props
   }, ref) {
     const { duration } = getSplitConfirmationTransition(open, reduceMotion);
     const textTransition = { duration, ease: "easeInOut" as const };
     const contentClassName = "pointer-events-none absolute inset-0 flex items-center justify-center gap-2 whitespace-nowrap";
     const openLayer = (
       <motion.span
+        ref={openContentRef}
         key={openContentKey}
         className={`${contentClassName} ${openContentClassName}`}
         initial={openContentKey ? { opacity: 0 } : false}
@@ -93,6 +96,7 @@ export const SplitConfirmationButton = forwardRef<HTMLButtonElement, SplitConfir
         {surface}
         {closedContent !== undefined && (
           <motion.span
+            ref={closedContentRef}
             className={`${contentClassName} ${closedContentClassName}`}
             initial={false}
             style={closedContentOpacity ? { opacity: closedContentOpacity } : undefined}

@@ -23,14 +23,31 @@ export function createSegmentedNavigationMotion(root: HTMLElement, thumb: HTMLEl
   let phase: "idle" | "chase" | "blending" | "follow" = "idle";
   let pointer: number | null = null, finger = 0, fingerVelocity = 0, lastMove = 0;
   let holdStarted = 0, blendStarted = 0, lastFrame = 0, raf: number | null = null;
-  let samples: { time: number; x: number }[] = [];
+  const samples: { time: number; x: number }[] = [];
   let suppressClick = false;
+  let renderedTransform: string | undefined, renderedPress: string | undefined, previewIndex = -1;
   function render() {
     const lean = direction * stretch * step() * .12;
-    thumb.style.transform = "translate3d(" + (visual + lean) + "px,0,0) scale(" + scale * (1 + stretch) + "," + scale * (1 - stretch * .22) + ")";
-    thumb.style.setProperty("--navigation-press", String(clamp((scale - 1) / .15, 0, 1)));
+    const transform = "translate3d(" + (visual + lean) + "px,0,0) scale(" + scale * (1 + stretch) + "," + scale * (1 - stretch * .22) + ")";
+    if (transform !== renderedTransform) {
+      thumb.style.transform = transform;
+      renderedTransform = transform;
+    }
+    const press = String(clamp((scale - 1) / .15, 0, 1));
+    if (press !== renderedPress) {
+      thumb.style.setProperty("--navigation-press", press);
+      renderedPress = press;
+    }
     const active = clamp(Math.round(visual / step()), 0, count - 1);
-    buttons.forEach((button, i) => button.setAttribute("data-preview-active", String(i === active)));
+    if (active !== previewIndex) {
+      if (previewIndex === -1) {
+        buttons.forEach((button, i) => button.setAttribute("data-preview-active", String(i === active)));
+      } else {
+        buttons[previewIndex]?.setAttribute("data-preview-active", "false");
+        buttons[active]?.setAttribute("data-preview-active", "true");
+      }
+      previewIndex = active;
+    }
   }
   function tick(now: number) {
     const dt = lastFrame ? Math.min((now - lastFrame) / 1000, .035) : 0;
@@ -109,7 +126,8 @@ export function createSegmentedNavigationMotion(root: HTMLElement, thumb: HTMLEl
     finger = fingerAt(local(e));
     fingerVelocity = 0;
     lastMove = performance.now();
-    samples = [{ time: lastMove, x: finger }];
+    samples.length = 0;
+    samples.push({ time: lastMove, x: finger });
     holdStarted = lastMove;
     scaleTarget = reduced ? 1 : 1.15;
     root.setPointerCapture(pointer);
@@ -122,7 +140,12 @@ export function createSegmentedNavigationMotion(root: HTMLElement, thumb: HTMLEl
     const now = performance.now();
     finger = fingerAt(local(e));
     samples.push({ time: now, x: finger });
-    samples = samples.filter((sample) => now - sample.time <= 90);
+    let expired = 0;
+    while (expired < samples.length && now - samples[expired].time > 90) expired++;
+    if (expired) {
+      samples.copyWithin(0, expired);
+      samples.length -= expired;
+    }
     const first = samples[0];
     if (first && now - first.time > 8) fingerVelocity = clamp((finger - first.x) * 1000 / (now - first.time), -1800, 1800);
     lastMove = now;

@@ -17,8 +17,6 @@
   --neutral-control-surface: #dce2eb;
   --secondary-action-surface: var(--muted);
   --secondary-action-foreground: var(--foreground);
-  --credential-cancel-surface: var(--card);
-  --credential-cancel-hover-surface: var(--muted);
   --history-entry-surface: var(--background);
   --history-entry-hover-surface: var(--muted);
   --detail-delete-entry-surface: var(--destructive-soft);
@@ -119,8 +117,6 @@
   --neutral-control-surface: #484850;
   --secondary-action-surface: var(--neutral-control-surface);
   --secondary-action-foreground: var(--foreground);
-  --credential-cancel-surface: var(--secondary-action-surface);
-  --credential-cancel-hover-surface: var(--credential-cancel-surface);
   --history-entry-surface: var(--neutral-control-surface);
   --history-entry-hover-surface: var(--history-entry-surface);
   --detail-delete-entry-surface: #633542;
@@ -184,8 +180,6 @@
   --color-neutral-control-surface: var(--neutral-control-surface);
   --color-secondary-action-surface: var(--secondary-action-surface);
   --color-secondary-action-foreground: var(--secondary-action-foreground);
-  --color-credential-cancel-surface: var(--credential-cancel-surface);
-  --color-credential-cancel-hover-surface: var(--credential-cancel-hover-surface);
   --color-history-entry-surface: var(--history-entry-surface);
   --color-history-entry-hover-surface: var(--history-entry-hover-surface);
   --color-detail-delete-entry-surface: var(--detail-delete-entry-surface);
@@ -462,7 +456,6 @@ select:focus {
 .pump-readings > label { padding: var(--space-control-y) var(--space-compact); text-align: center; }
 .pump-readings > label span { font-size: var(--font-size-label); line-height: 1.2; }
 .pump-readings > label input { font-size: var(--font-size-input); text-align: center; }
-.pump-status-row { display: none; }
 
 :root[data-theme="dark"] input::placeholder { color: var(--subtle-foreground); opacity: 1; }
 input { color: var(--input-foreground) !important; }

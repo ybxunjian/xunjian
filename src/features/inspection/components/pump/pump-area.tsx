@@ -5,7 +5,6 @@ import { fieldKey } from "../../model/field-rules";
 import type { InspectionValues, PumpAreaId } from "../../model/types";
 import { InspectionField } from "../inspection-field";
 import { SectionHeading } from "../section-heading";
-import { StatusToggle } from "../status-toggle";
 import { ChevronDown } from "lucide-react";
 
 type PumpAreaProps = {
@@ -80,23 +79,6 @@ export function PumpArea({
                       />
                     );
                   })}
-                </div>
-                <div className="pump-status-row mt-3 flex items-center border-t pt-3">
-                  <b className="text-sm">盘根引水槽</b>
-                  <span className="ml-auto mr-2 text-caption text-muted-foreground">
-                    默认正常
-                  </span>
-                  <StatusToggle
-                    value={
-                      values[fieldKey(area, group, String(index), "water")] || ""
-                    }
-                    onChange={(value) =>
-                      onValueChange(
-                        fieldKey(area, group, String(index), "water"),
-                        value,
-                      )
-                    }
-                  />
                 </div>
               </CardContent>
             </Card>

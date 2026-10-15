@@ -60,8 +60,9 @@
 - `HistoryView` 只负责历史子页面状态、菜单 Portal 和切页编排，用公共 `DirectionalViewTransition` 切换列表、详情、日历和备份；详情底部操作栏在切页 transform 容器外定位。`HistoryList` 负责列表、记录日期展示及批量操作栏，保存和删除仍交给历史 hook。
 - `HistoryQuickMenu` 通过 Portal 放入一级内容外的静态容器，菜单形态由最终页面状态驱动。`HistoryView` 在退出时移除菜单的实时子节点，由 AnimatePresence 保留唯一退场快照；快速重入重置历史子页面与菜单展开状态。
 - 公共 `SplitConfirmationButton` 统一内容层和动画基础。批量删除、详情删除、退出登录的几何布局、焦点策略和提交仍留在对应业务控件。
+- [useNativeStyleTransition](./src/components/ui/use-native-style-transition.ts) 管理详情与批量确认的原生样式动画、打断快照和回退，不持有业务状态；详情混色继续由公共分裂进度驱动，具体属性与时间线见 [公共 UI](./docs/ui-components.md#公共分裂确认)。
 - 详情删除的宽度、文字交接和颜色完成进度集中在 `detail-record-actions-motion.ts`；公共分裂参数仍由公共组件维护，业务专属参数不扩散到其他确认按钮。
-- 公共 `Sheet` 管理弹层栈、滚动锁定、焦点及退出禁用；账号内密码展开由 `AccountPasswordControls` 与 `AccountPasswordForm` 管理。
+- 公共 `Sheet` 管理弹层栈、滚动锁定、焦点及退出禁用；账号内密码展开由 `AccountPasswordControls` 与 `AccountPasswordForm` 管理。账号专属 [useAccountHeightAnimation](./src/features/account/components/use-account-height-animation.ts) 协调表单及偏好区的高度测量、原生动画和收起完成回调，不扩展到其他弹层。
 - 公共 `ConfirmationPopover` 管理气泡和自身 WAAPI 生命周期，头像请求由 `AccountDialog` 执行。WAAPI 是浏览器能力，不增加动画依赖。
 
 控件参数和调用约定见 [公共 UI 与交互](./docs/ui-components.md)，视觉原则见 [设计规范](./DESIGN.md)，修改和清理要求见 [治理约定](./GOVERNANCE.md)。

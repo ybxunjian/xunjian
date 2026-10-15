@@ -1,4 +1,4 @@
-// Matching calc templates let Motion interpolate every frame, including interruptions.
+// Matching calc templates retain responsive geometry through native animation interruptions.
 export const DETAIL_ACTION_WIDTHS = {
   closed: { left: "calc(100% + -56px)", right: "calc(0% + 48px)" },
   open: { left: "calc(50% + -4px)", right: "calc(50% + -4px)" },

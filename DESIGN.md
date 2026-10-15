@@ -20,7 +20,7 @@
 | 容器与辅助 | `card`、`surface-elevated`、`control-border`、`muted`、`muted-foreground`、`subtle-foreground`、`border` |
 | 内层表面 | `nested-surface` 用于账号改密输入框、ActionTile 图标底座、头像相机底座与汇总数值块，浅色复用 card，深色复用 surface-elevated；不改变普通卡片及登录输入框 |
 | 中性操作底色 | `neutral-control-surface`；详情与批量删除的取消按钮使用独立底色，避免与滚动经过的卡片融为一体 |
-| 次要操作与历史入口 | `secondary-action-surface` / `secondary-action-foreground` 用于退出登录与头像气泡取消，保存校验只使用底色，凭据取消用 `credential-cancel-surface` / `credential-cancel-hover-surface` 保留浅色白底并在深色复用次要操作底色；`history-entry-surface` / `history-entry-hover-surface` 用于详情入口，`detail-delete-entry-surface` 用于详情删除圆形入口 |
+| 次要操作与历史入口 | `secondary-action-surface` / `secondary-action-foreground` 用于退出登录与头像气泡取消，保存校验只使用底色，修改密码取消复用 Button 的 inverse 白底深字配色，悬停保持原底色；`history-entry-surface` / `history-entry-hover-surface` 用于详情入口，`detail-delete-entry-surface` 用于详情删除圆形入口 |
 | 局部文字与边界 | `belt-selection-foreground`、`history-selection-border`、`pending-foreground`，分别用于皮带选中文字、历史未选圆圈、待验证邮箱 |
 | 一级导航 | `navigation-track`、`navigation-selection`、`navigation-foreground`、`navigation-muted`、`navigation-border`；导航与外观选择器的选中块共用 `navigation-selection` |
 | 操作与状态 | `primary`、`primary-surface`、`secondary`、`success`、`warning`、`destructive`、`destructive-surface` 及各自前景/弱底色 |
@@ -66,6 +66,7 @@
 
 ## 状态反馈
 
+- 按钮按语义复用公共 variant，尺寸由场景维护；有独立确认动画或明确悬停覆盖的控件保留各自规则，不以全站 button 样式统一覆盖。当前复用与悬停边界见[公共 UI](./docs/ui-components.md#按钮悬停与复用)。
 - 加载反馈放在操作或内容原位，不阻塞已经可用的内容；使用现有图标/文字或有实际实现的加载占位。
 - 空状态用功能图标和简短说明，需要操作时提供明确入口。
 - 表单错误在对应字段或表单内展示，保留错误空间与恢复操作；短暂操作结果使用 Sonner 顶部提示。

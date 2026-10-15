@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, useIsPresent, useReducedMotion } from "framer-motion";
+import { useEffect, useLayoutEffect, useRef } from "react";
+import { AnimatePresence, motion, useIsPresent, usePresence, useReducedMotion } from "framer-motion";
 import { KeyRound } from "lucide-react";
 import { ActionTile } from "@/components/ui/action-tile";
 import type { AccountDialogProps } from "./account-dialog-types";
 import { AccountPasswordForm } from "./account-password-form";
-import { PASSWORD_EXPAND_DURATION, PASSWORD_COLLAPSE_DURATION, PASSWORD_EASING, PASSWORD_COLLAPSE_EASING } from "./account-password-motion";
+import { useAccountHeightAnimation } from "./use-account-height-animation";
 
 type PasswordControlsProps = Pick<AccountDialogProps, "onChangePassword"> & {
   open: boolean;
@@ -55,26 +55,17 @@ export function AccountPasswordControls(props: PasswordControlsProps) {
 }
 
 function PasswordExpansion(props: PasswordControlsProps) {
-  const isPresent = useIsPresent();
+  const [isPresent, safeToRemove] = usePresence();
   const reduceMotion = useReducedMotion();
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [height, setHeight] = useState(0);
-  useLayoutEffect(() => {
-    const content = contentRef.current;
-    if (!content) return;
-    const measure = () => setHeight(content.getBoundingClientRect().height);
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(content);
-    return () => observer.disconnect();
-  }, []);
+  const { containerRef, contentRef } = useAccountHeightAnimation({
+    open: isPresent,
+    initialOpen: false,
+    onCollapsed: () => safeToRemove?.(),
+  });
 
   return (
-    <motion.div id="account-password-form" role="region" aria-label="修改密码表单"
+    <div ref={containerRef} id="account-password-form" role="region" aria-label="修改密码表单"
       inert={!isPresent} aria-hidden={!isPresent}
-      initial={{ height: 0 }} animate={{ height }} exit={{ height: 0 }}
-      transition={{ duration: reduceMotion ? 0 : isPresent ? PASSWORD_EXPAND_DURATION : PASSWORD_COLLAPSE_DURATION,
-        ease: isPresent ? PASSWORD_EASING : PASSWORD_COLLAPSE_EASING }}
       className="overflow-hidden">
       <motion.div ref={contentRef}
         initial={{ opacity: 0 }} animate={{ opacity: 1 }}
@@ -84,6 +75,6 @@ function PasswordExpansion(props: PasswordControlsProps) {
         <AccountPasswordForm onChangePassword={props.onChangePassword}
           onBusyChange={props.onBusyChange} onClose={props.onClose} disabled={props.disabled} />
       </motion.div>
-    </motion.div>
+    </div>
   );
 }

@@ -1,6 +1,9 @@
 import type { FormEventHandler, ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { FormError } from "@/components/ui/form-error";
+import { cn } from "@/lib/utils";
+
+export const credentialPrimaryButtonClassName = "min-h-12 w-full rounded-full text-base";
 
 type CredentialFormProps = {
   children: ReactNode;
@@ -25,7 +28,7 @@ export function CredentialForm({
 }: CredentialFormProps) {
   const submitButton = (
     <Button type="submit"
-      className={onCancel ? "w-full rounded-full active:scale-[.99]" : "mt-[var(--space-credential-submit)] min-h-12 w-full rounded-full text-base"}
+      className={onCancel ? "w-full rounded-full active:scale-[.99]" : cn(credentialPrimaryButtonClassName, "mt-[var(--space-credential-submit)]")}
       disabled={disabled}>
       {submitting ? submittingLabel : submitLabel}
     </Button>
@@ -36,8 +39,8 @@ export function CredentialForm({
       <FormError>{error}</FormError>
       {onCancel ? (
         <div className="mt-[var(--space-credential-actions)] grid grid-cols-2 gap-2">
-          <Button type="button" variant="outline" disabled={disabled} onClick={onCancel}
-            className="w-full rounded-full border-0 bg-credential-cancel-surface shadow-none hover:bg-credential-cancel-hover-surface active:scale-[.99]">取消</Button>
+          <Button type="button" variant="inverse" disabled={disabled} onClick={onCancel}
+            className="w-full rounded-full hover:bg-inverse-surface active:scale-[.99]">取消</Button>
           {submitButton}
         </div>
       ) : submitButton}
