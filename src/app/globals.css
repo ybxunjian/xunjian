@@ -349,6 +349,19 @@ button:focus-visible {
   );
 }
 
+/* Browser chrome can reveal space below sticky's last composited position.
+ * Extend only painted background, so this cover cannot increase scroll height. */
+.history-selection-actions--stuck::after {
+  --history-bottom-cover: 96px;
+  position: absolute;
+  inset: 100% 0 auto;
+  height: 0;
+  content: "";
+  pointer-events: none;
+  box-shadow: 0 0 0 var(--history-bottom-cover) var(--background);
+  clip-path: inset(0 0 calc(-1 * var(--history-bottom-cover)));
+}
+
 .history-selection-backdrop {
   display: none;
   position: absolute;
