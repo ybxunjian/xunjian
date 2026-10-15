@@ -258,6 +258,7 @@ function HistoryList({
             <span />
             <span />
             <span />
+            <span />
           </div>
           <div className="pointer-events-auto relative z-10 flex min-h-14 items-center px-1">
             <span className="text-body font-semibold text-muted-foreground">

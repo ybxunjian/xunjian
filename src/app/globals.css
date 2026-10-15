@@ -396,8 +396,8 @@ select:focus {
     background: linear-gradient(
       to bottom,
       transparent,
-      color-mix(in srgb, var(--background) 20%, transparent) 40%,
-      color-mix(in srgb, var(--background) 75%, transparent)
+      color-mix(in srgb, var(--background) 6%, transparent) 40%,
+      color-mix(in srgb, var(--background) 24%, transparent)
     );
   }
 
@@ -412,17 +412,22 @@ select:focus {
 
   .history-selection-backdrop > span:nth-child(1) {
     --history-blur-radius: 2px;
-    --history-blur-mask: linear-gradient(to bottom, transparent, black 28%);
+    --history-blur-mask: linear-gradient(to bottom, transparent, black 25%);
   }
 
   .history-selection-backdrop > span:nth-child(2) {
-    --history-blur-radius: 6px;
-    --history-blur-mask: linear-gradient(to bottom, transparent 25%, black 60%);
+    --history-blur-radius: 4px;
+    --history-blur-mask: linear-gradient(to bottom, transparent 5%, black 40%);
   }
 
   .history-selection-backdrop > span:nth-child(3) {
-    --history-blur-radius: 12px;
-    --history-blur-mask: linear-gradient(to bottom, transparent 55%, black);
+    --history-blur-radius: 8px;
+    --history-blur-mask: linear-gradient(to bottom, transparent 15%, black 50%);
+  }
+
+  .history-selection-backdrop > span:nth-child(4) {
+    --history-blur-radius: 16px;
+    --history-blur-mask: linear-gradient(to bottom, transparent 25%, black 60%);
   }
 }
 
