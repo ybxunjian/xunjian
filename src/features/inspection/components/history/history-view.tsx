@@ -254,7 +254,12 @@ function HistoryList({
           className={`history-selection-actions pointer-events-none sticky bottom-0 z-10 -mx-page mt-2 px-page pb-[max(1rem,env(safe-area-inset-bottom))] ${isStuck ? "history-selection-actions--stuck" : ""}`}
           ref={selectionActionsRef}
         >
-          <div className="pointer-events-auto flex min-h-14 items-center px-1">
+          <div className="history-selection-backdrop" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </div>
+          <div className="pointer-events-auto relative z-10 flex min-h-14 items-center px-1">
             <span className="text-body font-semibold text-muted-foreground">
               已选择 <b className="text-primary">{selectedRecordIds.length}</b> 条
             </span>
