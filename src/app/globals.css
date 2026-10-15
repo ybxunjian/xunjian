@@ -17,6 +17,7 @@
   --neutral-control-surface: #dce2eb;
   --secondary-action-surface: var(--muted);
   --secondary-action-foreground: var(--foreground);
+  --credential-cancel-surface: var(--card);
   --history-entry-surface: var(--background);
   --history-entry-hover-surface: var(--muted);
   --detail-delete-entry-surface: var(--destructive-soft);
@@ -117,6 +118,7 @@
   --neutral-control-surface: #484850;
   --secondary-action-surface: var(--neutral-control-surface);
   --secondary-action-foreground: var(--foreground);
+  --credential-cancel-surface: var(--secondary-action-surface);
   --history-entry-surface: var(--neutral-control-surface);
   --history-entry-hover-surface: var(--history-entry-surface);
   --detail-delete-entry-surface: #633542;
@@ -180,6 +182,7 @@
   --color-neutral-control-surface: var(--neutral-control-surface);
   --color-secondary-action-surface: var(--secondary-action-surface);
   --color-secondary-action-foreground: var(--secondary-action-foreground);
+  --color-credential-cancel-surface: var(--credential-cancel-surface);
   --color-history-entry-surface: var(--history-entry-surface);
   --color-history-entry-hover-surface: var(--history-entry-hover-surface);
   --color-detail-delete-entry-surface: var(--detail-delete-entry-surface);

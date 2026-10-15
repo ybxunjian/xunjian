@@ -89,7 +89,7 @@ Sonner 的普通、成功、错误、警告和信息提示底色、文字及边�
 | 首页保存、登录、创建账号、发送重置邮件、保存新密码、重置邮件发送后的返回登录、账号保存密码、返回补充、备份恢复新记录 | Button 默认主操作：primary-surface 背景透明度由 100% 变为 90%，文字不变；各场景的高度、字号、圆角按上表维护 |
 | 首页新建 | Button inverse：白底变 inverse-hover，浅深色相同 |
 | 账号关闭、导航排序恢复默认、清空、日历翻月及有记录日期 | Button ghost：悬停底色为 muted；日期的今天底色仍由业务提供 |
-| 修改密码取消 | 复用 inverse 基础配色，覆盖悬停为原白底；尺寸和按压仍采用账号改密规则 |
+| 修改密码取消 | credential-cancel-surface / foreground：浅色白底深字、深色灰底浅字，悬停保持各自底色；尺寸和按压仍采用账号改密规则 |
 | 头像移除气泡的确认移除与取消 | 两项均覆盖悬停为各自原底色；尺寸及焦点见[头像移除气泡](#头像移除气泡) |
 | 历史列表详情圆形箭头 | 外层保持透明；内圆悬停使用 history-entry-hover-surface，主题差异见[入口、卡片与复选框](#入口卡片与复选框) |
 | 详情返回/取消、详情删除/确认、批量删除/确认及取消、退出登录入口及取消 | 悬停不额外变色，保留分裂动画；退出登录展开后的确认退出沿用 destructive 的 90% 背景透明度悬停 |
@@ -246,10 +246,10 @@ Portal 内的实时菜单仅在 `isPresent && !selectedRecord` 时渲染，退�
 | --- | --- | --- | --- |
 | 详情删除、批量删除取消 | `neutral-control-surface` / `foreground` | `#dce2eb` / `#0f172a` | `#484850` / `#f2f2f7` |
 | 退出登录、移除头像取消 | `secondary-action-surface` / `secondary-action-foreground` | `muted` / `foreground` | `neutral-control-surface` / `foreground` |
-| 修改密码取消 | 复用 Button 的 inverse 基础配色，单独保持悬停底色 | 白底 #ffffff / 深字 #0f172a；悬停保持白底 | 白底 #ffffff / 深字 #0f172a；悬停保持白底 |
+| 修改密码取消 | `credential-cancel-surface` / `foreground` | 白底 #ffffff / 深字 #0f172a；悬停保持白底 | 灰底 #484850 / 浅字 #f2f2f7；悬停保持灰底 |
 | 保存校验“仍然保存” | `secondary-action-surface` / `foreground` | `muted` / `foreground` | `neutral-control-surface` / `foreground` |
 
-详情与批量取消的底色独立于 `card` / `muted`，避免与滚动卡片融合。退出登录、头像气泡与保存校验的次要操作共用语义底色；修改密码取消复用 inverse，在浅深色下均为白底深字，悬停保持原底色，无边框、无阴影。
+详情与批量取消的底色独立于 `card` / `muted`，避免与滚动卡片融合。退出登录、头像气泡与保存校验的次要操作共用语义底色；修改密码取消浅色使用 card，深色复用 secondary-action-surface，文字使用 foreground；悬停保持各自底色，无边框、无阴影。
 
 ### 焦点与业务行为
 

@@ -39,8 +39,8 @@ export function CredentialForm({
       <FormError>{error}</FormError>
       {onCancel ? (
         <div className="mt-[var(--space-credential-actions)] grid grid-cols-2 gap-2">
-          <Button type="button" variant="inverse" disabled={disabled} onClick={onCancel}
-            className="w-full rounded-full hover:bg-inverse-surface active:scale-[.99]">取消</Button>
+          <Button type="button" variant="ghost" disabled={disabled} onClick={onCancel}
+            className="w-full rounded-full bg-credential-cancel-surface text-foreground hover:bg-credential-cancel-surface active:scale-[.99]">取消</Button>
           {submitButton}
         </div>
       ) : submitButton}
