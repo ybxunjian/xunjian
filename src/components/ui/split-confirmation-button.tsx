@@ -18,13 +18,12 @@ export function getSplitConfirmationTransition(open: boolean, reduceMotion: bool
 
 export function useSplitConfirmationMotion(open: boolean, reduceMotion: boolean, isPresent: boolean) {
   const progress = useMotionValue(0);
-  const transition = getSplitConfirmationTransition(open, reduceMotion);
   useEffect(() => {
     if (!isPresent) return;
     const controls = animate(progress, open ? 1 : 0, getSplitConfirmationTransition(open, reduceMotion));
     return () => controls.stop();
   }, [open, reduceMotion, isPresent, progress]);
-  return { progress, transition };
+  return { progress };
 }
 
 /** Resolve semantic tokens before mixing, so CSS variable strings cannot jump. */

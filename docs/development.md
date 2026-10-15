@@ -65,7 +65,7 @@ npm run check
 
 | 领域 | 测试入口 |
 | --- | --- |
-| 设备、字段和保存校验 | [field-rules](../tests/field-rules.test.mjs)、[inspection-validation](../tests/inspection-validation.test.mjs) |
+| 设备、字段和保存校验 | [field-rules](../tests/field-rules.test.mjs)、[inspection-draft-actions](../tests/inspection-draft-actions.test.mjs)、[inspection-validation](../tests/inspection-validation.test.mjs) |
 | 历史时间、筛选和日历目标 | [history-record-display](../tests/history-record-display.test.mjs)、[history-filter](../tests/history-filter.test.mjs)、[calendar-paging](../tests/calendar-paging.test.mjs) |
 | 存储、草稿、备份和同步 | [inspection-storage](../tests/inspection-storage.test.mjs)、[draft-version](../tests/draft-version.test.mjs)、[inspection-backup](../tests/inspection-backup.test.mjs)、[inspection-sync-queue](../tests/inspection-sync-queue.test.mjs)、[inspection-cloud-mapping](../tests/inspection-cloud-mapping.test.mjs) |
 | 偏好、头像和离线身份 | [user-preferences](../tests/user-preferences.test.mjs)、[avatar-recovery](../tests/avatar-recovery.test.mjs)、[offline-identity](../tests/offline-identity.test.mjs) |

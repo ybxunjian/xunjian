@@ -66,13 +66,6 @@ export function useInspectionHistory({
     setSelectedRecordIds([]);
   };
 
-  const resetAfterRecordsChanged = () => {
-    setHistoryDirection(-1);
-    setSelectedRecord(null);
-    setManageHistory(false);
-    setSelectedRecordIds([]);
-  };
-
   const selectRecord = (record: InspectionRecord) => {
     setHistoryDirection(1);
     setSelectedRecord(record);
@@ -153,7 +146,7 @@ export function useInspectionHistory({
     };
     const next = [record, ...recordsRef.current];
     commitRecords(next);
-    resetAfterRecordsChanged();
+    resetHistoryList();
     setSaveValidation(null);
     showHistory();
     if (userId) {
@@ -182,7 +175,6 @@ export function useInspectionHistory({
     actions: {
       setHistoryDirection,
       resetHistoryList,
-      resetAfterRecordsChanged,
       selectRecord,
       returnToHistoryList,
       toggleHistoryManagement,

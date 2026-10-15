@@ -14,7 +14,7 @@ type CachedAvatarUrl = {
   expiresAt: number;
 };
 
-export type CachedUserPreferences = UserPreferences & {
+type CachedUserPreferences = UserPreferences & {
   pending: boolean;
   pendingFields?: Array<"navigationOrder" | "avatarPath">;
 };
@@ -85,7 +85,6 @@ export function cachePreferencesAfterAvatarCommit(
   });
   return navigationPending;
 }
-
 
 export function loadCachedAvatarUrl(userId: string, path: string | null) {
   if (!path) return null;

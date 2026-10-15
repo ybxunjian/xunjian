@@ -1,21 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 import { createNextDraftUpdatedAt } from "../model/draft-reconciliation";
-import {
-  getBeltItemKeys,
-  getBeltItemTitle,
-  getPumpCardKeys,
-  selectPump,
-} from "../model/field-rules";
 import type {
   BeltId,
   InspectionDraft,
   InspectionRecord,
   InspectionTab,
   InspectionValues,
-  PumpAreaId,
   VersionedInspectionDraft,
 } from "../model/types";
 import {
@@ -32,6 +24,7 @@ import {
   pushInspectionDraft,
   syncInspectionAccount,
 } from "../sync/inspection-cloud-sync";
+import { useInspectionDraftActions } from "./use-inspection-draft-actions";
 import { useInspectionBackup } from "./use-inspection-backup";
 import { useInspectionHistory } from "./use-inspection-history";
 import { useInspectionSyncEvents } from "./use-inspection-sync-events";
@@ -128,7 +121,7 @@ export function useInspectionController(userId?: string) {
     setRecords,
     persistRecords,
     runCloudChange,
-    onRecordsChanged: history.actions.resetAfterRecordsChanged,
+    onRecordsChanged: history.actions.resetHistoryList,
   });
   const initializeBackupFromStorage = backup.actions.initializeFromStorage;
 
@@ -306,102 +299,13 @@ export function useInspectionController(userId?: string) {
     [userId],
   );
 
-  const updateValue = (fieldKey: string, value: string) => {
-    applyDraftChange((current) => ({
-      values: { ...current.values, [fieldKey]: value },
-      beltTab: current.beltTab,
-    }));
-  };
-
-  const clearKeys = (keys: string[]) => {
-    const previousValues: Array<{
-      key: string;
-      existed: boolean;
-      value: string;
-    }> = [];
-
-    applyDraftChange((current) => ({
-      values: Object.fromEntries(
-        Object.entries(current.values).concat(
-          keys.map((key) => {
-            previousValues.push({
-              key,
-              existed: Object.hasOwn(current.values, key),
-              value: current.values[key] ?? "",
-            });
-            return [key, ""];
-          }),
-        ),
-      ),
-      beltTab: current.beltTab,
-    }));
-
-    return () => {
-      applyDraftChange((current) => {
-        const restoredValues = { ...current.values };
-        previousValues.forEach(({ key, existed, value }) => {
-          if (existed) restoredValues[key] = value;
-          else delete restoredValues[key];
-        });
-        return { values: restoredValues, beltTab: current.beltTab };
-      });
-    };
-  };
-
-  const clearPump = (area: PumpAreaId, group: string, index: number) => {
-    const undoClear = clearKeys(getPumpCardKeys(area, group, index));
-    toast.success(`已清空${area === "slag8" ? "8#" : "9#"}${group}`, {
-      action: {
-        label: "撤销",
-        onClick: undoClear,
-      },
-    });
-  };
-
-  const choosePump = (
-    area: PumpAreaId,
-    group: string,
-    index: number,
-    pumpNo: string,
-  ) => {
-    applyDraftChange((current) => ({
-      values: selectPump(current.values, area, group, index, pumpNo),
-      beltTab: current.beltTab,
-    }));
-  };
-
-  const selectBeltTab = (nextBeltTab: BeltId) => {
-    applyDraftChange((current) => ({
-      values: current.values,
-      beltTab: nextBeltTab,
-    }));
-  };
-
-  const clearBeltItem = (
-    id: BeltId,
-    ends: readonly string[],
-    item: string,
-  ) => {
-    const undoClear = clearKeys(getBeltItemKeys(id, ends, item));
-    const itemTitle = getBeltItemTitle(id, item);
-    toast.success(`已清空${id} ${itemTitle}`, {
-      action: {
-        label: "撤销",
-        onClick: undoClear,
-      },
-    });
-  };
+  const draftActions = useInspectionDraftActions(applyDraftChange);
 
   const selectTab = (nextTab: InspectionTab) => {
     setTab(nextTab);
     if (nextTab === "history") {
       history.actions.resetHistoryList();
     }
-  };
-
-  const createNewInspection = () => {
-    applyDraftChange(() => ({ values: {}, beltTab: "SZ101" }));
-    toast("已新建空白记录");
   };
 
   return {
@@ -417,13 +321,8 @@ export function useInspectionController(userId?: string) {
       lastSyncedAt,
     },
     actions: {
-      updateValue,
-      clearPump,
-      choosePump,
-      clearBeltItem,
-      setBeltTab: selectBeltTab,
+      ...draftActions,
       selectTab,
-      createNewInspection,
       selectRecord: history.actions.selectRecord,
       setHistoryDirection: history.actions.setHistoryDirection,
       returnToHistoryList: history.actions.returnToHistoryList,

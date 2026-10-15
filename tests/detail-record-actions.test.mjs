@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { mix } from "framer-motion";
-import { DETAIL_ACTION_WIDTHS } from "../src/features/inspection/components/history/detail-record-actions.tsx";
+import { DETAIL_ACTION_WIDTHS } from "../src/features/inspection/components/history/detail-record-actions-motion.ts";
 
 function pixels(value, width) {
   const calc = value.match(/^calc\((-?[\d.]+)% \+ (-?[\d.]+)px\)$/);

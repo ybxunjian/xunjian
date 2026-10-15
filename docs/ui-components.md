@@ -192,6 +192,8 @@ Portal 内的实时菜单仅在 `isPresent && !selectedRecord` 时渲染，退�
 
 ## 公共分裂确认
 
+公共动画基础维护在 [SplitConfirmationButton](../src/components/ui/split-confirmation-button.tsx)；详情专属的宽度、文字交接和颜色完成进度维护在 [detail-record-actions-motion.ts](../src/features/inspection/components/history/detail-record-actions-motion.ts)。业务控件负责提交、焦点和取消行为。
+
 ### 公共实现与时间线
 
 `SplitConfirmationButton` 复用 Button。关闭/打开内容采用固定绝对居中层，默认交叉淡入淡出；调用方可通过 closedContentOpacity / openContentOpacity 提供自定义透明度，不测量、裁切或缩放文字。调用方提供当前 aria-label，视觉层 aria-hidden。

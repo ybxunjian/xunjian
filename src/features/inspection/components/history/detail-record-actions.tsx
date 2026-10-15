@@ -4,11 +4,12 @@ import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { SplitConfirmationButton, useSplitConfirmationColor, useSplitConfirmationMotion } from "@/components/ui/split-confirmation-button";
 
-// Matching calc templates let Motion interpolate every frame, including interruptions.
-export const DETAIL_ACTION_WIDTHS = {
-  closed: { left: "calc(100% + -56px)", right: "calc(0% + 48px)" },
-  open: { left: "calc(50% + -4px)", right: "calc(50% + -4px)" },
-};
+import {
+  DETAIL_ACTION_WIDTHS,
+  DETAIL_ACTION_TEXT_TRANSITIONS,
+  DETAIL_DELETE_COLOR_END,
+} from "./detail-record-actions-motion";
+
 const leftWidthAt = mix(DETAIL_ACTION_WIDTHS.closed.left, DETAIL_ACTION_WIDTHS.open.left);
 const rightWidthAt = mix(DETAIL_ACTION_WIDTHS.closed.right, DETAIL_ACTION_WIDTHS.open.right);
 
@@ -41,11 +42,11 @@ export function DetailRecordActions({
     }
     const outgoing = confirming ? returnOpacity : cancelOpacity;
     const incoming = confirming ? cancelOpacity : returnOpacity;
-    const fadeOut = animate(outgoing, 0, { duration: 0.07, ease: "easeInOut" });
-    const fadeIn = animate(incoming, 1, { delay: 0.08, duration: confirming ? 0.2 : 0.14, ease: "linear" });
+    const fadeOut = animate(outgoing, 0, DETAIL_ACTION_TEXT_TRANSITIONS.outgoing);
+    const fadeIn = animate(incoming, 1, DETAIL_ACTION_TEXT_TRANSITIONS[confirming ? "cancel" : "return"]);
     return () => { fadeOut.stop(); fadeIn.stop(); };
   }, [confirming, reduceMotion, isPresent, returnOpacity, cancelOpacity]);
-  const backgroundColor = useSplitConfirmationColor(expansion, "--detail-delete-entry-surface", "--destructive-surface", rightRef, "backgroundColor", 0.6);
+  const backgroundColor = useSplitConfirmationColor(expansion, "--detail-delete-entry-surface", "--destructive-surface", rightRef, "backgroundColor", DETAIL_DELETE_COLOR_END);
   const returnBackground = useSplitConfirmationColor(expansion, "--primary-surface", "--neutral-control-surface", leftRef);
   const returnColor = useSplitConfirmationColor(expansion, "--primary-foreground", "--foreground", leftRef, "color");
 

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { AnimatePresence, motion, useIsPresent } from "framer-motion";
 
-export type ViewTransitionDirection = 1 | -1;
+type ViewTransitionDirection = 1 | -1;
 
 export const VIEW_TRANSITION = {
   duration: 0.24,

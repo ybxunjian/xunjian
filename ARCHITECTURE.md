@@ -37,6 +37,7 @@
 | --- | --- |
 | 设备、字段及完整性校验 | `model/config.ts`、`field-rules.ts`、`validation.ts` |
 | 草稿冲突与版本递增 | `model/draft-reconciliation.ts`；控制器只编排使用 |
+| 字段编辑、选择、清空与撤销 | `hooks/use-inspection-draft-actions.ts` 组合字段规则和操作反馈；所有写入交回控制器的 `applyDraftChange`，统一版本递增、本地保存及上传调度 |
 | 同步并发 | `use-inspection-controller.ts` 持有修订号、互斥、补跑、防抖、退避和状态 |
 | 外部同步事件 | `use-inspection-sync-events.ts` 注册和清理 online、前台与 Realtime，回调进入控制器的同一同步入口 |
 | 保存和删除 | `use-inspection-history.ts` 处理本地提交、选择状态、云端操作和撤销 |
@@ -56,9 +57,10 @@
 
 - `InspectionTabs` 与 `BeltTabs` 保留各自布局、语义和选择回调，共用 `segmented-navigation-controller.ts` 的滑块与手势实现，以及 `segmented-navigation-motion.ts` 的弹簧参数；控制器不持有业务页面或存储状态。
 - `NightInspectionApp` 即时切换一级内容；退出内容立即 hidden / inert，保留 presence 生命周期供 Portal 菜单独立退场。
-- `HistoryView` 用公共 `DirectionalViewTransition` 切换列表、详情、日历和备份；详情底部操作栏在切页 transform 容器外定位。
+- `HistoryView` 只负责历史子页面状态、菜单 Portal 和切页编排，用公共 `DirectionalViewTransition` 切换列表、详情、日历和备份；详情底部操作栏在切页 transform 容器外定位。`HistoryList` 负责列表、记录日期展示及批量操作栏，保存和删除仍交给历史 hook。
 - `HistoryQuickMenu` 通过 Portal 放入一级内容外的静态容器，菜单形态由最终页面状态驱动。`HistoryView` 在退出时移除菜单的实时子节点，由 AnimatePresence 保留唯一退场快照；快速重入重置历史子页面与菜单展开状态。
 - 公共 `SplitConfirmationButton` 统一内容层和动画基础。批量删除、详情删除、退出登录的几何布局、焦点策略和提交仍留在对应业务控件。
+- 详情删除的宽度、文字交接和颜色完成进度集中在 `detail-record-actions-motion.ts`；公共分裂参数仍由公共组件维护，业务专属参数不扩散到其他确认按钮。
 - 公共 `Sheet` 管理弹层栈、滚动锁定、焦点及退出禁用；账号内密码展开由 `AccountPasswordControls` 与 `AccountPasswordForm` 管理。
 - 公共 `ConfirmationPopover` 管理气泡和自身 WAAPI 生命周期，头像请求由 `AccountDialog` 执行。WAAPI 是浏览器能力，不增加动画依赖。
 

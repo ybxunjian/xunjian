@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-export type FieldErrors<Field extends string> = Partial<Record<Field, string>>;
+type FieldErrors<Field extends string> = Partial<Record<Field, string>>;
 
 /** Each failed submission restarts animation only for invalid fields. */
 export function useFieldFeedback<Field extends string>() {
