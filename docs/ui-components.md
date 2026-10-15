@@ -142,7 +142,7 @@ Sonner 的普通、成功、错误、警告和信息提示底色、文字及边�
 
 批量操作栏在列表内 sticky，仅实际吸底时显示渐进模糊，短列表排在最后卡片后。装饰层从操作栏上方 32px 延伸到底部 Safe Area 留白，三层 backdrop-filter（2px / 6px / 12px）配合渐变遮罩，使模糊强度由上向下增加；底色消费 background，按钮与已选数量在清晰的前景层，装饰不拦截点击。仅支持 backdrop-filter 与 mask-image 时启用，包括 Safari 前缀；不支持时保留顶部 32px 底色渐隐。减少透明效果关闭模糊层并使用实色。模糊仅限这一局部区域，不为页面添加常驻 will-change 或滚动逐帧脚本。
 
-吸底状态另向操作栏下方绘制 96px 的 background 补底，覆盖浏览器底栏伸缩时短暂露出的区域。补底使用零高度伪元素、扩展阴影及 clip-path，只向下绘制，不增加布局或滚动高度，也不参与点击；原模糊区域与按钮定位保持独立。短列表未吸底时不绘制补底。
+吸底状态将同一组三层 backdrop-filter 向操作栏下方延伸 96px，覆盖浏览器底栏伸缩时短暂露出的区域；遮罩与底色渐变的原终点保持在操作栏底边，延伸段继续使用已到位的模糊和 75% background 混色，不接实色底板。`HistoryList` 的全宽边界使用 overflow: clip，将装饰限制在列表范围内，不创建滚动容器或增加滚动高度；按钮布局独立于装饰层。短列表未吸底时不显示装饰；减少透明效果或不支持滤镜/遮罩时使用实色绘制补底。
 
 ## Sheet 与页面切换
 
@@ -219,12 +219,13 @@ Portal 内的实时菜单仅在 `isPresent && !selectedRecord` 时渲染，退�
 
 | 使用位置 | 底色 / 文字令牌 | 浅色 | 深色 |
 | --- | --- | --- | --- |
-| 详情删除、批量删除取消 | `neutral-control-surface` / `foreground` | `#dce2eb` / `#0f172a` | `#484850` / `#f2f2f7` |
+| 详情删除取消 | `neutral-control-surface` / `foreground` | `#dce2eb` / `#0f172a` | `#484850` / `#f2f2f7` |
+| 批量删除取消 | `secondary-action-surface` / `foreground` | `muted` / `foreground` | `neutral-control-surface` / `foreground` |
 | 退出登录、移除头像取消 | `secondary-action-surface` / `secondary-action-foreground` | `muted` / `foreground` | `neutral-control-surface` / `foreground` |
 | 修改密码取消 | `credential-cancel-surface` / `foreground` | `card` / `foreground`；悬停 `muted` | `secondary-action-surface` / `foreground`；悬停同底色 |
 | 保存校验“仍然保存” | `secondary-action-surface` / `foreground` | `muted` / `foreground` | `neutral-control-surface` / `foreground` |
 
-详情与批量取消的底色独立于 `card` / `muted`，避免与滚动卡片融合。账号与保存校验的次要操作共用语义底色；修改密码保留浅色白底。
+详情取消的底色独立于 `card` / `muted`，避免与滚动卡片融合。批量取消、账号与保存校验的次要操作共用语义底色；修改密码保留浅色白底，取消按钮无边框、无阴影。
 
 ### 焦点与业务行为
 
@@ -232,7 +233,7 @@ Portal 内的实时菜单仅在 `isPresent && !selectedRecord` 时渲染，退�
 
 - 退出登录：初始由完整覆盖按钮承接点击，展开后隐藏入口，两侧独立操作。外部轻点抬起取消，移动超过 8px、滚动或取消手势保持展开。请求时禁用，右侧“正在退出…”通过 openContentKey 交叉切换，失败保留确认供重试。
 - 详情：左侧蓝色返回渐变为中性底色取消；左侧文字独立于几何进度：每次切换先用 70ms easeInOut 淡出旧文字，80ms 后开始 linear 渐入新文字；展开时取消渐入 200ms，合回时返回文字渐入 140ms。两段文字互不重叠，完成时间与公共几何时间线一致。中途反向停止旧动画及等待，从当前透明度接续；退场停止自身文字动画，减少动态效果立即切换。右侧底色在几何进度 0–60% 从 detail-delete-entry-surface 加深为 destructive-surface，居中垃圾桶淡出，白色“确认删除”淡入，无图标占位。每条记录独立挂载，离开不保留确认。
-- 批量：160px 容器预留左侧空间，不推已选数量；右侧原有完整点击区域和中心全程不变。取消右偏移 52→84px，从右侧按钮下方移出；背景固定 neutral-control-surface，仅淡入淡出，文字不与背景叠乘透明度。零选择禁用；包括同数量替换在内的改选立即合回，不抢记录焦点，取消保留勾选。
+- 批量：160px 容器预留左侧空间，不推已选数量；右侧原有完整点击区域和中心全程不变。取消右偏移 52→84px，从右侧按钮下方移出；背景固定 secondary-action-surface，仅淡入淡出，文字不与背景叠乘透明度。零选择禁用；包括同数量替换在内的改选立即合回，不抢记录焦点，取消保留勾选。
 
 ## 导航顺序长按排序
 

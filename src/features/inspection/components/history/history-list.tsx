@@ -31,7 +31,7 @@ export function HistoryList({
   );
 
   return (
-    <>
+    <div className="history-list -mx-page px-page">
       <SectionHeading title="历史记录" />
       {records.length ? (
         records.map((record) => (
@@ -111,7 +111,7 @@ export function HistoryList({
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
 

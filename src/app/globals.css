@@ -325,7 +325,13 @@ button:focus-visible {
   .history-record-info { grid-template-columns: 76px 1px minmax(0, 1fr); column-gap: 10px; }
 }
 
+.history-list {
+  /* Bound the extended backdrop at the list end without a scroll container. */
+  overflow: clip;
+}
+
 .history-selection-actions {
+  --history-bottom-extension: 96px;
   background: transparent;
 }
 
@@ -349,23 +355,22 @@ button:focus-visible {
   );
 }
 
-/* Browser chrome can reveal space below sticky's last composited position.
- * Extend only painted background, so this cover cannot increase scroll height. */
+/* Opaque fallback for unavailable filters or reduced transparency. */
 .history-selection-actions--stuck::after {
-  --history-bottom-cover: 96px;
   position: absolute;
   inset: 100% 0 auto;
   height: 0;
   content: "";
   pointer-events: none;
-  box-shadow: 0 0 0 var(--history-bottom-cover) var(--background);
-  clip-path: inset(0 0 calc(-1 * var(--history-bottom-cover)));
+  box-shadow: 0 0 0 var(--history-bottom-extension) var(--background);
+  clip-path: inset(0 0 calc(-1 * var(--history-bottom-extension)));
 }
 
 .history-selection-backdrop {
+  --history-blur-base-height: calc(100% - var(--history-bottom-extension));
   display: none;
   position: absolute;
-  inset: -2rem 0 0;
+  inset: -2rem 0 calc(-1 * var(--history-bottom-extension));
   pointer-events: none;
 }
 
@@ -376,7 +381,8 @@ button:focus-visible {
     background: transparent;
   }
 
-  .history-selection-actions--stuck::before {
+  .history-selection-actions--stuck::before,
+  .history-selection-actions--stuck::after {
     display: none;
   }
 
@@ -385,8 +391,8 @@ button:focus-visible {
     background: linear-gradient(
       to bottom,
       transparent,
-      color-mix(in srgb, var(--background) 20%, transparent) 40%,
-      color-mix(in srgb, var(--background) 75%, transparent)
+      color-mix(in srgb, var(--background) 20%, transparent) calc(var(--history-blur-base-height) * 0.4),
+      color-mix(in srgb, var(--background) 75%, transparent) var(--history-blur-base-height)
     );
   }
 
@@ -401,17 +407,17 @@ button:focus-visible {
 
   .history-selection-backdrop > span:nth-child(1) {
     --history-blur-radius: 2px;
-    --history-blur-mask: linear-gradient(to bottom, transparent, black 28%);
+    --history-blur-mask: linear-gradient(to bottom, transparent, black calc(var(--history-blur-base-height) * 0.28));
   }
 
   .history-selection-backdrop > span:nth-child(2) {
     --history-blur-radius: 6px;
-    --history-blur-mask: linear-gradient(to bottom, transparent 25%, black 60%);
+    --history-blur-mask: linear-gradient(to bottom, transparent calc(var(--history-blur-base-height) * 0.25), black calc(var(--history-blur-base-height) * 0.6));
   }
 
   .history-selection-backdrop > span:nth-child(3) {
     --history-blur-radius: 12px;
-    --history-blur-mask: linear-gradient(to bottom, transparent 55%, black);
+    --history-blur-mask: linear-gradient(to bottom, transparent calc(var(--history-blur-base-height) * 0.55), black var(--history-blur-base-height));
   }
 }
 
@@ -423,6 +429,10 @@ button:focus-visible {
   .history-selection-actions--stuck::before {
     display: block;
     background: var(--background);
+  }
+
+  .history-selection-actions--stuck::after {
+    display: block;
   }
 
   .history-selection-actions--stuck .history-selection-backdrop {
