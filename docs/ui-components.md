@@ -219,13 +219,12 @@ Portal 内的实时菜单仅在 `isPresent && !selectedRecord` 时渲染，退�
 
 | 使用位置 | 底色 / 文字令牌 | 浅色 | 深色 |
 | --- | --- | --- | --- |
-| 详情删除取消 | `neutral-control-surface` / `foreground` | `#dce2eb` / `#0f172a` | `#484850` / `#f2f2f7` |
-| 批量删除取消 | `secondary-action-surface` / `foreground` | `muted` / `foreground` | `neutral-control-surface` / `foreground` |
+| 详情删除、批量删除取消 | `neutral-control-surface` / `foreground` | `#dce2eb` / `#0f172a` | `#484850` / `#f2f2f7` |
 | 退出登录、移除头像取消 | `secondary-action-surface` / `secondary-action-foreground` | `muted` / `foreground` | `neutral-control-surface` / `foreground` |
 | 修改密码取消 | `credential-cancel-surface` / `foreground` | `card` / `foreground`；悬停 `muted` | `secondary-action-surface` / `foreground`；悬停同底色 |
 | 保存校验“仍然保存” | `secondary-action-surface` / `foreground` | `muted` / `foreground` | `neutral-control-surface` / `foreground` |
 
-详情取消的底色独立于 `card` / `muted`，避免与滚动卡片融合。批量取消、账号与保存校验的次要操作共用语义底色；修改密码保留浅色白底，取消按钮无边框、无阴影。
+详情与批量取消的底色独立于 `card` / `muted`，避免与滚动卡片融合。账号与保存校验的次要操作共用语义底色；修改密码保留浅色白底，取消按钮无边框、无阴影。
 
 ### 焦点与业务行为
 
@@ -233,7 +232,7 @@ Portal 内的实时菜单仅在 `isPresent && !selectedRecord` 时渲染，退�
 
 - 退出登录：初始由完整覆盖按钮承接点击，展开后隐藏入口，两侧独立操作。外部轻点抬起取消，移动超过 8px、滚动或取消手势保持展开。请求时禁用，右侧“正在退出…”通过 openContentKey 交叉切换，失败保留确认供重试。
 - 详情：左侧蓝色返回渐变为中性底色取消；左侧文字独立于几何进度：每次切换先用 70ms easeInOut 淡出旧文字，80ms 后开始 linear 渐入新文字；展开时取消渐入 200ms，合回时返回文字渐入 140ms。两段文字互不重叠，完成时间与公共几何时间线一致。中途反向停止旧动画及等待，从当前透明度接续；退场停止自身文字动画，减少动态效果立即切换。右侧底色在几何进度 0–60% 从 detail-delete-entry-surface 加深为 destructive-surface，居中垃圾桶淡出，白色“确认删除”淡入，无图标占位。每条记录独立挂载，离开不保留确认。
-- 批量：160px 容器预留左侧空间，不推已选数量；右侧原有完整点击区域和中心全程不变。取消右偏移 52→84px，从右侧按钮下方移出；背景固定 secondary-action-surface，仅淡入淡出，文字不与背景叠乘透明度。零选择禁用；包括同数量替换在内的改选立即合回，不抢记录焦点，取消保留勾选。
+- 批量：160px 容器预留左侧空间，不推已选数量；右侧原有完整点击区域和中心全程不变。取消右偏移 52→84px，从右侧按钮下方移出；背景固定 neutral-control-surface，仅淡入淡出，文字不与背景叠乘透明度。零选择禁用；包括同数量替换在内的改选立即合回，不抢记录焦点，取消保留勾选。
 
 ## 导航顺序长按排序
 
