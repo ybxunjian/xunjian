@@ -455,7 +455,6 @@ select:focus {
 }
 
 /* 冲渣泵的四个数值点位横向并列；皮带区域仍维持两列。 */
-.pump-readings { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; gap: var(--space-compact); }
 .pump-readings > label { padding: var(--space-control-y) var(--space-compact); text-align: center; }
 .pump-readings > label span { font-size: var(--font-size-label); line-height: 1.2; }
 .pump-readings > label input { font-size: var(--font-size-input); text-align: center; }

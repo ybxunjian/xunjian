@@ -59,6 +59,8 @@ npm run check
 
 `check` 顺序为 lint → `next typegen` 与 `tsc --noEmit` → tests → production build → Service Worker 生成。单独排查可运行 package.json 的 `lint`、`typecheck`、`test`、`build`；构建前保持 Pages basePath。任一步失败都不能算门禁通过。
 
+TypeScript 启用 `noUnusedLocals` 和 `noUnusedParameters`，在类型检查阶段阻止遗留未使用的局部变量、导入和参数；导出项、动态引用、样式与兼容逻辑仍须按治理约定核对消费者后再清理。
+
 ### 自动化测试
 
 测试数量以当次完整运行输出为准，不沿用旧发布数字。`npm test` 自动发现 `tests/*.test.mjs`；`tests/helpers/` 提供测试辅助代码，不进入运行时。当前入口如下：

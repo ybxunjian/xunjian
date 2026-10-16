@@ -1,10 +1,10 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState } from "react";
-import { useReducedMotion } from "framer-motion";
-import { createSegmentedNavigationMotion } from "@/components/ui/segmented-navigation-controller";
+import { useSegmentedNavigation } from "@/components/ui/use-segmented-navigation";
 import { BELTS } from "../../model/config";
 import type { BeltId } from "../../model/types";
+
+const BELT_IDS = BELTS.map(({ id }) => id);
 
 type BeltTabsProps = {
   value: BeltId;
@@ -13,41 +13,9 @@ type BeltTabsProps = {
 
 /** Belt-specific appearance and state; motion is shared with primary navigation. */
 export function BeltTabs({ value, onChange }: BeltTabsProps) {
-  const root = useRef<HTMLDivElement>(null);
-  const thumb = useRef<HTMLSpanElement>(null);
-  const controller = useRef<ReturnType<typeof createSegmentedNavigationMotion> | null>(null);
-  const latest = useRef({ value, onChange });
-  const reduced = useReducedMotion();
-  const selectedIndex = Math.max(0, BELTS.findIndex(({ id }) => id === value));
-  const [initialIndex] = useState(selectedIndex);
-
-  useLayoutEffect(() => {
-    latest.current = { value, onChange };
+  const { root, thumb, initialIndex } = useSegmentedNavigation<BeltId, HTMLDivElement>({
+    items: BELT_IDS, value, onChange,
   });
-
-  useLayoutEffect(() => {
-    if (!root.current || !thumb.current) return;
-    const instance = createSegmentedNavigationMotion(
-      root.current,
-      thumb.current,
-      BELTS.length,
-      Math.max(0, BELTS.findIndex(({ id }) => id === latest.current.value)),
-      Boolean(reduced),
-      (index) => {
-        const belt = BELTS[index]?.id;
-        if (belt && belt !== latest.current.value) latest.current.onChange(belt);
-      },
-    );
-    controller.current = instance;
-    return () => {
-      instance.destroy();
-      controller.current = null;
-    };
-  }, [reduced]);
-
-  useLayoutEffect(() => {
-    controller.current?.setIndex(selectedIndex);
-  }, [selectedIndex]);
 
   return (
     <div

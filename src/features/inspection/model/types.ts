@@ -1,5 +1,7 @@
 export type InspectionTab = "slag8" | "belt" | "slag9" | "history";
 
+export type InspectionSyncStatus = "local" | "syncing" | "synced" | "offline" | "error";
+
 export type PumpAreaId = "slag8" | "slag9";
 
 export type BeltId = "SZ101" | "SZ201" | "SZ201-N";

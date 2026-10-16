@@ -24,7 +24,7 @@
 
 | 任务 | 首先查看 |
 | --- | --- |
-| 路由与应用接线 | [page.tsx](./src/app/page.tsx)、[night-inspection-app.tsx](./src/features/inspection/components/night-inspection-app.tsx) |
+| 路由、认证分流与应用接线 | [page.tsx](./src/app/page.tsx)、[night-inspection-app.tsx](./src/features/inspection/components/night-inspection-app.tsx)、[inspection-app-content.tsx](./src/features/inspection/components/inspection-app-content.tsx)；页头展示见 [inspection-header.tsx](./src/features/inspection/components/inspection-header.tsx) |
 | 设备与校验 | `src/features/inspection/model/` |
 | 草稿、并发和同步状态 | [use-inspection-controller.ts](./src/features/inspection/hooks/use-inspection-controller.ts) |
 | 保存、选择、删除与撤销 | [use-inspection-history.ts](./src/features/inspection/hooks/use-inspection-history.ts) |

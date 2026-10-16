@@ -66,7 +66,7 @@ export function PumpArea({
                   </div>
                   <ClearButton onClick={() => onClearPump(area, group, index)} />
                 </div>
-                <div className="pump-readings mt-2 grid grid-cols-2 gap-2">
+                <div className="pump-readings mt-2 grid grid-cols-4 gap-compact">
                   {PUMP_READING_FIELDS.map(([label, field]) => {
                     const key = fieldKey(area, group, String(index), field);
                     return (

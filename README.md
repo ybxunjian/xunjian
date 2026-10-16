@@ -53,6 +53,6 @@ Supabase 环境变量、数据库初始化、质量门禁与 GitHub Pages 发布
 
 ## 运行入口
 
-[src/app/page.tsx](./src/app/page.tsx) 保持路由入口；客户端应用由 [NightInspectionApp](./src/features/inspection/components/night-inspection-app.tsx) 组合巡检、认证和账号功能。
+[src/app/page.tsx](./src/app/page.tsx) 保持路由入口；[NightInspectionApp](./src/features/inspection/components/night-inspection-app.tsx) 负责认证分流，[InspectionAppContent](./src/features/inspection/components/inspection-app-content.tsx) 组合巡检与账号功能，[InspectionHeader](./src/features/inspection/components/inspection-header.tsx) 展示页头状态和操作。
 
 业务代码在 `src/features/`，通用控件在 `src/components/ui/`，设计令牌在 `src/app/globals.css`。更完整的职责划分见 [架构](./ARCHITECTURE.md)。测试入口与验收边界见 [开发与发布](./docs/development.md#验证)，历史实施过程由 Git / Actions 保存，不作为现行规范重复维护。

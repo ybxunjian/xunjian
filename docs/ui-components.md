@@ -109,6 +109,8 @@ Sonner 的普通、成功、错误、警告和信息提示底色、文字及边�
 
 两层导航共用 [segmented-navigation-controller.ts](../src/components/ui/segmented-navigation-controller.ts)，分别维护常驻滑块与独立手势状态。坐标相对各自轨道，项间距通过按钮实际坐标测量，兼容主导航四项与皮带子导航三项及其 4px 间隙。文字高亮跟随滑块最近项，业务选择在点击或松手确认后提交。
 
+[useSegmentedNavigation](../src/components/ui/use-segmented-navigation.ts) 统一 React 与控制器的接线：保存首次位置、读取最新选择回调、同步外部选择，并在项目顺序或减少动态效果变化时销毁并重建控制器。两个业务组件只传入项目 ID、当前值和回调，分别维护原有 DOM、样式和无障碍语义。
+
 渲染跳过值完全相同的 transform 与按压透明度写入；高亮属性首次完整初始化，之后仅在最近项改变时更新旧项和新项。90ms 速度采样数组原位清除过期前缀，不逐次分配筛选数组；采样边界、运动计算、帧调度及坐标测量时机保持一致。
 
 | 参数 | 当前值 |
@@ -177,7 +179,7 @@ Sonner 的普通、成功、错误、警告和信息提示底色、文字及边�
 
 ### 一级页面
 
-一级板块在 `NightInspectionApp` 原位即时切换，页面内容不等待退场，也不播放平移或淡入；保存后进入历史采用同一规则。内容使用 mode="sync" 的 AnimatePresence 按板块 key 切换，退出内容立即 hidden / inert；仅为 Portal 菜单保留退场生命周期，不延迟新内容显示。历史菜单位于内容容器外的静态容器。
+一级板块在 `InspectionAppContent` 原位即时切换，页面内容不等待退场，也不播放平移或淡入；保存后进入历史采用同一规则。内容使用 mode="sync" 的 AnimatePresence 按板块 key 切换，退出内容立即 hidden / inert；仅为 Portal 菜单保留退场生命周期，不延迟新内容显示。历史菜单位于内容容器外的静态容器。
 
 ### 历史子页面
 

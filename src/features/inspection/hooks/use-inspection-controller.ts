@@ -6,6 +6,7 @@ import type {
   BeltId,
   InspectionDraft,
   InspectionRecord,
+  InspectionSyncStatus,
   InspectionTab,
   InspectionValues,
   VersionedInspectionDraft,
@@ -28,13 +29,6 @@ import { useInspectionDraftActions } from "./use-inspection-draft-actions";
 import { useInspectionBackup } from "./use-inspection-backup";
 import { useInspectionHistory } from "./use-inspection-history";
 import { useInspectionSyncEvents } from "./use-inspection-sync-events";
-
-export type InspectionSyncStatus =
-  | "local"
-  | "syncing"
-  | "synced"
-  | "offline"
-  | "error";
 
 type PendingDraftUpload = {
   draft: VersionedInspectionDraft;

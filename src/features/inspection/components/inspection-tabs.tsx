@@ -1,8 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState } from "react";
-import { useReducedMotion } from "framer-motion";
-import { createSegmentedNavigationMotion } from "@/components/ui/segmented-navigation-controller";
+import { useSegmentedNavigation } from "@/components/ui/use-segmented-navigation";
 import { INSPECTION_TABS } from "../model/config";
 import type { InspectionTab } from "../model/types";
 
@@ -11,31 +9,9 @@ type InspectionTabsProps = { order: InspectionTab[]; value: InspectionTab; onCha
 
 /** Four-page navigation with a persistent, independently animated thumb. */
 export function InspectionTabs({ order, value, onChange }: InspectionTabsProps) {
-  const root = useRef<HTMLElement>(null);
-  const thumb = useRef<HTMLSpanElement>(null);
-  const controller = useRef<ReturnType<typeof createSegmentedNavigationMotion> | null>(null);
-  const latest = useRef({ order, value, onChange });
-  const reduced = useReducedMotion();
-  const orderKey = order.join(",");
-  const selectedIndex = Math.max(0, order.indexOf(value));
-  const [initialIndex] = useState(selectedIndex);
-
-  useLayoutEffect(() => { latest.current = { order, value, onChange }; });
-  useLayoutEffect(() => {
-    if (!root.current || !thumb.current) return;
-    const current = latest.current;
-    const instance = createSegmentedNavigationMotion(
-      root.current, thumb.current, current.order.length,
-      Math.max(0, current.order.indexOf(current.value)), Boolean(reduced),
-      (index) => {
-        const tab = latest.current.order[index];
-        if (tab && tab !== latest.current.value) latest.current.onChange(tab);
-      },
-    );
-    controller.current = instance;
-    return () => { instance.destroy(); controller.current = null; };
-  }, [orderKey, reduced]);
-  useLayoutEffect(() => { controller.current?.setIndex(selectedIndex); }, [selectedIndex]);
+  const { root, thumb, initialIndex } = useSegmentedNavigation<InspectionTab, HTMLElement>({
+    items: order, value, onChange,
+  });
 
   return (
     <nav ref={root} aria-label="巡检页面"

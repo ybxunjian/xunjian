@@ -25,7 +25,7 @@
 
 ## 依赖规则
 
-- `src/app/page.tsx` 保持 Server Component，交给客户端 `NightInspectionApp` 组合 inspection、auth 和 account 的公开入口。
+- `src/app/page.tsx` 保持 Server Component，交给客户端 `NightInspectionApp` 判断认证状态；`InspectionAppContent` 组合巡检流程和账号偏好，并按账号 ID 隔离挂载生命周期。
 - 业务组件调用自己的 hook 和 model；纯 `model` 不依赖 React、DOM、动画或 localStorage。
 - 巡检 localStorage 键由 `inspection-storage.ts` 管理；历史队列、认证身份、账号偏好由各自专属模块管理，不把所有浏览器存储混入一个文件。
 - `components/ui` 可以被各 feature 使用，不能反向引用业务模块。业务内部直接引用具体文件，对外使用各 feature 的 `index.ts`。
@@ -55,8 +55,9 @@
 
 ## UI 组合
 
-- `InspectionTabs` 与 `BeltTabs` 保留各自布局、语义和选择回调，共用 `segmented-navigation-controller.ts` 的滑块与手势实现，以及 `segmented-navigation-motion.ts` 的弹簧参数；控制器不持有业务页面或存储状态。
-- `NightInspectionApp` 即时切换一级内容；退出内容立即 hidden / inert，保留 presence 生命周期供 Portal 菜单独立退场。
+- `NightInspectionApp` 只负责认证加载、登录/恢复分流与账号隔离；`InspectionAppContent` 负责巡检控制器、偏好、页面选择和弹层编排。`InspectionHeader` 只展示头像入口、同步状态和操作按钮，通过回调交回编排层，不读写存储或执行同步。
+- `InspectionTabs` 与 `BeltTabs` 保留各自布局、语义和选择回调；公共 `use-segmented-navigation.ts` 管理 React 引用、最新回调、排序/减少动态效果变化时的重建及卸载清理，`segmented-navigation-controller.ts` 负责滑块与手势，`segmented-navigation-motion.ts` 维护弹簧参数；公共层不持有业务页面或存储状态。
+- `InspectionAppContent` 即时切换一级内容；退出内容立即 hidden / inert，保留 presence 生命周期供 Portal 菜单独立退场。
 - `HistoryView` 只负责历史子页面状态、菜单 Portal 和切页编排，用公共 `DirectionalViewTransition` 切换列表、详情、日历和备份；详情底部操作栏在切页 transform 容器外定位。`HistoryList` 负责列表、记录日期展示及批量操作栏，保存和删除仍交给历史 hook。
 - `HistoryQuickMenu` 通过 Portal 放入一级内容外的静态容器，菜单形态由最终页面状态驱动。`HistoryView` 在退出时移除菜单的实时子节点，由 AnimatePresence 保留唯一退场快照；快速重入重置历史子页面与菜单展开状态。
 - 公共 `SplitConfirmationButton` 统一内容层和动画基础。批量删除、详情删除、退出登录的几何布局、焦点策略和提交仍留在对应业务控件。
