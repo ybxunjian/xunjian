@@ -123,7 +123,16 @@ export function HistoryQuickMenu({
             // same translate-then-scale order and endpoints as the original x/scale.
             initial={{ opacity: 0, transform: reduceMotion ? "translateX(0px) scale(1)" : "translateX(24px) scale(0.86)" }}
             animate={{ opacity: 1, transform: "translateX(0px) scale(1)" }}
-            exit={{ opacity: 0, transform: reduceMotion ? "translateX(0px) scale(1)" : "translateX(24px) scale(0.86)" }}
+            exit={{
+              opacity: 0,
+              transform: reduceMotion ? "translateX(0px) scale(1)" : "translateX(24px) scale(0.86)",
+              // Fade evenly without the long, faint tail of the movement curve.
+              transition: reduceMotion ? { duration: 0 } : {
+                duration: 0.24,
+                ease: [0.22, 1, 0.36, 1],
+                opacity: { duration: 0.18, ease: "linear" },
+              },
+            }}
             transition={reduceMotion ? { duration: 0 } : { duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
           >
             {[
