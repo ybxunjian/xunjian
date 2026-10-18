@@ -119,21 +119,19 @@ export function HistoryQuickMenu({
             role="group"
             aria-label="历史记录管理"
             className="absolute right-full mr-1 flex items-center gap-1 sm:gap-2"
-            // A complete transform uses Motion's native animation path. Keep the
-            // same translate-then-scale order and endpoints as the original x/scale.
-            initial={{ opacity: 0, transform: reduceMotion ? "translateX(0px) scale(1)" : "translateX(24px) scale(0.86)" }}
-            animate={{ opacity: 1, transform: "translateX(0px) scale(1)" }}
+            // Keep icon size and spacing fixed while the group moves and fades
+            // on one timeline. A complete transform retains the native path.
+            initial={{ opacity: 0, transform: reduceMotion ? "translateX(0px)" : "translateX(8px)" }}
+            animate={{ opacity: 1, transform: "translateX(0px)" }}
             exit={{
               opacity: 0,
-              transform: reduceMotion ? "translateX(0px) scale(1)" : "translateX(24px) scale(0.86)",
-              // Fade evenly without the long, faint tail of the movement curve.
+              transform: reduceMotion ? "translateX(0px)" : "translateX(8px)",
               transition: reduceMotion ? { duration: 0 } : {
-                duration: 0.24,
-                ease: [0.22, 1, 0.36, 1],
-                opacity: { duration: 0.18, ease: "linear" },
+                duration: 0.18,
+                ease: [0.4, 0, 1, 1],
               },
             }}
-            transition={reduceMotion ? { duration: 0 } : { duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+            transition={reduceMotion ? { duration: 0 } : { duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
           >
             {[
               { label: "巡检日历", icon: <CalendarDays size={21} />, action: () => choose(onCalendar), disabled: false },
