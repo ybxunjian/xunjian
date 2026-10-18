@@ -15,6 +15,8 @@ type HistoryQuickMenuProps = {
   onBack: () => void;
 };
 
+type StrokeTarget = { index: number; channel: "geometry" | "opacity" };
+
 export function HistoryQuickMenu({
   recordCount, reduceMotion, manageHistory, showBack, onCalendar, onBatchDelete, onBackup, onDone, onBack,
 }: HistoryQuickMenuProps) {
@@ -33,8 +35,11 @@ export function HistoryQuickMenu({
   ], [showBack, manageHistory, open]);
   const collapseLines = {
     d: "M 14 14 L 14 14",
-    opacity: 0,
     transition: { duration: reduceMotion ? 0 : 0.34, ease: [0.22, 1, 0.36, 1] as const },
+  };
+  const fadeLines = {
+    opacity: 0,
+    transition: collapseLines.transition,
   };
   const shapeAnimation = useAnimationControls();
   const initialShape = useRef(paths.join("|"));
@@ -50,18 +55,20 @@ export function HistoryQuickMenu({
     previousPresence.current = isPresent;
     if (!isPresent) return;
     if (reentering) {
-      shapeAnimation.set({ d: "M 14 14 L 14 14", opacity: 0, pathLength: 1 });
+      shapeAnimation.set(({ index, channel }: StrokeTarget) => channel === "opacity"
+        ? { opacity: 0 }
+        : { d: "M 14 14 L 14 14", ...(index === 2 ? { strokeDasharray: "1 1" } : {}) });
     }
     const duration = entering ? 0.34 : 0.3;
-    void shapeAnimation.start((index: number) => ({
-      d: paths[index],
-      opacity: index === 2 ? Number(centerVisible) : 1,
-      ...(index === 2 ? { pathLength: Number(centerVisible) } : {}),
+    void shapeAnimation.start(({ index, channel }: StrokeTarget) => ({
+      ...(channel === "opacity"
+        ? { opacity: index === 2 ? Number(centerVisible) : 1 }
+        : { d: paths[index], ...(index === 2 ? { strokeDasharray: `${Number(centerVisible)} 1` } : {}) }),
       transition: {
         duration: reduceMotion ? 0 : duration,
         ease: [0.22, 1, 0.36, 1],
         ...(index === 2 ? {
-          pathLength: { duration: reduceMotion ? 0 : 0.2, delay: showBack && !reduceMotion ? 0.08 : 0 },
+          strokeDasharray: { duration: reduceMotion ? 0 : 0.2, delay: showBack && !reduceMotion ? 0.08 : 0 },
           opacity: { duration: reduceMotion ? 0 : 0.2, delay: showBack && !reduceMotion ? 0.08 : 0 },
         } : {}),
       },
@@ -112,9 +119,11 @@ export function HistoryQuickMenu({
             role="group"
             aria-label="历史记录管理"
             className="absolute right-full mr-1 flex items-center gap-1 sm:gap-2"
-            initial={{ opacity: 0, x: reduceMotion ? 0 : 24, scale: reduceMotion ? 1 : 0.86 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: reduceMotion ? 0 : 24, scale: reduceMotion ? 1 : 0.86 }}
+            // A complete transform uses Motion's native animation path. Keep the
+            // same translate-then-scale order and endpoints as the original x/scale.
+            initial={{ opacity: 0, transform: reduceMotion ? "translateX(0px) scale(1)" : "translateX(24px) scale(0.86)" }}
+            animate={{ opacity: 1, transform: "translateX(0px) scale(1)" }}
+            exit={{ opacity: 0, transform: reduceMotion ? "translateX(0px) scale(1)" : "translateX(24px) scale(0.86)" }}
             transition={reduceMotion ? { duration: 0 } : { duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
           >
             {[
@@ -162,13 +171,25 @@ export function HistoryQuickMenu({
       >
         <svg viewBox="0 0 28 28" className="size-7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           {[0, 1, 2].map((index) => (
-            <motion.path
+            // Keep each stroke's opacity independent (including at intersections).
+            // Geometry updates no longer rewrite opacity or static dash attributes.
+            // Unitless dash lengths preserve Motion's normalized SVG drawing.
+            <motion.g
               key={index}
-              custom={index}
-              initial={{ d: "M 14 14 L 14 14", opacity: 0 }}
+              custom={{ index, channel: "opacity" } satisfies StrokeTarget}
+              initial={{ opacity: 0 }}
               animate={shapeAnimation}
-              exit={collapseLines}
-            />
+              exit={fadeLines}
+            >
+              <motion.path
+                custom={{ index, channel: "geometry" } satisfies StrokeTarget}
+                initial={{ d: "M 14 14 L 14 14", ...(index === 2 ? { strokeDasharray: "1 1" } : {}) }}
+                pathLength={index === 2 ? 1 : undefined}
+                strokeDashoffset={index === 2 ? 0 : undefined}
+                animate={shapeAnimation}
+                exit={collapseLines}
+              />
+            </motion.g>
           ))}
         </svg>
       </Button>
