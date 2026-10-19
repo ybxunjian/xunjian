@@ -19,6 +19,14 @@ npm run dev
 
 将 [.env.example](../.env.example) 复制为 `.env.local`，填写 `NEXT_PUBLIC_SUPABASE_URL` 和 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`。只有旧 anon key 时可填入后者；不要填写 service_role。未配置时可纯本地运行。
 
+### 可选 Supabase 网络代理
+
+默认始终直连 `NEXT_PUBLIC_SUPABASE_URL`；仅配置 `NEXT_PUBLIC_SUPABASE_PROXY_URL` 时将浏览器 SDK 的数据库 HTTP、Auth、Storage 和 Realtime 请求发往该 HTTPS 代理。原始 Supabase URL 与 publishable key 均保留。设置代理后显式使用原项目的 `sb-<project-ref>-auth-token` 本地存储键，避免因代理主机名改变而遗失既有登录状态；不开启时客户端配置完全保持现状。无效代理地址会退回原地址，但**运行中的代理故障不会自动改为直连**。
+
+在正式切换前，先独立验证 Worker 的真实带密钥 REST 请求、WebSocket 101 握手和 `postgres_changes` 事件、登录和会话刷新、密码恢复、头像上传及签名 URL；再在国内网络的不同运营商与双设备上验证同步。`/health` 只证明 Worker 存活，不代表 Supabase 上游正常；代理免费域名并不保证大陆可达。不要让 `service_role` 或其他私密密钥进入客户端或 URL。
+
+GitHub Actions 的 `NEXT_PUBLIC_SUPABASE_PROXY_URL` 可作为可选仓库 Actions secret 注入：留空或不创建表示直连。生产上线通过修改 secret 并重跑 `deploy.yml` 完整重建；回滚时清空该 secret，再重新运行发布工作流，确认新版静态资源与 Service Worker 更新。**只改变 secret、未重新构建不会改变已发布网站**。
+
 ### 数据库迁移
 
 在新数据库按文件名顺序执行 [supabase/migrations/](../supabase/migrations/) 的全部迁移：
