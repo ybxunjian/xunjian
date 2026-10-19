@@ -48,8 +48,6 @@ jobs:
         env:
           PAGES_BASE_PATH: ${{ steps.setup_pages.outputs.base_path }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          # Temporary trial: revert this line to the secret or an empty value to disable the proxy.
-          NEXT_PUBLIC_SUPABASE_PROXY_URL: https://supabase-proxy.1925280604-b01.workers.dev
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
 
       - name: Upload artifact
