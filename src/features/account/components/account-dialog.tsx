@@ -17,7 +17,7 @@ export function AccountDialog(props: AccountDialogProps) {
   const [passwordOpen, setPasswordOpen] = useState(false);
   const [passwordBusy, setPasswordBusy] = useState(false);
   const passwordBusyRef = useRef(false);
-  const [passwordAnchor, setPasswordAnchor] = useState<{ top: number; contentHeight: number }>();
+  const [passwordAnchor, setPasswordAnchor] = useState<number>();
 
   const confirmAction = async () => {
     if (!confirmation || confirmingRef.current) return;
@@ -45,7 +45,7 @@ export function AccountDialog(props: AccountDialogProps) {
 
   return (
     <Sheet labelledBy="account-dialog-title" onClose={props.onClose} layoutScroll
-      busy={confirming || passwordBusy} topOffset={passwordAnchor?.top}>
+      busy={confirming || passwordBusy} topOffset={passwordAnchor}>
       <AccountMenu
         email={props.email}
         emailVerified={props.emailVerified}
@@ -55,7 +55,6 @@ export function AccountDialog(props: AccountDialogProps) {
         onAvatarChange={props.onAvatarChange}
         onNavigationOrderChange={props.onNavigationOrderChange}
         onClose={() => { if (!confirmingRef.current && !passwordBusyRef.current) props.onClose(); }}
-        passwordContentHeight={passwordAnchor?.contentHeight}
         passwordOpen={passwordOpen}
         passwordBusy={passwordBusy}
         onChangePassword={props.onChangePassword}
@@ -67,10 +66,10 @@ export function AccountDialog(props: AccountDialogProps) {
           if (active instanceof HTMLInputElement && active.id.startsWith("account-")) active.blur();
           setPasswordOpen(false);
         }}
-        onOpenPassword={(top, contentHeight) => {
+        onOpenPassword={(top) => {
           if (confirmingRef.current || passwordBusyRef.current) return;
           setConfirmation(null);
-          setPasswordAnchor({ top, contentHeight });
+          setPasswordAnchor(top);
           setPasswordOpen(true);
         }}
         onRequestAvatarRemoval={() => { if (!confirmingRef.current) setConfirmation("remove-avatar"); }}

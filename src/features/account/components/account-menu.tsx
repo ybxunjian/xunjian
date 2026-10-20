@@ -13,9 +13,8 @@ import { Button } from "@/components/ui/button";
 import type { AccountDialogProps } from "./account-dialog-types";
 import { AvatarVisual } from "./avatar-visual";
 import { NavigationOrderEditor } from "./navigation-order-editor";
-import { motion, useIsPresent, useReducedMotion } from "framer-motion";
+import { useIsPresent } from "framer-motion";
 import { AccountPasswordControls } from "./account-password-controls";
-import { useAccountHeightAnimation } from "./use-account-height-animation";
 import { AccountSignOutControls } from "./account-sign-out-controls";
 import { AppearancePicker } from "@/components/ui/appearance-picker";
 
@@ -30,14 +29,13 @@ type AccountMenuProps = Pick<
   | "onNavigationOrderChange"
   | "onClose"
 > & {
-  passwordContentHeight?: number;
   passwordOpen: boolean;
   passwordBusy: boolean;
   onChangePassword: AccountDialogProps["onChangePassword"];
   onPasswordBusyChange: (busy: boolean) => void;
   onPasswordCollapsed: () => void;
   onClosePassword: () => void;
-  onOpenPassword: (top: number, contentHeight: number) => void;
+  onOpenPassword: (top: number) => void;
   onRequestAvatarRemoval: () => void;
   avatarRemovalOpen: boolean;
   confirmingAvatarRemoval: boolean;
@@ -59,7 +57,7 @@ export function AccountMenu({
   onAvatarChange,
   onNavigationOrderChange,
   onClose,
-  onOpenPassword, passwordContentHeight, passwordOpen, passwordBusy, onChangePassword, onPasswordBusyChange, onPasswordCollapsed, onClosePassword,
+  onOpenPassword, passwordOpen, passwordBusy, onChangePassword, onPasswordBusyChange, onPasswordCollapsed, onClosePassword,
   onRequestAvatarRemoval,
   avatarRemovalOpen,
   confirmingAvatarRemoval,
@@ -71,15 +69,10 @@ export function AccountMenu({
   onCancelSignOut,
   onConfirmSignOut,
 }: AccountMenuProps) {
-  const contentRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const passwordSectionRef = useRef<HTMLElement>(null);
   const isPresent = useIsPresent();
-  const reduceMotion = useReducedMotion();
   const removalId = useId();
-  const { containerRef: preferencesRef, contentRef: preferencesContentRef } = useAccountHeightAnimation({
-    open: !passwordOpen, initialOpen: true, expandingPassword: passwordOpen, restoreAuto: true,
-  });
 
   const chooseAvatar = async (file: File) => {
     try {
@@ -91,7 +84,7 @@ export function AccountMenu({
   };
 
   return (
-    <div ref={contentRef} style={{ minHeight: passwordContentHeight }}>
+    <div>
       <div className="pointer-events-none sticky top-0 z-20 flex h-0 justify-end px-1">
         <Button
           type="button"
@@ -176,21 +169,15 @@ export function AccountMenu({
             const panel = passwordSectionRef.current?.closest('[role="dialog"]');
             onOpenPassword(
               Math.max(16, panel?.getBoundingClientRect().top ?? 16),
-              contentRef.current?.getBoundingClientRect().height ?? 0,
             );
           }}
           onClose={onClosePassword} onCollapsed={onPasswordCollapsed}
           onBusyChange={onPasswordBusyChange} onChangePassword={onChangePassword} />
       </section>
 
-      <motion.div ref={preferencesRef} initial={false} inert={passwordOpen || !isPresent} aria-hidden={passwordOpen || !isPresent}
-        animate={{ opacity: passwordOpen ? 0 : 1 }}
-        transition={{
-          opacity: { duration: reduceMotion ? 0 : passwordOpen ? 0.16 : 0.22,
-            delay: reduceMotion || passwordOpen ? 0 : 0.14 },
-        }} className="overflow-hidden">
-        <div ref={preferencesContentRef} className="flow-root">
-          <AppearancePicker disabled={signingOut || confirmingAvatarRemoval || avatarBusy || !isPresent} />
+      <div inert={passwordBusy || !isPresent} aria-hidden={!isPresent}>
+        <div className="flow-root">
+          <AppearancePicker disabled={passwordBusy || signingOut || confirmingAvatarRemoval || avatarBusy || !isPresent} />
           <NavigationOrderEditor
             navigationOrder={navigationOrder}
             onNavigationOrderChange={onNavigationOrderChange}
@@ -199,7 +186,7 @@ export function AccountMenu({
           <AccountSignOutControls open={signOutOpen} busy={signingOut}
             onRequest={onRequestSignOut} onCancel={onCancelSignOut} onConfirm={onConfirmSignOut} />
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

@@ -30,7 +30,7 @@
 
 [appearance.ts](../src/lib/appearance.ts) 管理 system/light/dark 三态解析、首绘脚本、系统外观/对比度和跨标签页 storage 订阅；[useAppearance](../src/hooks/use-appearance.ts) 用外部快照订阅，服务端快照固定，不读取浏览器存储。
 
-[AppearanceRuntime](../src/app/appearance-runtime.tsx) 常驻根布局并跟随主题显示 Sonner；浏览器 theme-color 由 appearance.ts 同步。根属性由首绘脚本设置，仅 html 使用 suppressHydrationWarning。[AppearancePicker](../src/components/ui/appearance-picker.tsx) 位于账号面板，三项有图标、文字和 aria-pressed，复用 Button；请求/退场禁用，修改密码展开时随偏好区收起。
+[AppearanceRuntime](../src/app/appearance-runtime.tsx) 常驻根布局并跟随主题显示 Sonner；浏览器 theme-color 由 appearance.ts 同步。根属性由首绘脚本设置，仅 html 使用 suppressHydrationWarning。[AppearancePicker](../src/components/ui/appearance-picker.tsx) 位于账号面板，三项有图标、文字和 aria-pressed，复用 Button；请求/退场禁用，修改密码展开时随偏好区自然下移并保持显示。
 
 系统变化仅在跟随系统模式改变实际外观，手动模式保持选择；其他标签页更新和删除外观偏好会同步。存储键、格式与账号隔离规则见 [数据与同步](./data-and-sync.md#浏览器存储)。
 
@@ -278,9 +278,9 @@ Portal 内的实时菜单仅在 `isPresent && !selectedRecord` 时渲染，退�
 
 `AccountPasswordControls` 保留 ActionTile 标题和钥匙图标，入口不单独按压缩放；`AccountPasswordForm` 复用凭据控件。卡片高度展开/收回均 360ms，曲线分别 `[0.32, 0, 0.2, 1]`、`[0.4, 0, 0.35, 1]`，无回弹；表单原位淡入 220ms、进入延迟 90ms，退出无延迟，可中途重开。
 
-表单与偏好区的高度由账号专属 [useAccountHeightAnimation](../src/features/account/components/use-account-height-animation.ts) 测量并通过原生 WAAPI 执行，共用修改密码的展开/收回曲线；透明度仍由 Motion 管理。只在开始、结束、内容尺寸变化或打断时读写高度，中途反向先保存当前显示高度再接续，收起完成才解除表单 presence。偏好区展开完成恢复 auto 高度；不支持 WAAPI 时回退 Motion，减少动态效果立即切换。此路径减少 JS 逐帧高度写入，实际高度变化仍需浏览器布局，不保证合成线程执行或固定帧率。
+表单高度由账号专属 [useAccountHeightAnimation](../src/features/account/components/use-account-height-animation.ts) 测量并通过原生 WAAPI 执行；表单透明度仍由 Motion 管理。全局注册的整数属性 `--account-password-height` 驱动实际像素高度，避免滚动到底收回时，小数高度与滚动边界取整相互抵消造成文字往返抖动；测量高度向上取整，避免裁切内容。只在开始、结束、内容尺寸变化或打断时读写高度，中途反向先保存当前显示高度再接续，收起完成才解除表单 presence。不支持 WAAPI 或注册属性时回退 Motion 数值插值并取整，减少动态效果立即切换。原生路径减少 JS 逐帧高度写入，实际高度变化仍需浏览器布局，不保证合成线程执行或固定帧率。
 
-导航排序与退出区域展开时 160ms 淡出并收起，立即 inert；收回时恢复高度，延迟 140ms 淡入 220ms。展开前保存面板顶部与内容高度，保持顶部和已有滚动位置；超屏内部滚动，不主动聚焦输入开键盘。
+外观、导航排序与退出区域保留自然高度和可见性，随密码表单展开向下移动、收回向上移动，不淡出或隐藏，也不预留旧内容高度。展开前保存面板顶部，保持顶部和已有滚动位置；超屏内部滚动，不主动聚焦输入开键盘。密码请求期间下方区域 inert，保持可见。
 
 ### 请求与退出
 

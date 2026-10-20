@@ -31,7 +31,7 @@
 | 导入、导出与恢复撤销 | [use-inspection-backup.ts](./src/features/inspection/hooks/use-inspection-backup.ts) |
 | 两层导航滑块与手势 | [segmented-navigation-controller.ts](./src/components/ui/segmented-navigation-controller.ts)、[segmented-navigation-motion.ts](./src/components/ui/segmented-navigation-motion.ts)；业务包装见 InspectionTabs / BeltTabs |
 | 详情与批量分裂动画 | [split-confirmation-button.tsx](./src/components/ui/split-confirmation-button.tsx)、[use-native-style-transition.ts](./src/components/ui/use-native-style-transition.ts)；参数与业务边界见 [公共分裂确认](./docs/ui-components.md#公共分裂确认) |
-| 改密展开与偏好区收起 | [use-account-height-animation.ts](./src/features/account/components/use-account-height-animation.ts)；交互见 [修改密码原位展开](./docs/ui-components.md#修改密码原位展开) |
+| 改密展开与下方内容位移 | [use-account-height-animation.ts](./src/features/account/components/use-account-height-animation.ts)；交互见 [修改密码原位展开](./docs/ui-components.md#修改密码原位展开) |
 | 历史菜单、日历与详情 | `src/features/inspection/components/history/`、[use-calendar-pager.ts](./src/features/inspection/hooks/use-calendar-pager.ts) |
 | 账号设置与头像 | `src/features/account/` |
 | 登录、密码恢复与会话 | `src/features/auth/` |

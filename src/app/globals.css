@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* Match scrolling's pixel rounding while the password form changes height. */
+@property --account-password-height {
+  syntax: "<integer>";
+  inherits: false;
+  initial-value: 0;
+}
+
 /*
  * Design tokens
  * Keep semantic values here. Components should consume the Tailwind aliases
