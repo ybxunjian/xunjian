@@ -282,6 +282,8 @@ Portal 内的实时菜单仅在 `isPresent && !selectedRecord` 时渲染，退�
 
 ### 展开与周边内容
 
+账号密码展开容器用 clip-path 裁切内容，仅顶部向外放宽 4px，容纳首个输入框的聚焦外圈；左右及底部仍在容器边界裁切。该裁切不参与布局，不增加表单高度或间距，收起动画仍按当前高度隐藏下方内容。
+
 `AccountPasswordControls` 保留 ActionTile 标题和钥匙图标，入口不单独按压缩放；`AccountPasswordForm` 复用凭据控件。卡片高度展开/收回均 360ms，曲线分别 `[0.32, 0, 0.2, 1]`、`[0.4, 0, 0.35, 1]`，无回弹；表单原位淡入 220ms、进入延迟 90ms，退出无延迟，可中途重开。
 
 表单高度由账号专属 [useAccountHeightAnimation](../src/features/account/components/use-account-height-animation.ts) 测量并通过原生 WAAPI 执行；表单透明度仍由 Motion 管理。全局注册的整数属性 `--account-password-height` 驱动实际像素高度，避免滚动到底收回时，小数高度与滚动边界取整相互抵消造成文字往返抖动；测量高度向上取整，避免裁切内容。只在开始、结束、内容尺寸变化或打断时读写高度，中途反向先保存当前显示高度再接续，收起完成才解除表单 presence。不支持 WAAPI 或注册属性时回退 Motion 数值插值并取整，减少动态效果立即切换。原生路径减少 JS 逐帧高度写入，实际高度变化仍需浏览器布局，不保证合成线程执行或固定帧率。

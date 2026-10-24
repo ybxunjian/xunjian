@@ -66,7 +66,7 @@ function PasswordExpansion(props: PasswordControlsProps) {
   return (
     <div ref={containerRef} id="account-password-form" role="region" aria-label="修改密码表单"
       inert={!isPresent} aria-hidden={!isPresent}
-      className="overflow-hidden">
+      className="[clip-path:inset(-4px_0_0)]">
       <motion.div ref={contentRef}
         initial={{ opacity: 0 }} animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
