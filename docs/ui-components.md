@@ -45,11 +45,21 @@
 | 深色语义令牌 | 引用 | 普通 / 高对比度结果 |
 | --- | --- | --- |
 | `navigation-track` | `surface-elevated` | `#28282e` |
-| `navigation-muted` | `muted-foreground` | `#bebec8` / `#ededf2` |
+| `navigation-muted` | `muted-foreground` | `#b8b8c2` / `#ededf2` |
 | `navigation-selection` | `neutral-control-surface` | `#484850` |
 | `navigation-border` | `border` | `#565662` / `#93939f` |
-| `card-foreground`、`navigation-foreground`、`input-foreground` | `foreground` | `#f2f2f7` |
+| `card-foreground`、`navigation-foreground`、`input-foreground` | `foreground` | `#d8d8d8` / `#ffffff` |
 | `belt-selection-foreground` | `secondary-foreground` | `#91c6ff` |
+
+### 深色文字与字重角色
+
+浅色保持原有字体、字号、字距、行高和配色。深色标题使用 foreground-strong（#e6e6e6），正文、输入与选中导航使用 foreground（#d8d8d8），辅助使用 muted-foreground（#b8b8c2），低强调文字与 placeholder 使用 subtle-foreground（#b4b4bf）。这些灰白按本项目的 background、card、surface-elevated、nested-surface 和 muted 表面校准，不直接复制只针对 #121212 的示例灰度。普通正文/标题目标至少 7:1，辅助/placeholder 至少 6:1；操作文字至少 4.5:1，关键图形/边界至少 3:1。危险文字 #ff98a2 在常用内容表面和 destructive-soft 上至少 6:1，实心按钮保持独立 surface 与白色前景。带描述的 primary ActionTile 深色不降低描述透明度，避免合成后对比不足。
+
+`type-*-weight` 是字体角色令牌，通过 `font-display`、`font-heading`、`font-section`、`font-data`、`font-data-secondary`、`font-count`、`font-action`、`font-action-strong`、`font-navigation`、`font-subnavigation`、`font-label`、`font-status`、`font-avatar`、`font-body` 与 `font-meta` 接入。cn 的 font-weight 分组识别这些角色，允许调用方覆盖基础按钮字重，不与 font-family 或字号冲突。原生 b/strong 的既有强调层级按实际角色明确表达。
+
+继续使用系统 UI 字体栈，不新增网络字体。当前正文保留 400、标签 500、操作/状态 600、数据/区域标题 700、一级导航 800、大标题 900；浅深色保持同一字重实例。只有目标字体确认支持连续 wght 且实机显示仍显重时，才试验 -25、标题最多首轮 -50；computed font-weight 或 CSS.supports 不能证明 fallback 字体实际生成了该实例。小字号、辅助说明和 placeholder 不统一减重。
+
+高对比度深色恢复 foreground / foreground-strong 为纯白，增强辅助和 placeholder，保留充分字重；正文颜色策略不覆盖用户的高对比偏好。所有权重遵循根 data-theme，不额外用 prefers-color-scheme 覆盖手动选择。字号/行高/字距及 tabular-nums 保留，文本无描边、无阴影，不引入私有抗锯齿补丁；功能 SVG 的尺寸、描边和变形时间线不随字体角色变化。
 
 ### 内层表面与外观选择器
 
@@ -255,9 +265,9 @@ Portal 内的实时菜单仅在 `isPresent && !selectedRecord` 时渲染，退�
 
 | 使用位置 | 底色 / 文字令牌 | 浅色 | 深色 |
 | --- | --- | --- | --- |
-| 详情删除、批量删除取消 | `neutral-control-surface` / `foreground` | `#dce2eb` / `#0f172a` | `#484850` / `#f2f2f7` |
+| 详情删除、批量删除取消 | `neutral-control-surface` / `foreground` | `#dce2eb` / `#0f172a` | `#484850` / `#d8d8d8` |
 | 退出登录、移除头像取消 | `secondary-action-surface` / `secondary-action-foreground` | `muted` / `foreground` | `neutral-control-surface` / `foreground` |
-| 修改密码取消 | `credential-cancel-surface` / `foreground` | 白底 #ffffff / 深字 #0f172a；悬停保持白底 | 灰底 #484850 / 浅字 #f2f2f7；悬停保持灰底 |
+| 修改密码取消 | `credential-cancel-surface` / `foreground` | 白底 #ffffff / 深字 #0f172a；悬停保持白底 | 灰底 #484850 / 浅字 #d8d8d8；悬停保持灰底 |
 | 保存校验“仍然保存” | `secondary-action-surface` / `foreground` | `muted` / `foreground` | `neutral-control-surface` / `foreground` |
 
 详情与批量取消的底色独立于 `card` / `muted`，避免与滚动卡片融合。退出登录、头像气泡与保存校验的次要操作共用语义底色；修改密码取消浅色使用 card，深色复用 secondary-action-surface，文字使用 foreground；悬停保持各自底色，无边框、无阴影。

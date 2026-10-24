@@ -105,7 +105,7 @@ export function AccountMenu({
           type="button"
           disabled={avatarBusy || passwordBusy || !isPresent}
           onClick={() => inputRef.current?.click()}
-          className="relative mx-auto block size-20 rounded-full bg-primary-surface text-xl font-black text-primary-foreground shadow-primary disabled:opacity-60"
+          className="relative mx-auto block size-20 rounded-full bg-primary-surface text-xl font-avatar text-primary-foreground shadow-primary disabled:opacity-60"
           aria-label={avatarUrl ? "更换头像" : "设置头像"}
         >
           <AvatarVisual email={email} avatarUrl={avatarUrl} />
@@ -124,10 +124,10 @@ export function AccountMenu({
             event.currentTarget.value = "";
           }}
         />
-        <p className="mt-3 truncate text-card-title font-bold text-foreground">
+        <p className="mt-3 truncate text-card-title font-section text-foreground">
           {email}
         </p>
-        <p className={`mt-1 inline-flex items-center gap-1 text-caption font-semibold ${emailVerified ? "text-success" : "text-pending-foreground"}`}>
+        <p className={`mt-1 inline-flex items-center gap-1 text-caption font-status ${emailVerified ? "text-success" : "text-pending-foreground"}`}>
           {emailVerified ? <CheckCircle2 className="size-3.5" /> : <CircleAlert className="size-3.5" />}
           {emailVerified ? "邮箱已验证" : "邮箱待验证"}
         </p>
@@ -150,7 +150,7 @@ export function AccountMenu({
             aria-haspopup="dialog"
             aria-expanded={avatarRemovalOpen}
             aria-controls={avatarRemovalOpen ? removalId : undefined}
-            className="gap-1.5 px-3 text-caption font-bold text-destructive hover:bg-transparent"
+            className="gap-1.5 px-3 text-caption font-action-strong text-destructive hover:bg-transparent"
           >
             <Trash2 className="size-4" />
             移除头像
@@ -160,7 +160,7 @@ export function AccountMenu({
       </section>
 
       <section ref={passwordSectionRef} className="mt-4">
-        <p className="mb-2 px-1 text-caption font-bold text-muted-foreground">
+        <p className="mb-2 px-1 text-caption font-section text-muted-foreground">
           账号安全
         </p>
         <AccountPasswordControls open={passwordOpen} busy={passwordBusy}

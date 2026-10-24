@@ -25,7 +25,7 @@ export function InspectionHeader({
     <header className="rounded-sheet bg-gradient-to-br from-header-start via-header-middle to-header-end p-5 text-primary-foreground shadow-floating ring-1 ring-white/10">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="text-3xl font-black tracking-tight">夜班巡检</h1>
+          <h1 className="text-3xl font-display tracking-tight text-header-title-foreground">夜班巡检</h1>
         </div>
         {onOpenAccount && email && (
           <button
@@ -33,7 +33,7 @@ export function InspectionHeader({
             onClick={onOpenAccount}
             aria-label="打开账号"
             title="账号"
-            className="size-11 shrink-0 rounded-full bg-border text-sm font-black text-muted-foreground shadow-card ring-1 ring-white/70 transition active:scale-[.97]"
+            className="size-11 shrink-0 rounded-full bg-border text-sm font-avatar text-muted-foreground shadow-card ring-1 ring-white/70 transition active:scale-[.97]"
           >
             <AvatarVisual email={email} avatarUrl={avatarUrl} tone="header" />
           </button>
@@ -47,7 +47,7 @@ export function InspectionHeader({
           type="button"
           onClick={onSync}
           disabled={syncStatus === "syncing"}
-          className="mt-4 flex min-h-11 w-full tabular-nums items-center justify-center gap-2 rounded-control bg-white/10 px-3 text-caption font-bold text-header-muted transition hover:bg-white/15 disabled:opacity-70"
+          className="mt-4 flex min-h-11 w-full tabular-nums items-center justify-center gap-2 rounded-control bg-white/10 px-3 text-caption font-action-strong text-header-muted transition hover:bg-white/15 disabled:opacity-70"
         >
           <SyncIcon status={syncStatus} />
           {syncStatusLabel(

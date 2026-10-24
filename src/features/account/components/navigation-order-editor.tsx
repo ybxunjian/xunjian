@@ -47,7 +47,7 @@ export function NavigationOrderEditor({
     <section className="mt-4">
       <div className="mb-2 flex min-h-9 items-center justify-between px-1">
         <div>
-          <p className="text-caption font-bold text-muted-foreground">
+          <p className="text-caption font-section text-muted-foreground">
             导航顺序
           </p>
           <p className="mt-0.5 text-label text-subtle-foreground">
@@ -81,9 +81,9 @@ export function NavigationOrderEditor({
             handleLabel={`长按移动${TAB_LABELS[tab]}`}
             onReorderEnd={() => void commitOrder()}
           >
-            <span className="flex-1 font-bold">{TAB_LABELS[tab]}</span>
+            <span className="flex-1 font-section">{TAB_LABELS[tab]}</span>
             {index === 0 && (
-              <span className="rounded-full bg-secondary px-2 py-1 text-label font-bold text-secondary-foreground">
+              <span className="rounded-full bg-secondary px-2 py-1 text-label font-section text-secondary-foreground">
                 首页
               </span>
             )}

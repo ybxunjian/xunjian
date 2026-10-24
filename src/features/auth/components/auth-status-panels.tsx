@@ -68,7 +68,7 @@ export function StatusPanel({
       <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-success-soft text-success">
         {icon}
       </div>
-      <h2 className="mt-4 text-card-title font-bold">{title}</h2>
+      <h2 className="mt-4 text-card-title font-section">{title}</h2>
       <p className="mt-2 break-words text-body leading-6 text-muted-foreground">
         {description}
       </p>

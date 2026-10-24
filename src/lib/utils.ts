@@ -4,6 +4,7 @@ import { extendTailwindMerge } from "tailwind-merge"
 const mergeClasses = extendTailwindMerge({
   extend: {
     classGroups: {
+      "font-weight": [{ font: ["display", "heading", "section", "data", "data-secondary", "count", "action", "action-strong", "navigation", "subnavigation", "label", "status", "avatar", "body", "meta"] }],
       "font-size": [
         { text: ["label", "caption", "body", "card-title", "title"] },
       ],

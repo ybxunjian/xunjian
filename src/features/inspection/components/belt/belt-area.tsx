@@ -43,7 +43,7 @@ export function BeltArea({
             <Card key={item}>
               <CardContent className="p-3.5">
                 <div className="flex items-center justify-between">
-                  <b className="text-card-title text-foreground">
+                  <b className="font-section text-card-title text-foreground">
                     {item !== "配重" && item.startsWith("配重") && (
                       <span
                         className="mr-1.5 inline-block size-1.5 rounded-full bg-primary/70 align-middle"

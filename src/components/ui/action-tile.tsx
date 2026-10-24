@@ -10,8 +10,8 @@ export function ActionTile({ icon, title, description, onClick, disabled, expand
       className={cn("flex w-full items-center gap-3 rounded-control px-4 text-left transition disabled:cursor-default disabled:opacity-45", pressFeedback === "none" ? undefined : "active:scale-[.98]", description ? "min-h-16" : "min-h-14", tone === "primary" ? "bg-secondary text-secondary-foreground" : "bg-muted text-foreground")}>
       <span className={cn("grid shrink-0 place-items-center bg-nested-surface text-primary shadow-card", description ? "size-11 rounded-control" : "size-9 rounded-small")}>{icon}</span>
       <span className="min-w-0 flex-1">
-        <b className={description ? "block text-card-title" : "block font-bold"}>{title}</b>
-        {description && <span className={cn("mt-0.5 block text-caption", tone === "primary" ? "opacity-75" : "text-muted-foreground")}>{description}</span>}
+        <b className={description ? "block font-section text-card-title" : "block font-section"}>{title}</b>
+        {description && <span className={cn("mt-0.5 block text-caption", tone === "primary" ? "opacity-[var(--action-description-opacity)]" : "text-muted-foreground")}>{description}</span>}
       </span>
     </button>
   );

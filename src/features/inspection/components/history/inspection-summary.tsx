@@ -28,12 +28,12 @@ export function InspectionSummary({ record }: { record: InspectionRecord }) {
       <SectionHeading title="巡检汇总" />
       <Card className="mb-3">
         <CardContent className="p-4">
-          <b className="text-base">皮带区域</b>
+          <b className="font-section text-base text-section-heading-foreground">皮带区域</b>
           {beltSummary.length ? (
             <div className="mt-3 space-y-2">
               {beltSummary.map(({ id, rows }) => (
                 <div className="rounded-control bg-muted p-3" key={id}>
-                  <b className="text-sm">{id}</b>
+                  <b className="font-section text-sm">{id}</b>
                   <div className="mt-2 space-y-1.5">
                     {rows.map(({ item, readings }) => (
                       <div
@@ -41,7 +41,7 @@ export function InspectionSummary({ record }: { record: InspectionRecord }) {
                         key={item}
                       >
                         <span className="text-muted-foreground">{item}</span>
-                        <span className="grid shrink-0 grid-cols-[2em_2ch_3em_2ch] items-center gap-x-1 font-semibold text-foreground">
+                        <span className="grid shrink-0 grid-cols-[2em_2ch_3em_2ch] items-center gap-x-1 font-data-secondary text-foreground">
                           {[0, 1].map((index) =>
                             readings[index] ? (
                               <span className="contents" key={readings[index].key}>
@@ -102,7 +102,7 @@ function PumpSummary({
   return (
     <Card className="mb-3">
       <CardContent className="p-4">
-        <b className="text-base">{PUMP_AREAS[area].title}</b>
+        <b className="font-section text-base text-section-heading-foreground">{PUMP_AREAS[area].title}</b>
         {entries.length ? (
           <div className="mt-3 space-y-2">
             {entries.map(({ group, pumpNumber, index, readings }) => (
@@ -111,7 +111,7 @@ function PumpSummary({
                 key={`${group}-${index}`}
               >
                 <div className="flex items-center justify-between text-sm">
-                  <span className="font-semibold text-foreground tabular-nums">
+                  <span className="font-data-secondary text-foreground tabular-nums">
                     {group} {pumpNumber}
                   </span>
                   <span className="text-caption text-muted-foreground">
@@ -126,7 +126,7 @@ function PumpSummary({
                         key={field}
                       >
                         {label}{" "}
-                        <b className="ml-1 text-foreground tabular-nums">
+                        <b className="ml-1 font-data text-foreground tabular-nums">
                           {snapshot[fieldKey(area, group, String(index), field)]}
                         </b>
                       </span>
