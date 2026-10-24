@@ -81,13 +81,17 @@ export function HistoryQuickMenu({
   useEffect(() => {
     if (!open || manageHistory || showBack || !isPresent) return;
 
-    const closeOnOutsideClick = (event: PointerEvent) => {
+    const closeOnOutsideClick = (event: MouseEvent) => {
+      const menu = menuRef.current;
+      if (!menu) return;
+      // Use the same completed click as the toggle. Touch hit adjustment can
+      // resolve pointerdown and click to different targets near a button edge.
+      const path = event.composedPath();
+      if (path.includes(menu)) return;
       // A transition action owns the final state and its existing animation.
       // Do not start a separate menu-close animation before that action runs.
-      if (event.target instanceof Element && event.target.closest("[data-history-menu-transition]")) return;
-      if (event.target instanceof Node && !menuRef.current?.contains(event.target)) {
-        setOpen(false);
-      }
+      if (path.some((node) => node instanceof Element && node.hasAttribute("data-history-menu-transition"))) return;
+      setOpen(false);
     };
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -96,10 +100,10 @@ export function HistoryQuickMenu({
       }
     };
 
-    document.addEventListener("pointerdown", closeOnOutsideClick);
+    document.addEventListener("click", closeOnOutsideClick, true);
     document.addEventListener("keydown", closeOnEscape);
     return () => {
-      document.removeEventListener("pointerdown", closeOnOutsideClick);
+      document.removeEventListener("click", closeOnOutsideClick, true);
       document.removeEventListener("keydown", closeOnEscape);
     };
   }, [open, manageHistory, showBack, isPresent]);
@@ -174,9 +178,11 @@ export function HistoryQuickMenu({
             setOpen((value) => !value);
           }
         }}
-        className="relative text-foreground-strong hover:bg-transparent active:scale-[.92]"
+        // The transparent rectangular layer includes the rounded button's
+        // corners in its hit target, without changing its focus ring.
+        className="group relative text-foreground-strong before:absolute before:inset-0 before:content-[''] hover:bg-transparent active:scale-100"
       >
-        <svg viewBox="0 0 28 28" className="size-7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <svg viewBox="0 0 28 28" className="pointer-events-none size-7 transition-transform duration-200 group-active:scale-[.92]" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           {[0, 1, 2].map((index) => (
             // Keep each stroke's opacity independent (including at intersections).
             // Geometry updates no longer rewrite opacity or static dash attributes.
