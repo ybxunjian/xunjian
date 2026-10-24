@@ -108,34 +108,6 @@ function contrast(a, b) {
   return (high + 0.05) / (low + 0.05);
 }
 
-test("dark typography meets role contrast on the actual stacked surfaces", () => {
-  const { light, dark, darkMore } = readAppearanceTokens(readFileSync(new URL("../src/app/globals.css", import.meta.url), "utf8"));
-  // The report's example grays are calibrated on #121212. The app also has
-  // brighter nested surfaces; check every supported pairing, not one canvas.
-  for (const palette of [dark, darkMore]) {
-    const color = (token) => resolveHexColor(palette, token);
-    for (const background of ["background", "card", "surface-elevated", "nested-surface", "muted"]) {
-      for (const [foreground, minimum] of [["foreground", 7], ["foreground-strong", 7], ["muted-foreground", 6], ["subtle-foreground", 6], ["destructive", 6]]) {
-        assert.ok(contrast(color(foreground), color(background)) >= minimum,
-          `${foreground}/${background} must reach ${minimum}:1`);
-      }
-    }
-    assert.ok(contrast(color("foreground"), color("neutral-control-surface")) >= 4.5);
-    assert.ok(contrast(color("destructive"), color("destructive-soft")) >= 6);
-    assert.ok(contrast(color("destructive"), color("detail-delete-entry-surface")) >= 3);
-    assert.ok(contrast(color("header-title-foreground"), color("header-end")) >= 7);
-  }
-  // No unverified 375/575 instances on an unknown system/fallback font.
-  const baseline = { display: 900, heading: 900, section: 700, data: 700, "data-secondary": 600, count: 900, action: 600, "action-strong": 700, navigation: 800, subnavigation: 700, label: 500, status: 600, avatar: 900, body: 400, meta: 400 };
-  for (const [role, weight] of Object.entries(baseline)) {
-    for (const palette of [light, dark, darkMore]) {
-      assert.equal(Number(palette[`type-${role}-weight`]), weight, `${role} retains its verified static face`);
-    }
-  }
-  assert.equal(resolveHexColor(darkMore, "foreground"), "#ffffff");
-  assert.equal(resolveHexColor(darkMore, "foreground-strong"), "#ffffff");
-});
-
 test("dark semantic text, action and control colors meet contrast targets", () => {
   const css = readFileSync(new URL("../src/app/globals.css", import.meta.url), "utf8");
   const { dark, darkMore } = readAppearanceTokens(css);

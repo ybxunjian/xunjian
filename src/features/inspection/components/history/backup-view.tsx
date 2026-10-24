@@ -159,7 +159,7 @@ function ImportPreviewPanel({
           setAdvancedOpen((current) => !current);
           setConfirmReplace(false);
         }}
-        className="mt-2 flex min-h-11 w-full items-center justify-center gap-1 text-caption font-action text-muted-foreground"
+        className="mt-2 flex min-h-11 w-full items-center justify-center gap-1 text-caption font-semibold text-muted-foreground"
       >
         高级选项
         <ChevronDown
@@ -203,7 +203,7 @@ function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex min-h-8 items-center justify-between gap-3 text-body">
       <span className="text-muted-foreground">{label}</span>
-      <b className="text-right font-data text-foreground tabular-nums">{value}</b>
+      <b className="text-right text-foreground tabular-nums">{value}</b>
     </div>
   );
 }
@@ -226,7 +226,7 @@ function CountCard({
 
   return (
     <div className="rounded-control border border-border/80 bg-card px-1 py-2.5 shadow-card">
-      <b className={`block text-lg font-data tabular-nums ${toneClass}`}>{value}</b>
+      <b className={`block text-lg tabular-nums ${toneClass}`}>{value}</b>
       <span className="mt-0.5 block text-label text-muted-foreground">{label}</span>
     </div>
   );

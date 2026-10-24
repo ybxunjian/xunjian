@@ -122,7 +122,7 @@ export function AuthForm({
                 type="button"
                 disabled={disabled}
                 onClick={onForgotPassword}
-                className="-mr-2 flex min-h-11 items-start px-2 pt-[var(--space-credential-actions)] text-caption font-action-strong text-primary disabled:opacity-45"
+                className="-mr-2 flex min-h-11 items-start px-2 pt-[var(--space-credential-actions)] text-caption font-bold text-primary disabled:opacity-45"
               >
                 忘记密码？
               </button>
@@ -178,7 +178,7 @@ function EmailField({
       onChange={(event) => onChange(event.target.value)} placeholder="邮箱"
       belowAction={error && showForgotPassword ? (
         <button type="button" disabled={disabled} onClick={onForgotPassword}
-          className="flex min-h-11 shrink-0 items-center text-caption font-action-strong text-primary disabled:opacity-45">
+          className="flex min-h-11 shrink-0 items-center text-caption font-bold text-primary disabled:opacity-45">
           忘记密码？
         </button>
       ) : undefined}

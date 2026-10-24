@@ -23,7 +23,7 @@ export function InspectionTabs({ order, value, onChange }: InspectionTabsProps) 
         <button key={tab} type="button" data-segment-index={index}
           aria-current={value === tab ? "page" : undefined}
           data-history-menu-transition={value !== tab ? "exit" : undefined}
-          className={"segmented-item relative z-10 h-full rounded-navigation-item py-0 text-caption font-navigation before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] " + (value === tab ? "text-navigation-foreground" : "text-navigation-muted")}>
+          className={"segmented-item relative z-10 h-full rounded-navigation-item py-0 text-caption font-extrabold before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] " + (value === tab ? "text-navigation-foreground" : "text-navigation-muted")}>
           <span>{TAB_LABELS[tab]}</span>
         </button>
       ))}

@@ -36,7 +36,7 @@ export function TextField({
       </span>
       <div className={belowAction ? "flex min-h-11 items-start justify-between gap-3 px-1" : "h-6 overflow-hidden px-1 pt-1.5"}>
         {(error || belowAction) && (
-          <span id={errorId} role={error ? "alert" : undefined} className={cn("block text-caption font-status text-destructive", belowAction && "pt-1.5")}>
+          <span id={errorId} role={error ? "alert" : undefined} className={cn("block text-caption font-semibold text-destructive", belowAction && "pt-1.5")}>
             {error}
           </span>
         )}

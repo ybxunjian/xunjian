@@ -27,7 +27,7 @@ export function InspectionField({
           : "rounded-control bg-muted p-2.5 ring-1 ring-transparent transition focus-within:bg-card focus-within:ring-primary/25 focus-within:shadow-card"
       }
     >
-      <span className="block text-label font-label text-muted-foreground">
+      <span className="block text-label font-medium text-muted-foreground">
         {label}
       </span>
       <input
@@ -37,8 +37,8 @@ export function InspectionField({
         onChange={handleChange}
         className={
           align === "center"
-            ? "mt-1 w-full bg-transparent text-center text-lg font-data tabular-nums outline-none"
-            : "mt-1 w-full bg-transparent text-xl font-data tabular-nums outline-none"
+            ? "mt-1 w-full bg-transparent text-center text-lg font-bold tabular-nums outline-none"
+            : "mt-1 w-full bg-transparent text-xl font-bold tabular-nums outline-none"
         }
       />
     </label>

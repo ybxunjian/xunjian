@@ -54,7 +54,7 @@ export function HistoryCalendar({
                 <ChevronLeft size={20} />
               </Button>
             ) : <span className="size-11 shrink-0" aria-hidden="true" />}
-            <h3 className="text-card-title font-data tabular-nums" aria-live="polite">{year}年{monthNumber}月</h3>
+            <h3 className="text-card-title font-bold tabular-nums" aria-live="polite">{year}年{monthNumber}月</h3>
             <Button type="button" variant="ghost" size="icon" aria-label="下一个月" onClick={() => moveMonth(1)}>
               <ChevronRight size={20} />
             </Button>
@@ -107,7 +107,7 @@ export function HistoryCalendar({
                           onClick={() => { navigateTo(pageMonth); onSelectRecord(dayRecords[0]); }}
                           aria-label={`查看 ${date} 的巡检详情，${count} 条记录`}
                           aria-current={today ? "date" : undefined}
-                          className={`mx-auto w-full max-w-12 p-0 text-card-title font-data tabular-nums text-foreground-strong ${today ? "bg-secondary" : ""}`}
+                          className={`mx-auto w-full max-w-12 p-0 text-card-title font-bold tabular-nums text-foreground-strong ${today ? "bg-secondary" : ""}`}
                         >
                           {day}
                         </Button>

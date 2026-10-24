@@ -11,7 +11,7 @@ export function DialogHeading({ id, title, description, icon, tone = "primary", 
     <div className={cn(icon && "flex items-start gap-3 px-1 pt-1", variant === "centered" && "px-2 pb-4 pt-1 text-center", variant === "account" && "px-1 pb-3", className)}>
       {icon && <span className={cn("grid size-11 shrink-0 place-items-center rounded-control", tone === "success" ? "bg-success-soft text-success" : tone === "warning" ? "bg-warning-soft text-warning" : "bg-secondary text-primary")}>{icon}</span>}
       <div className="min-w-0">
-        <h3 id={id} className="font-heading text-foreground-strong text-lg">{title}</h3>
+        <h3 id={id} className="font-black text-foreground-strong text-lg">{title}</h3>
         <p className={cn("text-muted-foreground", variant === "account" ? "mt-0.5 text-caption" : "mt-1 text-body", truncate && "truncate")}>{description}</p>
       </div>
     </div>

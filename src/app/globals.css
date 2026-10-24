@@ -17,27 +17,6 @@
   --background: #f2f2f7;
   --foreground: #0f172a;
   --foreground-strong: #020617;
-  --header-title-foreground: var(--primary-foreground);
-  --section-heading-foreground: var(--foreground);
-  --action-description-opacity: 0.75;
-  /* System faces are retained in both themes. Continuous weight correction
-   * requires a verified variable font; a numeric CSS value cannot prove it. */
-  --type-display-weight: 900;
-  --type-heading-weight: 900;
-  --type-section-weight: 700;
-  --type-data-weight: 700;
-  --type-data-secondary-weight: 600;
-  --type-count-weight: 900;
-  --type-action-weight: 600;
-  --type-action-strong-weight: 700;
-  --type-navigation-weight: 800;
-  --type-subnavigation-weight: 700;
-  --type-label-weight: 500;
-  --type-status-weight: 600;
-  --type-avatar-weight: 900;
-  --type-body-weight: 400;
-  --type-meta-weight: 400;
-
   --card: #ffffff;
   --surface-elevated: #ffffff;
   --reorder-drag-surface: var(--card);
@@ -137,11 +116,8 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
   --background: #111114;
-  --foreground: #d8d8d8;
-  --foreground-strong: #e6e6e6;
-  --header-title-foreground: var(--foreground-strong);
-  --section-heading-foreground: var(--foreground-strong);
-  --action-description-opacity: 1;
+  --foreground: #f2f2f7;
+  --foreground-strong: #ffffff;
   --card: #1c1c20;
   --surface-elevated: #28282e;
   --reorder-drag-surface: var(--neutral-control-surface);
@@ -163,8 +139,8 @@
   --secondary: #183454;
   --secondary-foreground: #91c6ff;
   --muted: #34343c;
-  --muted-foreground: #b8b8c2;
-  --subtle-foreground: #b4b4bf;
+  --muted-foreground: #bebec8;
+  --subtle-foreground: #aaaab6;
   --border: #565662;
   --control-border: #93939f;
   --select-border: var(--control-border);
@@ -181,7 +157,7 @@
   --success-soft: #183a27;
   --warning: #f5c46d;
   --warning-soft: #3c301b;
-  --destructive: #ff98a2;
+  --destructive: #ff7080;
   --destructive-surface: #b92d3e;
   --destructive-soft: #43242c;
   --select-inset: rgb(255 255 255 / 0.06);
@@ -192,9 +168,6 @@
 /* Dark contrast enhancements do not restyle the original light appearance. */
 @media (prefers-contrast: more) {
   :root[data-theme="dark"] {
-    --foreground: #ffffff;
-    --foreground-strong: #ffffff;
-    --header-title-foreground: var(--foreground-strong);
     --muted-foreground: #ededf2;
     --subtle-foreground: #d3d3df;
     --border: #93939f;
@@ -209,24 +182,6 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-foreground-strong: var(--foreground-strong);
-  --color-header-title-foreground: var(--header-title-foreground);
-  --color-section-heading-foreground: var(--section-heading-foreground);
-  --font-weight-display: var(--type-display-weight);
-  --font-weight-heading: var(--type-heading-weight);
-  --font-weight-section: var(--type-section-weight);
-  --font-weight-data: var(--type-data-weight);
-  --font-weight-data-secondary: var(--type-data-secondary-weight);
-  --font-weight-count: var(--type-count-weight);
-  --font-weight-action: var(--type-action-weight);
-  --font-weight-action-strong: var(--type-action-strong-weight);
-  --font-weight-navigation: var(--type-navigation-weight);
-  --font-weight-subnavigation: var(--type-subnavigation-weight);
-  --font-weight-label: var(--type-label-weight);
-  --font-weight-status: var(--type-status-weight);
-  --font-weight-avatar: var(--type-avatar-weight);
-  --font-weight-body: var(--type-body-weight);
-  --font-weight-meta: var(--type-meta-weight);
-
   --color-card: var(--card);
   --color-surface-elevated: var(--surface-elevated);
   --color-reorder-drag-surface: var(--reorder-drag-surface);
@@ -299,7 +254,7 @@
 /* Global base and synchronized appearance changes. */
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html { background: var(--background); }
-body { margin: 0; color: var(--foreground); font-weight: var(--type-body-weight); text-rendering: optimizeLegibility; }
+body { margin: 0; color: var(--foreground); text-rendering: optimizeLegibility; }
 button, input, select { font-family: inherit; }
 button { cursor: pointer; }
 button:disabled { cursor: default; }
@@ -357,7 +312,7 @@ button:focus-visible {
   row-gap: 2px;
   align-items: baseline;
 }
-.history-record-date { grid-area: 1 / 1; font-size: var(--font-size-history-date); line-height: 30px; font-weight: var(--type-data-weight); letter-spacing: -0.7px; }
+.history-record-date { grid-area: 1 / 1; font-size: var(--font-size-history-date); line-height: 30px; font-weight: 700; letter-spacing: -0.7px; }
 .history-record-date-caption { grid-area: 2 / 1; line-height: 17px; white-space: nowrap; }
 .history-record-separator { grid-area: 1 / 2 / 3 / 3; height: 32px; align-self: center; }
 .history-record-time { grid-area: 1 / 3; line-height: 30px; overflow-wrap: anywhere; transform: translateY(-3px); }

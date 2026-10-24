@@ -85,7 +85,7 @@ export function HistoryList({
             <span className="mx-auto mb-3 grid size-12 place-items-center rounded-control bg-muted text-primary">
               <History size={22} />
             </span>
-            <p className="text-body font-label">暂无历史记录</p>
+            <p className="text-body font-medium">暂无历史记录</p>
           </CardContent>
         </Card>
       )}
@@ -100,8 +100,8 @@ export function HistoryList({
             <span />
           </div>
           <div className="pointer-events-auto relative z-10 flex min-h-14 items-center px-1">
-            <span className="text-body font-action text-muted-foreground">
-              已选择 <b className="text-primary font-count tabular-nums">{selectedRecordIds.length}</b> 条
+            <span className="text-body font-semibold text-muted-foreground">
+              已选择 <b className="text-primary tabular-nums">{selectedRecordIds.length}</b> 条
             </span>
             <BatchDeleteControls
               selectedRecordIds={selectedRecordIds}
@@ -122,7 +122,7 @@ function RecordDate({ record }: { record: InspectionRecord }) {
       <b className="history-record-date tabular-nums">{display.date}</b>
       <span className="history-record-date-caption tabular-nums text-label text-muted-foreground">{display.dateCaption}</span>
       <span className="history-record-separator bg-border" aria-hidden="true" />
-      <span className="history-record-time text-card-title font-data-secondary tabular-nums text-muted-foreground">{display.time}</span>
+      <span className="history-record-time text-card-title font-semibold tabular-nums text-muted-foreground">{display.time}</span>
       <span className="history-record-time-caption text-label text-subtle-foreground">{display.timeCaption}</span>
       <span className="sr-only">完整填写时间 {record.time}</span>
     </span>

@@ -313,7 +313,7 @@ export function AuthScreen({
                 onClick={() =>
                   changeMode(mode === "sign-in" ? "sign-up" : "sign-in")
                 }
-                className="min-h-11 px-1 font-action-strong text-primary transition disabled:opacity-45"
+                className="min-h-11 px-1 font-bold text-primary transition disabled:opacity-45"
               >
                 {mode === "sign-in" ? "注册" : "登录"}
               </button>

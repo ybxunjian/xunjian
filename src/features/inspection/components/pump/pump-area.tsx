@@ -39,7 +39,7 @@ export function PumpArea({
               <CardContent>
                 <div className="mb-3 flex items-center justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-3">
-                    <b className="font-section shrink-0 text-body text-foreground">{group}</b>
+                    <b className="shrink-0 text-body text-foreground">{group}</b>
                     <div className="relative">
                       <select
                         value={
@@ -53,7 +53,7 @@ export function PumpArea({
                             event.target.value,
                           )
                         }
-                        className="w-[108px] rounded-control bg-muted p-3 font-data-secondary leading-[18px] text-primary outline-none"
+                        className="w-[108px] rounded-control bg-muted p-3 font-semibold leading-[18px] text-primary outline-none"
                       >
                         <option value="">选择</option>
                         {pumpNumbers.map((pumpNumber) => (

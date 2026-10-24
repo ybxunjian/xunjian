@@ -23,14 +23,6 @@ test("custom type scales survive class merging with text colors", () => {
   );
 });
 
-test("semantic weights replace base button weights without swallowing font families", () => {
-  assert.equal(cn("font-action", "font-body"), "font-body");
-  assert.equal(cn("font-action", "font-normal"), "font-normal");
-  assert.equal(cn("font-bold", "font-data"), "font-data");
-  assert.equal(cn("font-sans", "font-heading", "text-title", "text-foreground-strong"),
-    "font-sans font-heading text-title text-foreground-strong");
-});
-
 test("field errors retain help associations and label the invalid input", () => {
   const html = renderToStaticMarkup(h(TextField, {
     id: "password", label: "密码", icon: h("span"), error: "请填写密码",

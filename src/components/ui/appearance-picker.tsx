@@ -15,7 +15,7 @@ export function AppearancePicker({ disabled = false }: { disabled?: boolean }) {
   const { preference } = useAppearance();
   return (
     <section className="mt-4" aria-labelledby="appearance-heading">
-      <p id="appearance-heading" className="mb-2 px-1 text-caption font-section text-muted-foreground">外观</p>
+      <p id="appearance-heading" className="mb-2 px-1 text-caption font-bold text-muted-foreground">外观</p>
       <div role="group" aria-label="界面外观" className="grid grid-cols-3 gap-2 rounded-card bg-muted p-2">
         {OPTIONS.map(({ value, label, Icon }) => (
           <Button key={value} type="button" variant="ghost" disabled={disabled}
