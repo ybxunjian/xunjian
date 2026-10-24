@@ -48,7 +48,7 @@ export function InspectionSummary({ record }: { record: InspectionRecord }) {
                                 <span className="text-left">
                                   {readings[index].label}
                                 </span>
-                                <span className="text-right">
+                                <span className="text-right tabular-nums">
                                   {snapshot[readings[index].key]}
                                 </span>
                               </span>
@@ -111,7 +111,7 @@ function PumpSummary({
                 key={`${group}-${index}`}
               >
                 <div className="flex items-center justify-between text-sm">
-                  <span className="font-semibold text-foreground">
+                  <span className="font-semibold text-foreground tabular-nums">
                     {group} {pumpNumber}
                   </span>
                   <span className="text-caption text-muted-foreground">
@@ -126,7 +126,7 @@ function PumpSummary({
                         key={field}
                       >
                         {label}{" "}
-                        <b className="ml-1 text-foreground">
+                        <b className="ml-1 text-foreground tabular-nums">
                           {snapshot[fieldKey(area, group, String(index), field)]}
                         </b>
                       </span>

@@ -101,7 +101,7 @@ export function HistoryList({
           </div>
           <div className="pointer-events-auto relative z-10 flex min-h-14 items-center px-1">
             <span className="text-body font-semibold text-muted-foreground">
-              已选择 <b className="text-primary">{selectedRecordIds.length}</b> 条
+              已选择 <b className="text-primary tabular-nums">{selectedRecordIds.length}</b> 条
             </span>
             <BatchDeleteControls
               selectedRecordIds={selectedRecordIds}
@@ -120,7 +120,7 @@ function RecordDate({ record }: { record: InspectionRecord }) {
   return (
     <span className="history-record-info" title={`${record.date} · 填写时间 ${record.time}`}>
       <b className="history-record-date tabular-nums">{display.date}</b>
-      <span className="history-record-date-caption text-label text-muted-foreground">{display.dateCaption}</span>
+      <span className="history-record-date-caption tabular-nums text-label text-muted-foreground">{display.dateCaption}</span>
       <span className="history-record-separator bg-border" aria-hidden="true" />
       <span className="history-record-time text-card-title font-semibold tabular-nums text-muted-foreground">{display.time}</span>
       <span className="history-record-time-caption text-label text-subtle-foreground">{display.timeCaption}</span>

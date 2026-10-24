@@ -37,8 +37,8 @@ export function InspectionField({
         onChange={handleChange}
         className={
           align === "center"
-            ? "mt-1 w-full bg-transparent text-center text-lg font-bold outline-none"
-            : "mt-1 w-full bg-transparent text-xl font-bold outline-none"
+            ? "mt-1 w-full bg-transparent text-center text-lg font-bold tabular-nums outline-none"
+            : "mt-1 w-full bg-transparent text-xl font-bold tabular-nums outline-none"
         }
       />
     </label>

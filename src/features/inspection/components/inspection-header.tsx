@@ -47,7 +47,7 @@ export function InspectionHeader({
           type="button"
           onClick={onSync}
           disabled={syncStatus === "syncing"}
-          className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-control bg-white/10 px-3 text-caption font-bold text-header-muted transition hover:bg-white/15 disabled:opacity-70"
+          className="mt-4 flex min-h-11 w-full tabular-nums items-center justify-center gap-2 rounded-control bg-white/10 px-3 text-caption font-bold text-header-muted transition hover:bg-white/15 disabled:opacity-70"
         >
           <SyncIcon status={syncStatus} />
           {syncStatusLabel(

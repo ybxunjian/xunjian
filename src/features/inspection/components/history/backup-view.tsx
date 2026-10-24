@@ -65,7 +65,7 @@ function BackupMenu({
         description="保存备份，方便在其他设备恢复历史记录"
       />
 
-      <div className="mt-4 space-y-2">
+      <div className="mt-4 space-y-2 tabular-nums">
         <ActionTile icon={<Upload size={19} />} title="导出备份" tone="primary"
           description={recordCount > 0 ? `保存或发送 ${recordCount} 条记录` : "暂无可导出的记录"}
           disabled={recordCount === 0} onClick={onExport} />
@@ -86,7 +86,7 @@ function BackupMenu({
 
       <div className="mt-3 flex min-h-11 items-center justify-between rounded-control px-3 text-caption text-muted-foreground">
         <span>上次备份</span>
-        <span>{formatDateTime(lastBackupAt) ?? "尚未备份"}</span>
+        <span className="tabular-nums">{formatDateTime(lastBackupAt) ?? "尚未备份"}</span>
       </div>
 
       {canUndoImport && (
@@ -146,7 +146,7 @@ function ImportPreviewPanel({
         type="button"
         disabled={preview.newRecordCount === 0}
         onClick={onMergeImport}
-        className="mt-4 w-full rounded-full"
+        className="mt-4 w-full rounded-full tabular-nums"
       >
         <Upload size={17} />
         {preview.newRecordCount > 0 ? `恢复 ${preview.newRecordCount} 条新记录` : "没有需要新增的记录"}
@@ -170,7 +170,7 @@ function ImportPreviewPanel({
 
       {advancedOpen && (
         <div className="rounded-control bg-destructive-soft p-3">
-          <p className="text-caption leading-5 text-destructive">
+          <p className="text-caption leading-5 text-destructive tabular-nums">
             替换会删除当前记录，改为备份中的 {preview.records.length} 条。恢复后可撤销一次。
           </p>
           <Button
@@ -203,7 +203,7 @@ function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex min-h-8 items-center justify-between gap-3 text-body">
       <span className="text-muted-foreground">{label}</span>
-      <b className="text-right text-foreground">{value}</b>
+      <b className="text-right text-foreground tabular-nums">{value}</b>
     </div>
   );
 }
@@ -226,7 +226,7 @@ function CountCard({
 
   return (
     <div className="rounded-control border border-border/80 bg-card px-1 py-2.5 shadow-card">
-      <b className={`block text-lg ${toneClass}`}>{value}</b>
+      <b className={`block text-lg tabular-nums ${toneClass}`}>{value}</b>
       <span className="mt-0.5 block text-label text-muted-foreground">{label}</span>
     </div>
   );
