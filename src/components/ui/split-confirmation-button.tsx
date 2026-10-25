@@ -60,6 +60,7 @@ type SplitConfirmationButtonProps = Omit<HTMLMotionProps<"button">, "children"> 
     openContent?: ReactNode;
     openContentKey?: string;
     surface?: ReactNode;
+    closedContentClassName?: string;
     openContentClassName?: string;
     closedContentOpacity?: MotionValue<number>;
     openContentOpacity?: MotionValue<number>;
@@ -71,7 +72,7 @@ type SplitConfirmationButtonProps = Omit<HTMLMotionProps<"button">, "children"> 
 export const SplitConfirmationButton = forwardRef<HTMLButtonElement, SplitConfirmationButtonProps>(
   function SplitConfirmationButton({
     open, reduceMotion, closedContent, openContent, openContentKey, surface,
-    openContentClassName = "",
+    openContentClassName = "", closedContentClassName = "",
     closedContentOpacity, openContentOpacity, closedContentRef, openContentRef, ...props
   }, ref) {
     const { duration } = getSplitConfirmationTransition(open, reduceMotion);
@@ -96,7 +97,7 @@ export const SplitConfirmationButton = forwardRef<HTMLButtonElement, SplitConfir
         {closedContent !== undefined && (
           <motion.span
             ref={closedContentRef}
-            className={contentClassName}
+            className={`${contentClassName} ${closedContentClassName}`}
             initial={false}
             style={closedContentOpacity ? { opacity: closedContentOpacity } : undefined}
             animate={closedContentOpacity ? undefined : { opacity: open ? 0 : 1 }}

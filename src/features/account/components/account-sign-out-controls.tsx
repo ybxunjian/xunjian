@@ -125,6 +125,7 @@ export function AccountSignOutControls({
       <SplitConfirmationButton ref={triggerRef} type="button" variant="ghost"
         open={open} reduceMotion={Boolean(reduceMotion)}
         closedContent={<><LogOut className="size-4" />退出登录</>}
+        closedContentClassName="will-change-[opacity]"
         disabled={disabled || open} aria-hidden={open} tabIndex={open ? -1 : 0}
         aria-label="退出登录" onClick={onRequest}
         className={`absolute inset-0 h-11 w-full rounded-full bg-transparent text-destructive-foreground hover:bg-transparent active:scale-[.99] ${open ? "pointer-events-none" : "disabled:opacity-100"}`}

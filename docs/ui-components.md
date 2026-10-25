@@ -234,6 +234,8 @@ Portal 内的实时菜单仅在 `isPresent && !selectedRecord` 时渲染，退�
 
 `SplitConfirmationButton` 复用 Button。关闭/打开内容采用固定绝对居中层，默认交叉淡入淡出；调用方可通过 closedContentOpacity / openContentOpacity 提供自定义透明度，通过 closedContentRef / openContentRef 连接内容层原生动画，不测量、裁切或缩放文字。调用方提供当前 aria-label，视觉层 aria-hidden。
 
+closedContentClassName / openContentClassName 提供内容层样式插槽。账号退出入口的关闭文字层使用 `will-change: opacity` 保持合成层稳定，避免其他按钮的按压或气泡动画触发文字边缘重绘变化；仅限这一小块文字，不给整页或所有按钮常驻合成层。底板、几何参数和文字淡入淡出时长保持原有规则。
+
 | 方向 | 几何时长 | 曲线 |
 | --- | --- | --- |
 | 展开 | 280ms | `[0.25, 0.1, 0.25, 1]` |
