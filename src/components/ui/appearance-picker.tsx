@@ -18,6 +18,7 @@ export function AppearancePicker({ disabled = false }: { disabled?: boolean }) {
   const { root, thumb, initialIndex } = useSegmentedNavigation<(typeof VALUES)[number], HTMLDivElement>({
     items: VALUES,
     value: preference,
+    highlightCrossedItems: false,
     onChange: (value) => { if (!disabled) setAppearancePreference(value); },
   });
   return (

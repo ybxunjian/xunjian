@@ -25,6 +25,45 @@ for (const [name, count, gap] of [["primary", 4, 0], ["belt", 3, 4]]) {
   });
 }
 
+for (const [initial, target] of [[0, 2], [2, 0]]) {
+  test(`appearance click from ${initial} to ${target} leaves the middle option unhighlighted`, (t) => {
+    const nav = navigationFixture(t, { count: 3, gap: 8, index: initial, highlightCrossedItems: false });
+    nav.pointer("pointerdown", nav.center(target));
+    nav.advance(48);
+    nav.pointer("pointerup", nav.center(target));
+    let crossedMiddle = false;
+    for (let frame = 0; frame < 80; frame++) {
+      nav.advance(16);
+      const nearest = Math.round(nav.transform().x / (nav.center(1) - nav.center(0)));
+      crossedMiddle ||= nearest === 1;
+      assert.equal(nav.buttons[1].attributes.get("data-preview-active"), "false");
+      if (nearest !== target) assert.equal(nav.buttons[target].attributes.get("data-preview-active"), "false");
+    }
+    assert.ok(crossedMiddle);
+    nav.settle();
+    nav.assertAt(target);
+    nav.click(initial, 0);
+    for (let frame = 0; frame < 80; frame++) {
+      nav.advance(16);
+      assert.equal(nav.buttons[1].attributes.get("data-preview-active"), "false");
+    }
+    nav.settle();
+    nav.assertAt(initial);
+  });
+}
+
+test("appearance drag still previews crossed options", (t) => {
+  const nav = navigationFixture(t, { count: 3, gap: 8, highlightCrossedItems: false });
+  nav.pointer("pointerdown", nav.center(0));
+  nav.advance(320);
+  nav.pointer("pointermove", nav.center(1));
+  nav.advance(400);
+  nav.assertAt(1);
+  nav.pointer("pointercancel", nav.center(1));
+  nav.settle();
+  nav.assertAt(0);
+});
+
 test("pointer press responds before 80ms without teleporting or committing its preview", (t) => {
   const nav = navigationFixture(t);
   nav.pointer("pointerdown", nav.center(3));
