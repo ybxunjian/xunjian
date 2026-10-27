@@ -1,55 +1,39 @@
 # 项目交接
 
-文档核对日期：2026-10-15。本文只提供接手入口；完整文档索引见 [README](./README.md#文档入口与职责)。
+文档按当前源码梳理于 2026-10-27。本文用于接手定位，不记录测试或部署结论；完整索引见 [README](./README.md#文档入口与职责)。
 
 ## 接手顺序
 
-1. 阅读 [AGENTS.md](./AGENTS.md) 和 [治理约定](./GOVERNANCE.md)。
-2. 根据任务阅读 [架构](./ARCHITECTURE.md)、[业务规则](./docs/inspection-rules.md)、[数据与同步](./docs/data-and-sync.md) 或 [设计规范](./DESIGN.md)。
-3. 涉及交互时阅读 [公共 UI 与交互](./docs/ui-components.md)，涉及环境或上线时阅读 [开发与发布](./docs/development.md)。
-4. 用当前源码和 `git status` 确认工作副本状态；文档中的核对日期不代表新的测试或部署结果。
+1. 阅读 [AGENTS.md](./AGENTS.md)、[维护约定](./GOVERNANCE.md)和[架构](./ARCHITECTURE.md)。
+2. 检查工作区、分支和远端，确认已有改动。
+3. 按任务阅读业务、数据、UI 或发布专题，以源码核对需求。
+4. 完成修改后执行对应验证并更新所属文档。
 
-## 当前产品形态
+## 核心入口
 
-| 范围 | 当前形态与详细入口 |
+| 工作内容 | 首先查看 |
 | --- | --- |
-| 运行与数据 | 手机端 PWA、静态导出、本地优先，可选 Supabase 账号同步；见 [架构](./ARCHITECTURE.md)与 [数据与同步](./docs/data-and-sync.md) |
-| 巡检与历史 | 两处冲渣、三条皮带、历史列表/详情/日历/备份；填写、返回、删除及撤销规则见 [业务规则](./docs/inspection-rules.md) |
-| 外观与导航 | 设备本地浅色/深色/跟随系统，账号可保存导航排序；尺寸、滑块、页面与菜单生命周期见 [公共 UI](./docs/ui-components.md) |
-| 账号与确认 | 私有头像、原位改密、分裂退出确认与头像锚定气泡；交互见 [公共 UI](./docs/ui-components.md)，认证及头像恢复见 [数据与同步](./docs/data-and-sync.md) |
-
-本文件提供入口，参数、数据规则和验收要求由对应专题维护。文档核对日期不代表测试已重跑、代码已推送或生产环境已部署。
-
-## 代码定位
-
-| 任务 | 首先查看 |
-| --- | --- |
-| 路由、认证分流与应用接线 | [page.tsx](./src/app/page.tsx)、[night-inspection-app.tsx](./src/features/inspection/components/night-inspection-app.tsx)、[inspection-app-content.tsx](./src/features/inspection/components/inspection-app-content.tsx)；页头展示见 [inspection-header.tsx](./src/features/inspection/components/inspection-header.tsx) |
-| 设备与校验 | `src/features/inspection/model/` |
-| 草稿、并发和同步状态 | [use-inspection-controller.ts](./src/features/inspection/hooks/use-inspection-controller.ts) |
-| 保存、选择、删除与撤销 | [use-inspection-history.ts](./src/features/inspection/hooks/use-inspection-history.ts) |
-| 导入、导出与恢复撤销 | [use-inspection-backup.ts](./src/features/inspection/hooks/use-inspection-backup.ts) |
-| 两层导航滑块与手势 | [segmented-navigation-controller.ts](./src/components/ui/segmented-navigation-controller.ts)、[segmented-navigation-motion.ts](./src/components/ui/segmented-navigation-motion.ts)；业务包装见 InspectionTabs / BeltTabs |
-| 详情与批量分裂动画 | [split-confirmation-button.tsx](./src/components/ui/split-confirmation-button.tsx)、[use-native-style-transition.ts](./src/components/ui/use-native-style-transition.ts)；参数与业务边界见 [公共分裂确认](./docs/ui-components.md#公共分裂确认) |
-| 改密展开与下方内容位移 | [use-account-height-animation.ts](./src/features/account/components/use-account-height-animation.ts)；交互见 [修改密码原位展开](./docs/ui-components.md#修改密码原位展开) |
-| 历史菜单、日历与详情 | `src/features/inspection/components/history/`、[use-calendar-pager.ts](./src/features/inspection/hooks/use-calendar-pager.ts) |
-| 账号设置与头像 | `src/features/account/` |
-| 登录、密码恢复与会话 | `src/features/auth/` |
-| 外观与主题事件 | [appearance.ts](./src/lib/appearance.ts)、[use-appearance.ts](./src/hooks/use-appearance.ts)、[appearance-runtime.tsx](./src/app/appearance-runtime.tsx) |
-| 通用样式与交互 | `src/components/ui/`、[globals.css](./src/app/globals.css) |
-| 自动化与验收 | `tests/`、`tests/helpers/`；测试入口和验证范围见 [开发与发布](./docs/development.md#验证) |
+| 路由与认证分流 | [page.tsx](./src/app/page.tsx)、[night-inspection-app.tsx](./src/features/inspection/components/night-inspection-app.tsx) |
+| 页面和账号组合 | [inspection-app-content.tsx](./src/features/inspection/components/inspection-app-content.tsx) |
+| 设备与校验 | [config.ts](./src/features/inspection/model/config.ts)、[field-rules.ts](./src/features/inspection/model/field-rules.ts)、[validation.ts](./src/features/inspection/model/validation.ts) |
+| 草稿与同步 | [use-inspection-controller.ts](./src/features/inspection/hooks/use-inspection-controller.ts)、inspection 的 storage / sync 目录 |
+| 历史与备份 | [use-inspection-history.ts](./src/features/inspection/hooks/use-inspection-history.ts)、[use-inspection-backup.ts](./src/features/inspection/hooks/use-inspection-backup.ts) |
+| 认证与账号偏好 | auth / account 的 hooks、storage、sync 目录；职责见[架构](./ARCHITECTURE.md) |
+| 公共交互与样式 | src/components/ui、[globals.css](./src/app/globals.css)；契约见[公共 UI](./docs/ui-components.md) |
+| 品牌与分享 | [品牌资源](./design/brand/README.md) |
+| 测试与发布 | [开发与发布](./docs/development.md) |
 
 ## 接手时注意
 
-- 数据兼容读取、旧巡检字段保留、持久化队列、墓碑和 RPC 回退仍有运行时用途，不能作为“旧代码”直接删除；字段兼容规则见[数据与同步](./docs/data-and-sync.md#兼容读取)。
-- 修改导航、历史菜单或 presence 逻辑后，按 [验证要求](./docs/development.md#浏览器与真机回归)检查快速反向、拖动和菜单重入；不能沿用旧审计的根因结论。
-- 浏览器自动化不能证明 iPhone 微信工具栏伸缩、真实多设备同步和移动端手感已完成验收；检查范围见开发文档。
-- APK 包装、第二套 UI 系统及独立状态库不属于当前实现。
+- 应用静态导出；本地、账号和离线恢复模式见[架构](./ARCHITECTURE.md#运行模式与部署边界)。
+- 本地数据兼容、队列、墓碑和 RPC 回退仍有用途，不能因品牌改名或界面删除而移除；见[数据与同步](./docs/data-and-sync.md)。
+- 导航、菜单、弹层和确认动画需要覆盖中途打断、退场及减少动态效果。
+- 仓库迁移文件不证明生产数据库已应用；自动化通过也不证明微信真机、多设备同步或移动端手感已验收。
 
 ## 新对话提示
 
 ```text
-继续开发云速巡检仓库 https://github.com/ybxunjian/xunjian。
-先读 AGENTS.md、PROJECT_HANDOFF.md，并按 README 文档索引阅读相关专题。
-以当前源码核对需求，保留数据兼容和现有技术栈，再执行本轮修改。
+继续维护云速巡检：https://github.com/ybxunjian/xunjian
+先读 AGENTS.md、PROJECT_HANDOFF.md 和 README 文档索引。
+以当前代码确认需求和已有改动，保留数据兼容与既有技术栈，执行相关验证。
 ```

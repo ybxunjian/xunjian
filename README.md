@@ -1,58 +1,36 @@
 # 云速巡检
 
-面向手机现场填写的巡检 PWA，支持 8#冲渣、SZ101 / SZ201 / SZ201-N 皮带、9#冲渣，以及历史汇总、巡检日历、删除撤销和 JSON 备份恢复。
+面向手机现场的巡检 PWA，覆盖 8#冲渣、9#冲渣、SZ101 / SZ201 / SZ201-N 皮带，以及历史查看、巡检日历和 JSON 备份恢复。
 
-数据先保存到当前浏览器。配置 Supabase 后提供邮箱账号、私有头像、导航排序和跨设备同步；未配置时可纯本地使用。首次访问需要网络，离线资源和本地数据依赖浏览器保留站点数据。
+数据本地优先，可选 Supabase 邮箱认证与跨设备同步。项目静态导出到 GitHub Pages，支持安装和离线使用。
 
-正式网站：<https://ybxunjian.github.io/xunjian/>
+- 正式网站：<https://ybxunjian.github.io/xunjian/>
+- 代码仓库：<https://github.com/ybxunjian/xunjian>
 
-仓库：<https://github.com/ybxunjian/xunjian>
+## 快速开始
 
-## 开始开发
-
-使用 Node.js 22，在仓库根目录执行：
+使用 Node.js 22：
 
 ```bash
 npm ci
 npm run dev
 ```
 
-打开 <http://localhost:3000/>。`package-lock.json` 是已提交的依赖锁文件；按现有版本安装，无需更新依赖。
-
-Supabase 环境变量、数据库初始化、质量门禁与 GitHub Pages 发布步骤见 [开发与发布](./docs/development.md)。推送 `main` 会触发正式发布。
+打开 <http://localhost:3000/>。依赖按已提交的锁文件安装；环境配置、完整校验和部署见[开发与发布](./docs/development.md)。
 
 ## 文档入口与职责
 
-### 按任务阅读
-
-| 当前任务 | 阅读顺序 |
+| 文档 | 阅读目的 |
 | --- | --- |
-| 接手项目 | [交接](./PROJECT_HANDOFF.md) → [代理约束](./AGENTS.md) → [治理](./GOVERNANCE.md) → [架构](./ARCHITECTURE.md) |
-| 调整界面或动画 | [设计规范](./DESIGN.md) → [公共 UI](./docs/ui-components.md) → [验证](./docs/development.md#验证) |
-| 调整填写、历史或备份 | [业务规则](./docs/inspection-rules.md) → [数据与同步](./docs/data-and-sync.md) → [验证](./docs/development.md#验证) |
-| 排查账号、同步或离线 | [架构](./ARCHITECTURE.md) → [数据与同步](./docs/data-and-sync.md) → [开发与发布](./docs/development.md) |
-| 更新图标 | [品牌资源](./design/brand/README.md) → [验证](./docs/development.md#验证) |
-| 配置环境或发布 | [开发与发布](./docs/development.md) → [GitHub Pages](./docs/development.md#github-pages) |
+| [项目交接](./PROJECT_HANDOFF.md) | 快速接手、定位代码和风险边界 |
+| [AGENTS.md](./AGENTS.md) | 开发代理约束；CLAUDE.md 引用同一文件 |
+| [维护约定](./GOVERNANCE.md) | 修改范围、删除依据和文档维护规则 |
+| [项目架构](./ARCHITECTURE.md) | 运行方式、模块职责和扩展位置 |
+| [业务规则](./docs/inspection-rules.md) | 设备范围、填写、保存、历史和备份行为 |
+| [数据与同步](./docs/data-and-sync.md) | 数据格式、存储、冲突处理、账号隔离和兼容性 |
+| [设计规范](./DESIGN.md) | 视觉语言、令牌、主题和信息层级 |
+| [公共 UI](./docs/ui-components.md) | 组件复用、关键布局与动画契约 |
+| [开发与发布](./docs/development.md) | 环境、迁移、校验和 GitHub Pages 发布 |
+| [品牌资源](./design/brand/README.md) | 品牌名、图形源稿、图标和分享图维护 |
 
-### 唯一维护入口
-
-每类规则只在对应文档维护，其他文档通过链接引用。文档与源码不一致时先核对当前实现及明确需求，再纠正文档；不要根据旧截图或历史提交恢复已经替换的实现。
-
-| 需要了解的内容 | 唯一维护入口 |
-| --- | --- |
-| 新对话接手、重点代码入口 | [项目交接](./PROJECT_HANDOFF.md) |
-| 开发代理必须遵守的约束 | [AGENTS.md](./AGENTS.md)；`CLAUDE.md` 引用同一文件 |
-| 修改边界、清理依据、文档维护 | [治理约定](./GOVERNANCE.md) |
-| 模块职责、依赖方向和扩展位置 | [架构](./ARCHITECTURE.md) |
-| 设备、填写、保存、历史和备份规则 | [巡检业务规则](./docs/inspection-rules.md) |
-| 数据格式、兼容读取、同步与账号隔离 | [数据与同步](./docs/data-and-sync.md) |
-| 视觉语言、设计令牌和层级 | [设计规范](./DESIGN.md) |
-| 公共组件、尺寸、动画参数和交互 | [公共 UI 与交互](./docs/ui-components.md) |
-| 环境、迁移、校验与发布 | [开发与发布](./docs/development.md) |
-| 品牌母版、图标导出和验收 | [品牌资源](./design/brand/README.md) |
-
-## 运行入口
-
-[src/app/page.tsx](./src/app/page.tsx) 保持路由入口；[NightInspectionApp](./src/features/inspection/components/night-inspection-app.tsx) 负责认证分流，[InspectionAppContent](./src/features/inspection/components/inspection-app-content.tsx) 组合巡检与账号功能，[InspectionHeader](./src/features/inspection/components/inspection-header.tsx) 展示页头状态和操作。
-
-业务代码在 `src/features/`，通用控件在 `src/components/ui/`，设计令牌在 `src/app/globals.css`。更完整的职责划分见 [架构](./ARCHITECTURE.md)。测试入口与验收边界见 [开发与发布](./docs/development.md#验证)，历史实施过程由 Git / Actions 保存，不作为现行规范重复维护。
+接手先读交接、代理约束和架构，再按任务阅读专题。每类规则只有一个维护入口，其他文档通过链接引用；文档与源码不一致时核对当前实现，不按历史截图恢复旧方案。

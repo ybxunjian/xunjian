@@ -1,73 +1,71 @@
 # 项目架构
 
-项目使用 Next.js App Router 和按业务功能组织的模块化单体结构。路由、展示、流程编排、纯规则、存储和网络读写分别承担独立职责。
+项目采用 Next.js App Router、React、TypeScript 和按业务组织的模块化结构。技术栈约束见 [AGENTS.md](./AGENTS.md)。
+
+## 运行模式与部署边界
+
+应用通过 `output: "export"` 静态导出到 GitHub Pages。认证、交互、本地存储及云端请求在浏览器执行；云数据访问由 Supabase 客户端和数据库 RPC 承担。
+
+| 模式 | 行为 |
+| --- | --- |
+| 本地 | Supabase URL 或公开 key 缺失时直接进入巡检，使用本机数据，无账号面板 |
+| 账号 | 完整配置后检查会话，未登录进入认证页，已登录按账号 ID 隔离巡检与偏好生命周期 |
+| 离线恢复 | 使用缓存身份恢复对应账号的本机数据；身份缓存不授予云端权限 |
+| 密码恢复 | 邮件恢复进入认证流程，更新成功后回到巡检 |
 
 ## 目录与边界
 
 | 目录 | 职责 |
 | --- | --- |
-| `src/app/` | 路由、布局、元数据、全局令牌和 Service Worker 注册 |
-| `src/components/ui/` | 跨业务控件与交互基础，不依赖 `features` |
-| `src/features/inspection/components/` | 巡检展示，按泵区、皮带、历史、保存校验拆分 |
-| `src/features/inspection/hooks/` | 草稿和同步、历史操作、备份、日历手势的流程编排 |
-| `src/features/inspection/model/` | 设备配置、字段、校验、时间、草稿仲裁和分页纯规则 |
-| `src/features/inspection/storage/` | 巡检本地读写、账号缓存切换、备份格式与归一化 |
-| `src/features/inspection/sync/` | 云端读写、行映射和持久化历史操作队列 |
-| `src/features/auth/` | 认证表单、会话、密码恢复和离线身份 |
-| `src/features/account/` | 账号面板、头像、导航偏好及独立存储和同步 |
-| `src/hooks/` | 跨功能浏览器外观订阅与字段反馈 |
-| `src/lib/` | 通用工具、设备外观状态与浏览器 Supabase 客户端 |
-| `scripts/` | 静态导出后的 Service Worker 生成 |
-| `supabase/migrations/` | 数据库、权限、Storage 和 Realtime 初始化 |
-| `tests/`、`tests/helpers/` | 自动化回归及受控测试环境，不被运行时导入 |
+| src/app | 路由、布局、元数据、全局令牌和 Service Worker 注册 |
+| src/components/ui | 跨业务控件与交互基础，不依赖 features |
+| src/features/inspection | 巡检、草稿、历史、备份和同步 |
+| src/features/auth | 登录、注册、密码恢复、会话和离线身份 |
+| src/features/account | 账号面板、头像、导航偏好及其持久化 |
+| src/hooks / src/lib | 跨业务浏览器订阅、通用工具、外观和 Supabase 客户端 |
+| public / src/assets / design | 静态生产资源、独立品牌导出和设计源稿；用途见[品牌文档](./design/brand/README.md) |
+| scripts | 静态导出后的 Service Worker 生成 |
+| supabase/migrations | 数据库、权限、Storage 和 Realtime 迁移 |
+| tests | 纯规则、控制器和组件回归；不被运行时代码导入 |
 
-`src/assets/` 的透明品牌导出用于核对，当前运行时不加载；生产图标和设计源稿由 [品牌文档](./design/brand/README.md) 说明。
+业务模块按职责分为 components、hooks、model、storage 和 sync：
 
-## 依赖规则
+- page.tsx 保持 Server Component，浏览器状态与副作用放在客户端功能入口；不因局部交互将整条路由改为客户端组件。
+- components 负责展示与事件接线；hooks 编排流程和副作用。
+- model 处理纯规则，不依赖 React、DOM、动画和 localStorage。
+- storage 管理本机格式、读取与兼容；sync 管理队列和网络策略。
+- 对外入口使用 feature 的 index.ts，业务内部引用具体模块。
+- 公共 UI 不反向引用业务；lib 不承接设备规则或业务流程。
 
-- `src/app/page.tsx` 保持 Server Component，交给客户端 `NightInspectionApp` 判断认证状态；`InspectionAppContent` 组合巡检流程和账号偏好，并按账号 ID 隔离挂载生命周期。
-- 业务组件调用自己的 hook 和 model；纯 `model` 不依赖 React、DOM、动画或 localStorage。
-- 巡检 localStorage 键由 `inspection-storage.ts` 管理；历史队列、认证身份、账号偏好由各自专属模块管理，不把所有浏览器存储混入一个文件。
-- `components/ui` 可以被各 feature 使用，不能反向引用业务模块。业务内部直接引用具体文件，对外使用各 feature 的 `index.ts`。
-- `lib` 不承接设备规则或业务流程；网络策略不放入只负责载荷转换的 model 或 mapping 模块。
+## 应用组合
 
-## 流程扩展位置
+```text
+page.tsx
+└─ NightInspectionApp：认证分流、账号隔离
+   ├─ AuthScreen：认证
+   └─ InspectionAppContent：巡检与账号编排
+      ├─ InspectionHeader / InspectionTabs
+      ├─ PumpArea / BeltArea / HistoryView
+      └─ AccountDialog / SaveValidationDialog
+```
 
-| 改动内容 | 实现位置与职责 |
+一级页面即时切换；历史子页面使用公共 DirectionalViewTransition。历史菜单位于内容外的 Portal，保持独立退场生命周期。弹层、分段导航和分裂确认复用公共 UI；几何参数与交互约定见[公共 UI](./docs/ui-components.md)。
+
+设备外观由 appearance.ts 和 useAppearance 管理，根布局处理首绘，AppearanceRuntime 承载 Sonner；业务只消费 globals.css 语义令牌。外观是设备偏好，不混入账号云偏好。
+
+## 核心扩展位置
+
+| 修改内容 | 实现入口 |
 | --- | --- |
-| 设备、字段及完整性校验 | `model/config.ts`、`field-rules.ts`、`validation.ts` |
-| 草稿冲突与版本递增 | `model/draft-reconciliation.ts`；控制器只编排使用 |
-| 字段编辑、选择、清空与撤销 | `hooks/use-inspection-draft-actions.ts` 组合字段规则和操作反馈；所有写入交回控制器的 `applyDraftChange`，统一版本递增、本地保存及上传调度 |
-| 同步并发 | `use-inspection-controller.ts` 持有修订号、互斥、补跑、防抖、退避和状态 |
-| 外部同步事件 | `use-inspection-sync-events.ts` 注册和清理 online、前台与 Realtime，回调进入控制器的同一同步入口 |
-| 保存和删除 | `use-inspection-history.ts` 处理本地提交、选择状态、云端操作和撤销 |
-| 备份 | `use-inspection-backup.ts` 编排；`storage/inspection-backup.ts` 处理解析、去重和排序 |
-| 队列与网络 | `inspection-sync-queue.ts` 管理持久化项；`inspection-cloud-sync.ts` 决定新增、删除、恢复和 RPC 策略 |
-| 数据库载荷 | `inspection-cloud-mapping.ts` 做行校验与转换，领域载荷校验复用 `model/validation.ts` |
-| 日历 | `HistoryCalendar` 展示；`use-calendar-pager.ts` 管理手势与运动；`calendar-paging.ts` 计算目标和速度限制 |
-| 偏好与头像 | `use-user-preferences.ts` 编排字段并发和恢复；`prepare-avatar.ts` 处理图片；`navigation-order-editor.tsx` 管理排序草稿与提交，公共 `LongPressReorderItem` 管理单项长按拖动 |
+| 设备、字段和保存校验 | [config](./src/features/inspection/model/config.ts)、[field-rules](./src/features/inspection/model/field-rules.ts)、[validation](./src/features/inspection/model/validation.ts) |
+| 字段编辑、清空、新建 | [use-inspection-draft-actions](./src/features/inspection/hooks/use-inspection-draft-actions.ts)；写入统一进入控制器 applyDraftChange |
+| 草稿仲裁 | [draft-reconciliation](./src/features/inspection/model/draft-reconciliation.ts) |
+| 同步互斥、修订保护、防抖与重试 | [use-inspection-controller](./src/features/inspection/hooks/use-inspection-controller.ts)；外部事件由 [use-inspection-sync-events](./src/features/inspection/hooks/use-inspection-sync-events.ts) 接入 |
+| 保存、删除与撤销 | [use-inspection-history](./src/features/inspection/hooks/use-inspection-history.ts) |
+| 备份流程 / 载荷 | [use-inspection-backup](./src/features/inspection/hooks/use-inspection-backup.ts) / [inspection-backup](./src/features/inspection/storage/inspection-backup.ts) |
+| 队列 / 云读写 / 行映射 | [inspection-sync-queue](./src/features/inspection/sync/inspection-sync-queue.ts) / [inspection-cloud-sync](./src/features/inspection/sync/inspection-cloud-sync.ts) / [inspection-cloud-mapping](./src/features/inspection/sync/inspection-cloud-mapping.ts) |
+| 日历展示与手势 | [HistoryCalendar](./src/features/inspection/components/history/history-calendar.tsx) / [use-calendar-pager](./src/features/inspection/hooks/use-calendar-pager.ts) / [calendar-paging](./src/features/inspection/model/calendar-paging.ts) |
+| 账号偏好与头像 | [use-user-preferences](./src/features/account/hooks/use-user-preferences.ts) / account 的 [storage](./src/features/account/storage/) 和 [sync](./src/features/account/sync/) |
+| 导航与通用动画 | [components/ui](./src/components/ui/) 的 segmented-navigation、split-confirmation、sheet 等模块 |
 
-数据格式、迁移兼容和完整同步流程只在 [数据与同步](./docs/data-and-sync.md) 维护。
-
-## 设备外观
-
-`src/lib/appearance.ts` 独立管理设备本地主题偏好与浏览器外观事件，`src/hooks/use-appearance.ts` 提供 React 外部快照订阅。根布局在内容首绘前解析偏好，外观模块同步 theme-color，常驻 AppearanceRuntime 跟随主题显示 Toast；账号面板调用公共 AppearancePicker。业务组件只消费语义令牌，颜色解析集中在 globals.css，不将主题状态混入巡检数据或用户云偏好。
-
-## UI 组合
-
-- `NightInspectionApp` 只负责认证加载、登录/恢复分流与账号隔离；`InspectionAppContent` 负责巡检控制器、偏好、页面选择和弹层编排。`InspectionHeader` 只展示头像入口、同步状态和操作按钮，通过回调交回编排层，不读写存储或执行同步。
-- `InspectionTabs` 与 `BeltTabs` 保留各自布局、语义和选择回调；公共 `use-segmented-navigation.ts` 管理 React 引用、最新回调、排序/减少动态效果变化时的重建及卸载清理，`segmented-navigation-controller.ts` 负责滑块与手势，`segmented-navigation-motion.ts` 维护弹簧参数；公共层不持有业务页面或存储状态。
-- `InspectionAppContent` 即时切换一级内容；退出内容立即 hidden / inert，保留 presence 生命周期供 Portal 菜单独立退场。
-- `HistoryView` 只负责历史子页面状态、菜单 Portal 和切页编排，用公共 `DirectionalViewTransition` 切换列表、详情、日历和备份；详情底部操作栏在切页 transform 容器外定位。`HistoryList` 负责列表、记录日期展示及批量操作栏，保存和删除仍交给历史 hook。
-- `HistoryQuickMenu` 通过 Portal 放入一级内容外的静态容器，菜单形态由最终页面状态驱动。`HistoryView` 在退出时移除菜单的实时子节点，由 AnimatePresence 保留唯一退场快照；快速重入重置历史子页面与菜单展开状态。
-- 公共 `SplitConfirmationButton` 统一内容层和动画基础。批量删除、详情删除、退出登录的几何布局、焦点策略和提交仍留在对应业务控件。
-- [useNativeStyleTransition](./src/components/ui/use-native-style-transition.ts) 管理详情与批量确认的原生样式动画、打断快照和回退，不持有业务状态；详情混色继续由公共分裂进度驱动，具体属性与时间线见 [公共 UI](./docs/ui-components.md#公共分裂确认)。
-- 详情删除的宽度、文字交接和颜色完成进度集中在 `detail-record-actions-motion.ts`；公共分裂参数仍由公共组件维护，业务专属参数不扩散到其他确认按钮。
-- 公共 `Sheet` 管理弹层栈、滚动锁定、焦点及退出禁用；账号内密码展开由 `AccountPasswordControls` 与 `AccountPasswordForm` 管理。账号专属 [useAccountHeightAnimation](./src/features/account/components/use-account-height-animation.ts) 协调表单高度测量、原生动画和收起完成回调，下方偏好区保持正常文档流，不扩展到其他弹层。
-- 公共 `ConfirmationPopover` 管理气泡和自身 WAAPI 生命周期，头像请求由 `AccountDialog` 执行。WAAPI 是浏览器能力，不增加动画依赖。
-
-控件参数和调用约定见 [公共 UI 与交互](./docs/ui-components.md)，视觉原则见 [设计规范](./DESIGN.md)，修改和清理要求见 [治理约定](./GOVERNANCE.md)。
-
-## 验证入口
-
-测试辅助代码可以导入实际控制器与纯规则，运行时不反向依赖测试。测试用例、颜色解析支持范围与浏览器/真机验收职责统一见 [开发与发布](./docs/development.md#验证)，此处不维护测试数量或发布结果。
+稳定业务规则见[业务文档](./docs/inspection-rules.md)，格式与并发约束见[数据与同步](./docs/data-and-sync.md)，修改和删除依据见[维护约定](./GOVERNANCE.md)。
