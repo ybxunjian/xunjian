@@ -68,12 +68,12 @@ export function HistoryQuickMenu({
         duration: reduceMotion ? 0 : duration,
         ease: [0.22, 1, 0.36, 1],
         ...(index === 2 ? {
-          strokeDasharray: { duration: reduceMotion ? 0 : 0.2, delay: showBack && !reduceMotion ? 0.08 : 0 },
-          opacity: { duration: reduceMotion ? 0 : 0.2, delay: showBack && !reduceMotion ? 0.08 : 0 },
+          strokeDasharray: { duration: reduceMotion ? 0 : open && !manageHistory && !showBack ? 0.06 : 0.2, delay: showBack && !reduceMotion ? 0.08 : 0 },
+          opacity: { duration: reduceMotion ? 0 : open && !manageHistory && !showBack ? 0.06 : 0.2, delay: showBack && !reduceMotion ? 0.08 : 0 },
         } : {}),
       },
     }));
-  }, [centerVisible, isPresent, paths, reduceMotion, shapeAnimation, showBack]);
+  }, [centerVisible, isPresent, manageHistory, open, paths, reduceMotion, shapeAnimation, showBack]);
 
   const menuRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -131,7 +131,7 @@ export function HistoryQuickMenu({
               opacity: 0,
               transform: reduceMotion ? "translateX(0px)" : "translateX(8px)",
               transition: reduceMotion ? { duration: 0 } : {
-                duration: 0.18,
+                duration: 0.16,
                 ease: [0.4, 0, 1, 1],
               },
             }}
