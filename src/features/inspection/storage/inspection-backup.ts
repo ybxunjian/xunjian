@@ -53,7 +53,7 @@ export function createBackupFileName(now = new Date()) {
   const value = (type: Intl.DateTimeFormatPartTypes) =>
     parts.find((part) => part.type === type)?.value ?? "00";
 
-  return `夜班巡检备份_${value("year")}-${value("month")}-${value("day")}_${value("hour")}${value("minute")}.json`;
+  return `云速巡检备份_${value("year")}-${value("month")}-${value("day")}_${value("hour")}${value("minute")}.json`;
 }
 
 export function parseInspectionBackup(
@@ -79,7 +79,7 @@ export function parseInspectionBackup(
       : null;
 
   if (!rawRecords) {
-    throw new Error("这不是“夜班巡检”支持的备份文件");
+    throw new Error("这不是“云速巡检”支持的备份文件");
   }
 
   const existingIds = new Set(currentRecords.map((record) => record.id));

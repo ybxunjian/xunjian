@@ -49,7 +49,7 @@
 ## 新对话提示
 
 ```text
-继续开发夜班巡检仓库 https://github.com/ybxunjian/xunjian。
+继续开发云速巡检仓库 https://github.com/ybxunjian/xunjian。
 先读 AGENTS.md、PROJECT_HANDOFF.md，并按 README 文档索引阅读相关专题。
 以当前源码核对需求，保留数据兼容和现有技术栈，再执行本轮修改。
 ```

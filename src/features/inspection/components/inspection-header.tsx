@@ -25,7 +25,7 @@ export function InspectionHeader({
     <header className="rounded-sheet bg-gradient-to-br from-header-start via-header-middle to-header-end p-5 text-primary-foreground shadow-floating ring-1 ring-white/10">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="text-3xl font-black tracking-tight">夜班巡检</h1>
+          <h1 className="text-3xl font-black tracking-tight">云速巡检</h1>
         </div>
         {onOpenAccount && email && (
           <button

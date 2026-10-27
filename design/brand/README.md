@@ -1,5 +1,7 @@
 # 品牌资源
 
+项目品牌名为“云速巡检”，用于应用界面、安装名称、分享信息及备份提示。
+
 [night-inspection-master.svg](./night-inspection-master.svg) 是品牌图形唯一设计母版：透明背景、sRGB 色值、无描边 Bézier 路径。界面使用方式见 [设计规范](../../DESIGN.md)，此处维护资产本身。
 
 ## 固定规范

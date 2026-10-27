@@ -92,7 +92,7 @@ export function useInspectionBackup({
         try {
           await navigator.share({
             files: [file],
-            title: "夜班巡检备份",
+            title: "云速巡检备份",
             text: `共 ${records.length} 条历史记录`,
           });
           delivery = "share";

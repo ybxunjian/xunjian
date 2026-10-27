@@ -215,7 +215,7 @@ export function AuthScreen({
             <AuthLogo />
           )}
           <CredentialHeading
-            title={mode === "reset-password" ? "设置新密码" : "夜班巡检"}
+            title={mode === "reset-password" ? "设置新密码" : "云速巡检"}
             description={mode === "forgot-password"
               ? "输入注册邮箱，我们会发送密码重置链接。"
               : mode === "reset-password"
