@@ -290,6 +290,8 @@ button:focus-visible {
 .primary-segmented-navigation [data-preview-active="false"] { color: var(--navigation-muted); }
 .belt-segmented-navigation [data-preview-active="true"] { color: var(--belt-selection-foreground); }
 .belt-segmented-navigation [data-preview-active="false"] { color: var(--muted-foreground); }
+.appearance-segmented-navigation [data-preview-active="true"] { color: var(--foreground); }
+.appearance-segmented-navigation [data-preview-active="false"] { color: var(--muted-foreground); }
 @media (prefers-reduced-motion: reduce) {
   .segmented-navigation-thumb { will-change: auto; }
 }

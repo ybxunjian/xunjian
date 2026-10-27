@@ -46,7 +46,7 @@ appearance.ts 统一首绘、系统主题/对比度和跨标签页订阅；useAp
 
 ## 两层导航
 
-InspectionTabs 与 BeltTabs 保留业务语义和布局，公共 [useSegmentedNavigation](../src/components/ui/use-segmented-navigation.ts) 接线，[控制器](../src/components/ui/segmented-navigation-controller.ts)处理手势。
+InspectionTabs、BeltTabs 与 AppearancePicker 保留各自业务语义和布局，公共 [useSegmentedNavigation](../src/components/ui/use-segmented-navigation.ts) 接线，[控制器](../src/components/ui/segmented-navigation-controller.ts)处理手势。外观选择器在松手提交后切换主题，禁用时整个轨道不可交互。
 
 - 按下即捕获指针，滑块由弹簧追赶后混合为直接跟手；高亮跟随预览，业务选择在点击或松手提交。
 - 松手按最近位置选择，不按速度额外跳项；取消、失焦、尺寸变化恢复已提交状态。

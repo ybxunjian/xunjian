@@ -10,6 +10,7 @@ import { AccountPasswordControls } from "../src/features/account/components/acco
 import { InspectionTabs } from "../src/features/inspection/components/inspection-tabs.tsx";
 import { BeltTabs } from "../src/features/inspection/components/belt/belt-tabs.tsx";
 import { HistoryCalendar } from "../src/features/inspection/components/history/history-calendar.tsx";
+import { AppearancePicker } from "../src/components/ui/appearance-picker.tsx";
 import { cn } from "../src/lib/utils.ts";
 
 test("custom type scales survive class merging with text colors", () => {
@@ -53,6 +54,17 @@ test("primary navigation and belt tabs remain separate component groups", () => 
   assert.match(filter, /role="group"/);
   assert.equal((filter.match(/aria-pressed="true"/g) ?? []).length, 1);
   assert.equal((filter.match(/aria-pressed="false"/g) ?? []).length, 2);
+});
+
+test("appearance picker preserves selection semantics and disables its entire gesture surface", () => {
+  const html = renderToStaticMarkup(h(AppearancePicker));
+  assert.match(html, /role="group" aria-label="界面外观"/);
+  assert.equal((html.match(/aria-pressed="true"/g) ?? []).length, 1);
+  assert.equal((html.match(/aria-pressed="false"/g) ?? []).length, 2);
+  assert.equal((html.match(/data-segment-index=/g) ?? []).length, 3);
+  const disabled = renderToStaticMarkup(h(AppearancePicker, { disabled: true }));
+  assert.match(disabled, /aria-disabled="true" inert=""/);
+  assert.equal((disabled.match(/<button[^>]*disabled/g) ?? []).length, 3);
 });
 
 test("sheets preserve dialog semantics and heading associations", () => {
