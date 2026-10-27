@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { createSegmentedNavigationMotion } from "../../src/components/ui/segmented-navigation-controller.ts";
 
 /** Minimal DOM geometry and clock for exercising the real controller, without copying its motion logic. */
-export function navigationFixture(t, { count = 4, gap = 0, index = 0, reduced = false, highlightCrossedItems = true } = {}) {
+export function navigationFixture(t, { count = 4, gap = 0, index = 0, reduced = false } = {}) {
   let width = 360, now = 100, nextFrame = 0, focused = null, destroyed = false;
   const left = 23, frames = new Map(), selections = [], captures = new Set();
   const selector = "button[data-segment-index]";
@@ -77,7 +77,7 @@ export function navigationFixture(t, { count = 4, gap = 0, index = 0, reduced = 
     }
   });
   for (const [key, value] of Object.entries(globals)) Object.defineProperty(globalThis, key, { configurable: true, writable: true, value });
-  const controller = createSegmentedNavigationMotion(root, thumb, count, index, reduced, (selected) => selections.push(selected), highlightCrossedItems);
+  const controller = createSegmentedNavigationMotion(root, thumb, count, index, reduced, (selected) => selections.push(selected));
 
   function dispatch(element, type, properties = {}) {
     const event = new Event(type, { cancelable: true });

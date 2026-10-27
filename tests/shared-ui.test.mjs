@@ -56,14 +56,12 @@ test("primary navigation and belt tabs remain separate component groups", () => 
   assert.equal((filter.match(/aria-pressed="false"/g) ?? []).length, 2);
 });
 
-test("appearance picker preserves selection semantics and disables its entire gesture surface", () => {
+test("appearance picker preserves button selection semantics and disables all options", () => {
   const html = renderToStaticMarkup(h(AppearancePicker));
   assert.match(html, /role="group" aria-label="界面外观"/);
   assert.equal((html.match(/aria-pressed="true"/g) ?? []).length, 1);
   assert.equal((html.match(/aria-pressed="false"/g) ?? []).length, 2);
-  assert.equal((html.match(/data-segment-index=/g) ?? []).length, 3);
   const disabled = renderToStaticMarkup(h(AppearancePicker, { disabled: true }));
-  assert.match(disabled, /aria-disabled="true" inert=""/);
   assert.equal((disabled.match(/<button[^>]*disabled/g) ?? []).length, 3);
 });
 

@@ -27,6 +27,8 @@ appearance.ts 统一首绘、系统主题/对比度和跨标签页订阅；useAp
 
 公共 Button 管理基础悬停、按压、禁用和焦点。业务仅覆盖明确场景，不全局重置反馈。数据数字使用 tabular-nums，不扩展到邮箱等普通文本。
 
+[AppearancePicker](../src/components/ui/appearance-picker.tsx) 使用三个独立按钮选择跟随系统、浅色或深色。指针松手完成点击或键盘激活后直接更新偏好和主题，aria-pressed 表达选中状态，选中底色位于对应按钮内。尺寸、过渡和按压反馈复用公共 [Button](../src/components/ui/button.tsx) 默认行为；禁用时三个按钮均不可操作，不接入分段导航的滑块与拖动控制器。
+
 ## 基础尺寸
 
 以下为默认根字号下的基准，精确类名以组件源码为准。
@@ -44,20 +46,11 @@ appearance.ts 统一首绘、系统主题/对比度和跨标签页订阅；useAp
 
 独立按钮保持 Safe Area；装饰层不得拦截点击、扩大滚动高度或影响前景清晰度。不支持滤镜/遮罩及减少透明效果时使用现有降级方案。
 
-## 分段导航与外观选择
+## 两层导航
 
-InspectionTabs、BeltTabs 与 AppearancePicker 保留各自业务语义和布局，公共 [useSegmentedNavigation](../src/components/ui/use-segmented-navigation.ts) 接线，[控制器](../src/components/ui/segmented-navigation-controller.ts)处理手势。外观选择器在松手提交后切换主题，禁用时整个轨道不可交互。
+InspectionTabs 与 BeltTabs 保留业务语义和布局，公共 [useSegmentedNavigation](../src/components/ui/use-segmented-navigation.ts) 接线，[控制器](../src/components/ui/segmented-navigation-controller.ts)处理手势。
 
-各切换器共享位移、按压和回弹动画，高亮策略按场景区分：
-
-| 场景 | 点击跨项 | 拖动 |
-| --- | --- | --- |
-| 首页、皮带切换器 | 高亮跟随滑块位置，保留途经项预览 | 高亮跟随拖动预览 |
-| 外观选择器 | 途经的其他选项不高亮；滑块进入目标项对应区域后才高亮目标，不在点击时提前点亮 | 指针横向移动超过 8px 后，高亮跟随拖动预览 |
-
-外观选择器通过 hook 的 highlightCrossedItems=false 配置此差异；其余调用方使用默认策略。此配置只影响视觉高亮，不改变选择提交时机或主题存储。
-
-- 按下即捕获指针，滑块由弹簧追赶后混合为直接跟手；高亮按上表预览，业务选择在点击或松手提交。
+- 按下即捕获指针，滑块由弹簧追赶后混合为直接跟手；高亮跟随预览，业务选择在点击或松手提交。
 - 松手按最近位置选择，不按速度额外跳项；取消、失焦、尺寸变化恢复已提交状态。
 - 轨道接管从其开始的手势，轨道外保留正常页面滚动；支持方向键、Home、End。
 - 主导航与皮带导航分别维护坐标和状态，排序或减少动态效果变化时重建控制器。

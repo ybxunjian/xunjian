@@ -1,7 +1,7 @@
 import { SEGMENT_SELECTION_TRANSITION } from "./segmented-navigation-motion";
 
 /** V9 motion in track-local coordinates; no shared layout projection. */
-export function createSegmentedNavigationMotion(root: HTMLElement, thumb: HTMLElement, count: number, initialIndex: number, reduced: boolean, onSelect: (index: number) => void, highlightCrossedItems = true) {
+export function createSegmentedNavigationMotion(root: HTMLElement, thumb: HTMLElement, count: number, initialIndex: number, reduced: boolean, onSelect: (index: number) => void) {
   const { stiffness, damping, mass } = SEGMENT_SELECTION_TRANSITION;
   const buttons = [...root.querySelectorAll<HTMLButtonElement>("button[data-segment-index]")];
   const clamp = (n: number, min = 0, max = (count - 1) * step()) => Math.max(min, Math.min(max, n));
@@ -22,7 +22,6 @@ export function createSegmentedNavigationMotion(root: HTMLElement, thumb: HTMLEl
   let scale = 1, scaleTarget = 1, scaleVelocity = 0, stretch = 0, direction = 0;
   let phase: "idle" | "chase" | "blending" | "follow" = "idle";
   let pointer: number | null = null, finger = 0, fingerVelocity = 0, lastMove = 0;
-  let pressFinger = 0, draggingPreview = false;
   let holdStarted = 0, blendStarted = 0, lastFrame = 0, raf: number | null = null;
   const samples: { time: number; x: number }[] = [];
   let suppressClick = false;
@@ -39,10 +38,7 @@ export function createSegmentedNavigationMotion(root: HTMLElement, thumb: HTMLEl
       thumb.style.setProperty("--navigation-press", press);
       renderedPress = press;
     }
-    const nearest = clamp(Math.round(visual / step()), 0, count - 1);
-    const destination = phase === "idle" ? selected : clamp(Math.round(finger / step()), 0, count - 1);
-    const previewDrag = phase !== "idle" && draggingPreview;
-    const active = highlightCrossedItems || previewDrag || nearest === destination || nearest === selected ? nearest : -1;
+    const active = clamp(Math.round(visual / step()), 0, count - 1);
     if (active !== previewIndex) {
       if (previewIndex === -1) {
         buttons.forEach((button, i) => button.setAttribute("data-preview-active", String(i === active)));
@@ -128,8 +124,6 @@ export function createSegmentedNavigationMotion(root: HTMLElement, thumb: HTMLEl
     pointer = e.pointerId;
     phase = "chase";
     finger = fingerAt(local(e));
-    pressFinger = finger;
-    draggingPreview = false;
     fingerVelocity = 0;
     lastMove = performance.now();
     samples.length = 0;
@@ -145,7 +139,6 @@ export function createSegmentedNavigationMotion(root: HTMLElement, thumb: HTMLEl
     if (e.pointerId !== pointer) return;
     const now = performance.now();
     finger = fingerAt(local(e));
-    if (Math.abs(finger - pressFinger) > 8) draggingPreview = true;
     samples.push({ time: now, x: finger });
     let expired = 0;
     while (expired < samples.length && now - samples[expired].time > 90) expired++;

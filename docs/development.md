@@ -74,7 +74,7 @@ npm test 发现 tests/*.test.mjs；tests/helpers 提供受控环境，不进入�
 | 时间、历史和日历 | history-record-display、history-filter、calendar-paging |
 | 数据与同步 | inspection-storage、draft-version、inspection-backup、inspection-sync-queue、inspection-cloud-mapping |
 | 账号与离线身份 | user-preferences、avatar-recovery、offline-identity |
-| 外观与 UI | appearance、shared-ui、detail-record-actions |
+| 外观与 UI | appearance（主题偏好、首绘、订阅和配色）、shared-ui（含外观按钮选中语义与禁用状态）、detail-record-actions |
 | 导航和缓存 | segmented-navigation、service-worker |
 
 用例见 [tests](../tests/)。颜色解析测试只支持当前实现使用的表达式，新增表达式要同步扩展解析器。受控 DOM、时钟与纯规则测试不能证明浏览器原生事件、真实布局或真机帧率。
@@ -89,7 +89,7 @@ npm test 发现 tests/*.test.mjs；tests/helpers 提供受控环境，不进入�
 | 历史和备份 | 列表/日历返回关系、删除撤销、批量改选、合并/覆盖与恢复撤销 |
 | 页面和菜单 | 新页及时显示、退场禁用、快速离开重入、菜单形态与焦点、边缘点击 |
 | 导航和日历手势 | 拖动、快速反向、取消、滚动边界、键盘、宽度变化和减少动态效果 |
-| 账号和主题 | 头像恢复、改密和退出确认、浅深色/高对比度、切换中动画与焦点；外观选择器首尾双向跨项点击、拖动预览、快速反向、取消和减少动态效果，按[分段切换契约](./ui-components.md#分段导航与外观选择)核对高亮 |
+| 账号和主题 | 头像恢复、改密和退出确认、浅深色/高对比度、切换中动画与焦点；外观按钮的点击、键盘激活、选中反馈和禁用状态 |
 | 数据同步 | 离线补交、并发追加、旧结果拒绝、墓碑、草稿冲突、账号隔离 |
 | PWA和分享 | basePath、静态资源、安装名称、分享图、离线重开和缓存更新 |
 

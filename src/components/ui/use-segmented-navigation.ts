@@ -6,12 +6,11 @@ import { createSegmentedNavigationMotion } from "./segmented-navigation-controll
 
 /** Bind the DOM controller to React; callers own item labels, layout and selection. */
 export function useSegmentedNavigation<Item extends string, Root extends HTMLElement>({
-  items, value, onChange, highlightCrossedItems = true,
+  items, value, onChange,
 }: {
   items: readonly Item[];
   value: Item;
   onChange: (item: Item) => void;
-  highlightCrossedItems?: boolean;
 }) {
   const root = useRef<Root>(null);
   const thumb = useRef<HTMLSpanElement>(null);
@@ -33,11 +32,10 @@ export function useSegmentedNavigation<Item extends string, Root extends HTMLEle
         const item = latest.current.items[index];
         if (item !== undefined && item !== latest.current.value) latest.current.onChange(item);
       },
-      highlightCrossedItems,
     );
     controller.current = instance;
     return () => { instance.destroy(); controller.current = null; };
-  }, [itemsKey, reduced, highlightCrossedItems]);
+  }, [itemsKey, reduced]);
   useLayoutEffect(() => { controller.current?.setIndex(selectedIndex); }, [selectedIndex]);
 
   return { root, thumb, initialIndex };
