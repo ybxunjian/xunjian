@@ -10,7 +10,7 @@ import type { BeltId, InspectionDraft, PumpAreaId } from "../model/types";
 
 type ApplyDraftChange = (
   change: (current: InspectionDraft) => Pick<InspectionDraft, "values" | "beltTab">,
-) => void;
+) => boolean | void;
 
 /** Stable event handlers; constructing them never reads or writes the draft. */
 export function useInspectionDraftActions(applyDraftChange: ApplyDraftChange) {
@@ -33,7 +33,7 @@ export function createInspectionDraftActions(applyDraftChange: ApplyDraftChange)
       value: string;
     }> = [];
 
-    applyDraftChange((current) => ({
+    const applied = applyDraftChange((current) => ({
       values: Object.fromEntries(
         Object.entries(current.values).concat(
           keys.map((key) => {
@@ -49,6 +49,7 @@ export function createInspectionDraftActions(applyDraftChange: ApplyDraftChange)
       beltTab: current.beltTab,
     }));
 
+    if (applied === false) return null;
     return () => {
       applyDraftChange((current) => {
         const restoredValues = { ...current.values };
@@ -63,6 +64,7 @@ export function createInspectionDraftActions(applyDraftChange: ApplyDraftChange)
 
   const clearPump = (area: PumpAreaId, group: string, index: number) => {
     const undoClear = clearKeys(getPumpCardKeys(area, group, index));
+    if (!undoClear) return;
     toast.success(`已清空${area === "slag8" ? "8#" : "9#"}${group}`, {
       action: {
         label: "撤销",
@@ -97,6 +99,7 @@ export function createInspectionDraftActions(applyDraftChange: ApplyDraftChange)
   ) => {
     const undoClear = clearKeys(getBeltItemKeys(id, ends, item));
     const itemTitle = getBeltItemTitle(id, item);
+    if (!undoClear) return;
     toast.success(`已清空${id} ${itemTitle}`, {
       action: {
         label: "撤销",
@@ -106,7 +109,7 @@ export function createInspectionDraftActions(applyDraftChange: ApplyDraftChange)
   };
 
   const createNewInspection = () => {
-    applyDraftChange(() => ({ values: {}, beltTab: "SZ101" }));
+    if (applyDraftChange(() => ({ values: {}, beltTab: "SZ101" })) === false) return;
     toast("已新建空白记录");
   };
 

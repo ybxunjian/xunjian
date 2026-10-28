@@ -93,7 +93,8 @@ export function useInspectionHistory({
     const deleting = new Set(ids);
     const deletedRecords = recordsRef.current.filter((record) => deleting.has(record.id));
     const next = recordsRef.current.filter((record) => !deleting.has(record.id));
-    commitRecords(next);
+    try { commitRecords(next); }
+    catch { toast.error("本机保存失败，请先处理存储问题"); return; }
     if (selectedRecord && deleting.has(selectedRecord.id)) {
       setHistoryDirection(-1);
       setSelectedRecord(null);
@@ -145,7 +146,8 @@ export function useInspectionHistory({
       values,
     };
     const next = [record, ...recordsRef.current];
-    commitRecords(next);
+    try { commitRecords(next); }
+    catch { toast.error("本机保存失败，请先处理存储问题"); return; }
     resetHistoryList();
     setSaveValidation(null);
     showHistory();

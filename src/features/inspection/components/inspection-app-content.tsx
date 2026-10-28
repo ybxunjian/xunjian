@@ -11,6 +11,7 @@ import { SaveValidationDialog } from "./dialogs/save-validation-dialog";
 import { HistoryView } from "./history/history-view";
 import { InspectionHeader } from "./inspection-header";
 import { InspectionTabs } from "./inspection-tabs";
+import { StorageRecoveryPanel } from "./storage-recovery-panel";
 import { PumpArea } from "./pump/pump-area";
 
 type InspectionAppContentProps = {
@@ -62,6 +63,17 @@ export function InspectionAppContent({
       toast.error("退出失败，请稍后重试");
     }
   };
+
+  if (state.storageError || !state.draftReady) {
+    return (
+      <main className="mx-auto min-h-svh max-w-md bg-background px-page py-5">
+        <h1 className="text-3xl font-black">云速巡检</h1>
+        {state.storageError ? <StorageRecoveryPanel error={state.storageError} userId={userId}
+          records={state.records} unsavedDraft={state.unsavedDraft} onRetry={actions.retryStorage} />
+          : <p role="status" className="mt-4 text-body text-muted-foreground">正在读取本机数据…</p>}
+      </main>
+    );
+  }
 
   const content =
     state.tab === "slag8" || state.tab === "slag9" ? (

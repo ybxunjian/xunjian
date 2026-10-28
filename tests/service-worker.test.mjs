@@ -68,3 +68,19 @@ test("base path rejects malformed values", () => {
   assert.equal(normalizeBasePath("/xunjian"), "/xunjian");
   assert.throws(() => normalizeBasePath("/xunjian/"));
 });
+
+test("worker activates early only on the explicit update message", async () => {
+  const handlers = {};
+  let activations = 0;
+  vm.runInNewContext(renderServiceWorker(template, { basePath: "/xunjian", version: "new", files: [] }), {
+    URL, Set, self: { location: { origin: "https://example.test" },
+      addEventListener: (name, handler) => { handlers[name] = handler; },
+      skipWaiting: async () => { activations++; } },
+  });
+  handlers.message({ data: { type: "UNKNOWN" } });
+  assert.equal(activations, 0);
+  let finished;
+  handlers.message({ data: { type: "ACTIVATE_UPDATE" }, waitUntil: promise => { finished = promise; } });
+  await finished;
+  assert.equal(activations, 1);
+});

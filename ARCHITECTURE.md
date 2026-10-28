@@ -26,7 +26,7 @@
 | public / src/assets / design | 静态生产资源、独立品牌导出和设计源稿；用途见[品牌文档](./design/brand/README.md) |
 | scripts | 静态导出后的 Service Worker 生成 |
 | supabase/migrations | 数据库、权限、Storage 和 Realtime 迁移 |
-| tests | 纯规则、控制器和组件回归；不被运行时代码导入 |
+| tests | 纯规则、控制器、组件与浏览器回归；不被运行时代码导入 |
 
 业务模块按职责分为 components、hooks、model、storage 和 sync：
 
@@ -50,6 +50,8 @@ page.tsx
 ```
 
 一级页面即时切换；历史子页面使用公共 DirectionalViewTransition。历史菜单位于内容外的 Portal，保持独立退场生命周期。弹层、分段导航和分裂确认复用公共 UI；几何参数与交互约定见[公共 UI](./docs/ui-components.md)。
+
+存储恢复由 inspection/storage 的安全读写和控制器编排，异常提示由 StorageRecoveryPanel 展示。ServiceWorkerRegistration 通过 service-worker-updates 观察新版，page-reload-guard 汇总已挂载数据模块的刷新检查。
 
 设备外观由 appearance.ts 和 useAppearance 管理，根布局处理首绘，AppearanceRuntime 承载 Sonner；业务只消费 globals.css 语义令牌。外观是设备偏好，不混入账号云偏好。
 
