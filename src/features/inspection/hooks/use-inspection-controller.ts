@@ -1,8 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { registerReloadGuard } from "@/lib/page-reload-guard";
-import { storageFailure as toStorageFailure, InspectionStorageError } from "../storage/inspection-storage-safety";
 import { createNextDraftUpdatedAt } from "../model/draft-reconciliation";
 import type {
   BeltId,
@@ -18,6 +16,7 @@ import {
   getStoredInspectionDraft,
   loadInspectionState,
   prepareStorageForUser,
+  saveCurrentAccountCache,
   saveInspectionDraft,
   saveInspectionRecords,
 } from "../storage/inspection-storage";
@@ -58,50 +57,13 @@ export function useInspectionController(userId?: string) {
   const [pendingDraftUpload, setPendingDraftUpload] =
     useState<PendingDraftUpload | null>(null);
 
-  const [storageError, setStorageError] = useState<InspectionStorageError | null>(null);
-  const storageBlocked = useRef(false);
-  const [unsavedDraft, setUnsavedDraft] = useState<VersionedInspectionDraft | null>(null);
-  const reportStorageError = useCallback((error: unknown) => {
-    storageBlocked.current = true;
-    const failure = toStorageFailure(error);
-    setStorageError(previous => new InspectionStorageError(failure.kind, failure.keys,
-      { ...failure.originals, ...previous?.originals }));
-  }, []);
-
-  useEffect(() => registerReloadGuard(() => {
-    if (!draftReady || storageBlocked.current) return false;
-    try {
-      const stored = loadInspectionState();
-      if (JSON.stringify(getStoredInspectionDraft(stored)) !== JSON.stringify(draftSnapshot.current)) return false;
-      return true;
-    } catch (error) { reportStorageError(error); return false; }
-  }), [draftReady, reportStorageError]);
-
-  useEffect(() => {
-    if (!unsavedDraft) return;
-    const protectInput = (event: BeforeUnloadEvent) => { if (!storageBlocked.current) return; event.preventDefault(); event.returnValue = ""; };
-    window.addEventListener("beforeunload", protectInput);
-    return () => window.removeEventListener("beforeunload", protectInput);
-  }, [unsavedDraft]);
-
-  const retryStorage = () => {
-    try {
-      if (unsavedDraft) saveInspectionDraft(unsavedDraft, userId);
-      if (userId) prepareStorageForUser(userId); else loadInspectionState();
-      storageBlocked.current = false;
-      window.location.reload();
-    } catch (error) { reportStorageError(error); }
-  };
-
   const persistRecords = useCallback(
     (next: InspectionRecord[]) => {
-      if (storageBlocked.current) throw new Error("请先恢复本机存储");
-      try {
-        saveInspectionRecords(next, userId);
-        recordsRevision.current += 1;
-      } catch (error) { reportStorageError(error); throw error; }
+      saveInspectionRecords(next);
+      recordsRevision.current += 1;
+      if (userId) saveCurrentAccountCache(userId);
     },
-    [reportStorageError, userId],
+    [userId],
   );
 
   const markCloudFailure = useCallback(() => {
@@ -154,12 +116,11 @@ export function useInspectionController(userId?: string) {
     persistRecords,
     runCloudChange,
     onRecordsChanged: history.actions.resetHistoryList,
-    onStorageError: reportStorageError,
   });
   const initializeBackupFromStorage = backup.actions.initializeFromStorage;
 
   const syncNow = useCallback(async (background = false) => {
-    if (!userId || storageBlocked.current) return;
+    if (!userId) return;
     // Realtime echoes still reconcile data, but must not restart the spinner.
     // Explicit requests can promote an already-running background check.
     if (!background) setSyncStatus("syncing");
@@ -175,9 +136,8 @@ export function useInspectionController(userId?: string) {
     try {
       const localState = loadInspectionState();
       const result = await syncInspectionAccount(userId, localState);
-      if (storageBlocked.current) return;
       if (recordsRevision.current === startingRecordsRevision) {
-        saveInspectionRecords(result.records, userId);
+        saveInspectionRecords(result.records);
         setRecords(result.records);
       } else {
         // A save, delete or import happened after this request started. Its
@@ -186,17 +146,18 @@ export function useInspectionController(userId?: string) {
       }
       if (draftRevision.current === startingDraftRevision) {
         if (result.draft) {
-          saveInspectionDraft(result.draft, userId);
+          saveInspectionDraft(result.draft);
           draftSnapshot.current = result.draft;
           setValues(result.draft.values);
           setBeltTab(result.draft.beltTab);
         } else {
-          clearInspectionDraft(userId);
+          clearInspectionDraft();
           draftSnapshot.current = null;
         }
         confirmedDraftRevision.current = startingDraftRevision;
         setPendingDraftUpload(null);
       }
+      saveCurrentAccountCache(userId);
       const pending = getPendingInspectionSyncCount(userId);
       setPendingSyncCount(pending);
       if (
@@ -208,9 +169,8 @@ export function useInspectionController(userId?: string) {
         setLastSyncedAt(new Date().toISOString());
         setSyncStatus("synced");
       }
-    } catch (error) {
-      if (error instanceof InspectionStorageError) reportStorageError(error);
-      else markCloudFailure();
+    } catch {
+      markCloudFailure();
     } finally {
       syncInFlight.current = false;
       if (syncRerunRequested.current) {
@@ -218,7 +178,7 @@ export function useInspectionController(userId?: string) {
         window.setTimeout(() => void syncNowRef.current(true), 0);
       }
     }
-  }, [markCloudFailure, reportStorageError, userId]);
+  }, [markCloudFailure, userId]);
 
   useEffect(() => {
     syncNowRef.current = syncNow;
@@ -227,10 +187,9 @@ export function useInspectionController(userId?: string) {
   useEffect(() => {
     let active = true;
     const loadStorage = window.setTimeout(async () => {
-      let stored;
-      try {
-        stored = userId ? prepareStorageForUser(userId) : loadInspectionState();
-      } catch (error) { if (active) reportStorageError(error); return; }
+      const stored = userId
+        ? prepareStorageForUser(userId)
+        : loadInspectionState();
       if (!active) return;
       setRecords(stored.records);
       setValues(stored.values);
@@ -242,8 +201,7 @@ export function useInspectionController(userId?: string) {
         userId ? getPendingInspectionSyncCount(userId) : 0,
       );
       setPendingDraftUpload(null);
-      try { initializeBackupFromStorage(); }
-      catch (error) { reportStorageError(error); return; }
+      initializeBackupFromStorage();
       setDraftReady(true);
       if (userId) {
         await syncNow();
@@ -255,7 +213,7 @@ export function useInspectionController(userId?: string) {
       active = false;
       window.clearTimeout(loadStorage);
     };
-  }, [initializeBackupFromStorage, reportStorageError, syncNow, userId]);
+  }, [initializeBackupFromStorage, syncNow, userId]);
 
   useEffect(() => {
     if (!draftReady || !userId || !pendingDraftUpload) return;
@@ -265,14 +223,12 @@ export function useInspectionController(userId?: string) {
         uploadDraft = window.setTimeout(upload, 100);
         return;
       }
-      if (storageBlocked.current) return;
       setSyncStatus("syncing");
       try {
         const result = await pushInspectionDraft(
           userId,
           pendingDraftUpload.draft,
         );
-        if (storageBlocked.current) return;
         if (result === "stale") {
           await syncNow();
           return;
@@ -313,7 +269,6 @@ export function useInspectionController(userId?: string) {
         current: InspectionDraft,
       ) => Pick<InspectionDraft, "values" | "beltTab">,
     ) => {
-      if (!draftReady || storageBlocked.current) return false;
       const current = draftSnapshot.current ?? {
         values: {},
         beltTab: "SZ101" as const,
@@ -323,24 +278,19 @@ export function useInspectionController(userId?: string) {
         ...changed,
         updatedAt: createNextDraftUpdatedAt(current.updatedAt),
       };
-      try { saveInspectionDraft(draft, userId); }
-      catch (error) {
-        setUnsavedDraft(draft);
-        reportStorageError(error);
-        return false;
-      }
       const revision = draftRevision.current + 1;
       draftRevision.current = revision;
       draftSnapshot.current = draft;
+      saveInspectionDraft(draft);
+      if (userId) saveCurrentAccountCache(userId);
       setValues(draft.values);
       setBeltTab(draft.beltTab);
       setPendingDraftUpload({ draft, revision });
       setSyncStatus(
         userId ? (navigator.onLine ? "syncing" : "offline") : "local",
       );
-      return true;
     },
-    [draftReady, reportStorageError, userId],
+    [userId],
   );
 
   const draftActions = useInspectionDraftActions(applyDraftChange);
@@ -355,9 +305,6 @@ export function useInspectionController(userId?: string) {
   return {
     state: {
       tab,
-      draftReady,
-      storageError,
-      unsavedDraft,
       beltTab,
       values,
       records,
@@ -369,7 +316,6 @@ export function useInspectionController(userId?: string) {
     },
     actions: {
       ...draftActions,
-      retryStorage,
       selectTab,
       selectRecord: history.actions.selectRecord,
       setHistoryDirection: history.actions.setHistoryDirection,

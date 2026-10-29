@@ -79,12 +79,6 @@ npm test 发现 tests/*.test.mjs；tests/helpers 提供受控环境，不进入�
 
 用例见 [tests](../tests/)。颜色解析测试只支持当前实现使用的表达式，新增表达式要同步扩展解析器。受控 DOM、时钟与纯规则测试不能证明浏览器原生事件、真实布局或真机帧率。
 
-### 浏览器自动回归
-
-执行 `npx playwright install chromium` 安装浏览器，再运行 `npm run test:browser`。配置见 [playwright.config.ts](../playwright.config.ts)，用例位于 [tests/browser](../tests/browser/)。测试服务构建并托管实际静态导出，保留 /xunjian basePath；使用假公开配置、账号会话和拦截的云请求，不访问生产账号或数据。测试会重建 out 为测试配置，正式发布前必须重新执行完整生产构建，不能直接上传测试产物。
-
-覆盖草稿刷新与保存详情、菜单边缘/取消/键盘、密码展开及主题、损坏数据导出、配额失败回滚与重试，以及真实 Service Worker 更新和阻止不安全刷新。CI 和部署复用 [browser.yml](../.github/workflows/browser.yml)，部署同时等待生产门禁和浏览器检查成功；测试产物与生产产物由不同任务构建。失败保留 trace 和截图。本地需要指定已安装 Chromium 时可设置 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH；不应因此声称已验证微信或 Safari。
-
 ### 浏览器与真机回归
 
 按改动领域选择检查：

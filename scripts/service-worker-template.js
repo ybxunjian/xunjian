@@ -10,11 +10,6 @@ self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(cacheName).then((cache) => cache.addAll(assets)));
 });
 
-// Activation is requested only after the user accepts and data owners allow reload.
-self.addEventListener("message", (event) => {
-  if (event.data?.type === "ACTIVATE_UPDATE") event.waitUntil(self.skipWaiting());
-});
-
 self.addEventListener("activate", (event) => {
   event.waitUntil((async () => {
     const names = await caches.keys();

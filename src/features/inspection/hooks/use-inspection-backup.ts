@@ -6,8 +6,6 @@ import {
   type SetStateAction,
 } from "react";
 import { toast } from "sonner";
-import { deliverBackupFile } from "../storage/backup-file-delivery";
-import { storageFailure } from "../storage/inspection-storage-safety";
 import type {
   InspectionImportPreview,
   InspectionRecord,
@@ -38,7 +36,6 @@ type UseInspectionBackupOptions = {
   persistRecords: (records: InspectionRecord[]) => void;
   runCloudChange: (operation: Promise<void>) => Promise<void>;
   onRecordsChanged: () => void;
-  onStorageError: (error: unknown) => void;
 };
 
 export function useInspectionBackup({
@@ -48,7 +45,6 @@ export function useInspectionBackup({
   persistRecords,
   runCloudChange,
   onRecordsChanged,
-  onStorageError,
 }: UseInspectionBackupOptions) {
   const [backupOpen, setBackupOpen] = useState(false);
   const [lastBackupAt, setLastBackupAt] = useState<string | null>(null);
@@ -68,12 +64,12 @@ export function useInspectionBackup({
 
     const remaining = importUndoExpiresAt - Date.now();
     const expiryTimer = window.setTimeout(() => {
-      try { clearImportUndo(); setImportUndoExpiresAt(null); }
-      catch (error) { onStorageError(storageFailure(error)); }
+      clearImportUndo();
+      setImportUndoExpiresAt(null);
     }, Math.max(0, remaining));
 
     return () => window.clearTimeout(expiryTimer);
-  }, [importUndoExpiresAt, onStorageError]);
+  }, [importUndoExpiresAt]);
 
   const closeBackup = () => {
     setBackupOpen(false);
@@ -89,9 +85,24 @@ export function useInspectionBackup({
     const content = createInspectionBackup(records);
     const fileName = createBackupFileName();
     const file = new File([content], fileName, { type: "application/json" });
+    let delivery: "share" | "download" = "download";
+
     try {
-      const delivery = await deliverBackupFile(file, `共 ${records.length} 条历史记录`);
-      if (delivery === "cancelled") return;
+      if (navigator.canShare?.({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: "云速巡检备份",
+            text: `共 ${records.length} 条历史记录`,
+          });
+          delivery = "share";
+        } catch (error) {
+          if (isAbortError(error)) return;
+          downloadBackupFile(file, fileName);
+        }
+      } else {
+        downloadBackupFile(file, fileName);
+      }
 
       const exportedAt = new Date().toISOString();
       try {
@@ -126,14 +137,14 @@ export function useInspectionBackup({
   };
 
   const undoImport = () => {
-    try {
-      const undoSnapshot = loadImportUndo();
-      if (!undoSnapshot) {
-        setImportUndoExpiresAt(null);
-        toast.error("可撤销的恢复数据已不存在");
-        return;
-      }
+    const undoSnapshot = loadImportUndo();
+    if (!undoSnapshot) {
+      setImportUndoExpiresAt(null);
+      toast.error("可撤销的恢复数据已不存在");
+      return;
+    }
 
+    try {
       const previousRecords = undoSnapshot.records;
       persistRecords(previousRecords);
       setRecords(previousRecords);
@@ -146,8 +157,7 @@ export function useInspectionBackup({
         );
       }
       toast.success("已撤销上次恢复");
-    } catch (error) {
-      onStorageError(storageFailure(error));
+    } catch {
       toast.error("撤销失败，原备份仍已保留");
     }
   };
@@ -188,9 +198,8 @@ export function useInspectionBackup({
           : `已替换为 ${next.length} 条历史记录`,
         { action: { label: "撤销", onClick: undoImport } },
       );
-    } catch (error) {
-      onStorageError(storageFailure(error));
-      toast.error("恢复未完成，请先处理存储问题");
+    } catch {
+      toast.error("恢复失败，当前记录未更改");
     }
   };
 
@@ -213,4 +222,19 @@ export function useInspectionBackup({
       undoImport,
     },
   };
+}
+
+function isAbortError(error: unknown) {
+  return error instanceof Error && error.name === "AbortError";
+}
+
+function downloadBackupFile(file: File, fileName: string) {
+  const url = URL.createObjectURL(file);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }

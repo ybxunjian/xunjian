@@ -16,11 +16,6 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  browser:
-    uses: ./.github/workflows/browser.yml
-    permissions:
-      contents: read
-
   build:
     runs-on: ubuntu-latest
     steps:
@@ -65,7 +60,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    needs: [build, browser]
+    needs: build
     steps:
       - name: Deploy to GitHub Pages
         id: deployment

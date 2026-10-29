@@ -14,9 +14,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  browser:
-    uses: ./.github/workflows/browser.yml
-
   check:
     runs-on: ubuntu-latest
     steps:

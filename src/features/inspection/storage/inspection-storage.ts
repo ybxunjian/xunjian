@@ -1,5 +1,3 @@
-import { isInspectionValues } from "../model/validation";
-import { corruptStorage, readStoredJson, readStoredValue, writeStoredValues } from "./inspection-storage-safety";
 import { isBeltId } from "../model/field-rules";
 import type {
   BeltId,
@@ -50,140 +48,183 @@ export function loadInspectionState(): StoredInspectionState {
   let draftUpdatedAt: string | null = null;
   let hasDraft = false;
 
-  const storedRecords = readStoredJson(RECORDS_STORAGE_KEY);
-  if (storedRecords !== null) {
-    records = readRecords(storedRecords, RECORDS_STORAGE_KEY);
+  try {
+    const storedRecords = JSON.parse(
+      localStorage.getItem(RECORDS_STORAGE_KEY) || "[]",
+    ) as unknown;
+    if (Array.isArray(storedRecords)) {
+      records = storedRecords
+        .map(normalizeInspectionRecord)
+        .filter((record): record is InspectionRecord => record !== null);
+    }
+  } catch {
+    records = [];
   }
-  const draft = readStoredJson(DRAFT_STORAGE_KEY);
-  if (draft !== null) {
-    hasDraft = true;
-    if (typeof draft === "object" && !Array.isArray(draft) && "values" in draft) {
-      const saved = draft as Partial<InspectionDraft>;
-      if (!isInspectionValues(saved.values)) corruptStorage(DRAFT_STORAGE_KEY);
-      values = saved.values;
-      if (isBeltId(saved.beltTab)) beltTab = saved.beltTab;
-      if (typeof saved.updatedAt === "string" && !Number.isNaN(Date.parse(saved.updatedAt))) {
-        draftUpdatedAt = saved.updatedAt;
+
+  try {
+    const storedDraft = localStorage.getItem(DRAFT_STORAGE_KEY);
+    if (storedDraft) {
+      hasDraft = true;
+      const draft = JSON.parse(storedDraft) as unknown;
+      if (draft && typeof draft === "object" && "values" in draft) {
+        const savedDraft = draft as Partial<InspectionDraft>;
+        if (savedDraft.values) values = savedDraft.values;
+        if (isBeltId(savedDraft.beltTab)) beltTab = savedDraft.beltTab;
+        if (
+          typeof savedDraft.updatedAt === "string" &&
+          !Number.isNaN(Date.parse(savedDraft.updatedAt))
+        ) {
+          draftUpdatedAt = savedDraft.updatedAt;
+        }
+      } else if (draft && typeof draft === "object") {
+        values = draft as InspectionValues;
       }
-    } else if (isInspectionValues(draft)) {
-      values = draft;
-    } else corruptStorage(DRAFT_STORAGE_KEY);
+    }
+  } catch {
+    localStorage.removeItem(DRAFT_STORAGE_KEY);
+    hasDraft = false;
   }
 
   return { records, values, beltTab, draftUpdatedAt, hasDraft };
 }
 
-function readRecords(value: unknown, key: string): InspectionRecord[] {
-  if (!Array.isArray(value)) corruptStorage(key);
-  return value.map(item => normalizeInspectionRecord(item) ?? corruptStorage(key));
+export function saveInspectionRecords(records: InspectionRecord[]) {
+  localStorage.setItem(RECORDS_STORAGE_KEY, JSON.stringify(records));
 }
 
-function persistWorkspace(state: StoredInspectionState, userId?: string) {
-  const draft = getStoredInspectionDraft(state);
-  const changes: Record<string, string | null> = {
-    [RECORDS_STORAGE_KEY]: JSON.stringify(state.records),
-    [DRAFT_STORAGE_KEY]: draft ? JSON.stringify(draft) : null,
-  };
-  if (userId) {
-    if (readStoredValue(STORAGE_OWNER_KEY) !== userId) throw new Error("本机数据归属已变化，请重新加载");
-    loadAccountCache(userId); // A corrupt account cache must not be silently overwritten.
-    changes[`${ACCOUNT_CACHE_PREFIX}${userId}`] = JSON.stringify(state);
-  }
-  writeStoredValues(changes);
+export function saveInspectionDraft(draft: InspectionDraft) {
+  localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
 }
 
-export function saveInspectionRecords(records: InspectionRecord[], userId?: string) {
-  persistWorkspace({ ...loadInspectionState(), records }, userId);
-}
-
-export function saveInspectionDraft(draft: InspectionDraft, userId?: string) {
-  persistWorkspace({ ...loadInspectionState(), values: draft.values, beltTab: draft.beltTab,
-    hasDraft: true, draftUpdatedAt: draft.updatedAt ?? null }, userId);
-}
-
-export function clearInspectionDraft(userId?: string) {
-  persistWorkspace({ ...loadInspectionState(), values: {}, beltTab: "SZ101",
-    hasDraft: false, draftUpdatedAt: null }, userId);
+export function clearInspectionDraft() {
+  localStorage.removeItem(DRAFT_STORAGE_KEY);
 }
 
 export function loadLastBackupAt() {
-  return readStoredValue(LAST_BACKUP_STORAGE_KEY);
+  return localStorage.getItem(LAST_BACKUP_STORAGE_KEY);
 }
 
 export function saveLastBackupAt(value: string) {
-  writeStoredValues({ [LAST_BACKUP_STORAGE_KEY]: value });
+  localStorage.setItem(LAST_BACKUP_STORAGE_KEY, value);
 }
 
 export function saveImportUndo(records: InspectionRecord[]): ImportUndoSnapshot {
   const savedAt = new Date().toISOString();
   const expiresAt = Date.parse(savedAt) + IMPORT_UNDO_TTL_MS;
-  writeStoredValues({ [IMPORT_UNDO_STORAGE_KEY]: JSON.stringify({ savedAt, expiresAt: new Date(expiresAt).toISOString(), records }) });
+  localStorage.setItem(
+    IMPORT_UNDO_STORAGE_KEY,
+    JSON.stringify({ savedAt, expiresAt: new Date(expiresAt).toISOString(), records }),
+  );
   return { records, expiresAt };
 }
 
 export function loadImportUndo(): ImportUndoSnapshot | null {
-  const parsed = readStoredJson(IMPORT_UNDO_STORAGE_KEY);
-  if (parsed === null) return null;
-  if (!parsed || typeof parsed !== "object" || !("savedAt" in parsed) || typeof parsed.savedAt !== "string" ||
-    !("records" in parsed) || !Array.isArray(parsed.records)) corruptStorage(IMPORT_UNDO_STORAGE_KEY);
-  const savedAt = Date.parse(parsed.savedAt);
-  if (Number.isNaN(savedAt)) corruptStorage(IMPORT_UNDO_STORAGE_KEY);
-  const explicitExpiry = "expiresAt" in parsed && typeof parsed.expiresAt === "string" ? Date.parse(parsed.expiresAt) : NaN;
-  const expiresAt = Number.isNaN(explicitExpiry) ? savedAt + IMPORT_UNDO_TTL_MS : explicitExpiry;
-  if (expiresAt <= Date.now()) { clearImportUndo(); return null; }
-  return { records: readRecords(parsed.records, IMPORT_UNDO_STORAGE_KEY), expiresAt };
+  try {
+    const parsed = JSON.parse(
+      localStorage.getItem(IMPORT_UNDO_STORAGE_KEY) || "null",
+    ) as unknown;
+    if (
+      parsed &&
+      typeof parsed === "object" &&
+      "savedAt" in parsed &&
+      typeof parsed.savedAt === "string" &&
+      "records" in parsed &&
+      Array.isArray(parsed.records)
+    ) {
+      const savedAt = Date.parse(parsed.savedAt);
+      const storedExpiresAt =
+        "expiresAt" in parsed && typeof parsed.expiresAt === "string"
+          ? Date.parse(parsed.expiresAt)
+          : Number.NaN;
+      const expiresAt = Number.isNaN(storedExpiresAt)
+        ? savedAt + IMPORT_UNDO_TTL_MS
+        : storedExpiresAt;
+
+      if (Number.isNaN(savedAt) || expiresAt <= Date.now()) {
+        clearImportUndo();
+        return null;
+      }
+
+      return {
+        records: parsed.records
+          .map(normalizeInspectionRecord)
+          .filter((record): record is InspectionRecord => record !== null),
+        expiresAt,
+      };
+    }
+  } catch {
+    clearImportUndo();
+  }
+  return null;
 }
 
 export function clearImportUndo() {
-  writeStoredValues({ [IMPORT_UNDO_STORAGE_KEY]: null });
+  localStorage.removeItem(IMPORT_UNDO_STORAGE_KEY);
 }
 
 export function prepareStorageForUser(userId: string): StoredInspectionState {
-  const owner = readStoredValue(STORAGE_OWNER_KEY);
-  const current = loadInspectionState();
-  if (owner === userId) { loadAccountCache(userId); return current; }
-  const cached = loadAccountCache(userId);
-  const next = owner ? cached ?? emptyInspectionState() : current;
-  const draft = getStoredInspectionDraft(next);
-  const changes: Record<string, string | null> = {
-    [RECORDS_STORAGE_KEY]: JSON.stringify(next.records),
-    [DRAFT_STORAGE_KEY]: draft ? JSON.stringify(draft) : null,
-    [`${ACCOUNT_CACHE_PREFIX}${userId}`]: JSON.stringify(next),
-    [STORAGE_OWNER_KEY]: userId,
-  };
-  if (owner) {
-    loadAccountCache(owner);
-    changes[`${ACCOUNT_CACHE_PREFIX}${owner}`] = JSON.stringify(current);
-    changes[IMPORT_UNDO_STORAGE_KEY] = null;
-    changes[LAST_BACKUP_STORAGE_KEY] = null;
+  const currentOwner = localStorage.getItem(STORAGE_OWNER_KEY);
+
+  if (!currentOwner) {
+    localStorage.setItem(STORAGE_OWNER_KEY, userId);
+    const legacyState = loadInspectionState();
+    saveAccountCache(userId, legacyState);
+    return legacyState;
   }
-  writeStoredValues(changes);
-  return next;
+
+  if (currentOwner === userId) return loadInspectionState();
+
+  saveAccountCache(currentOwner, loadInspectionState());
+  const nextState = loadAccountCache(userId) ?? emptyInspectionState();
+  localStorage.removeItem(IMPORT_UNDO_STORAGE_KEY);
+  localStorage.removeItem(LAST_BACKUP_STORAGE_KEY);
+  saveInspectionRecords(nextState.records);
+  const nextDraft = getStoredInspectionDraft(nextState);
+  if (nextDraft) {
+    saveInspectionDraft(nextDraft);
+  } else {
+    clearInspectionDraft();
+  }
+  localStorage.setItem(STORAGE_OWNER_KEY, userId);
+  return nextState;
+}
+
+export function saveCurrentAccountCache(userId: string) {
+  if (localStorage.getItem(STORAGE_OWNER_KEY) !== userId) return;
+  saveAccountCache(userId, loadInspectionState());
+}
+
+function saveAccountCache(userId: string, state: StoredInspectionState) {
+  localStorage.setItem(`${ACCOUNT_CACHE_PREFIX}${userId}`, JSON.stringify(state));
 }
 
 function loadAccountCache(userId: string): StoredInspectionState | null {
-  const key = `${ACCOUNT_CACHE_PREFIX}${userId}`;
-  const parsed = readStoredJson(key);
-  if (parsed === null) return null;
-  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed) || !("records" in parsed)) corruptStorage(key);
-  const cached = parsed as Partial<StoredInspectionState>;
-  const records = readRecords(cached.records, key);
-  const values = cached.values ?? {};
-  if (!isInspectionValues(values)) corruptStorage(key);
-  const draftUpdatedAt = typeof cached.draftUpdatedAt === "string" ? cached.draftUpdatedAt : null;
-  return { records, values, beltTab: isBeltId(cached.beltTab) ? cached.beltTab : "SZ101", draftUpdatedAt,
-    hasDraft: typeof cached.hasDraft === "boolean" ? cached.hasDraft : draftUpdatedAt !== null || Object.keys(values).length > 0 };
-}
+  try {
+    const parsed = JSON.parse(
+      localStorage.getItem(`${ACCOUNT_CACHE_PREFIX}${userId}`) || "null",
+    ) as Partial<StoredInspectionState> | null;
+    if (!parsed || !Array.isArray(parsed.records)) return null;
 
-/** Only export inspection data belonging to the currently displayed account. */
-export function readInspectionRecoveryData(userId?: string, originals: Record<string, string | null> = {}) {
-  // A failed account switch may also fail to roll back the owner marker.
-  // Scope recovery by the pre-write owner, not a partially changed marker.
-  const owner = originals[STORAGE_OWNER_KEY] ?? readStoredValue(STORAGE_OWNER_KEY);
-  const keys = userId && owner && owner !== userId
-    ? [`${ACCOUNT_CACHE_PREFIX}${userId}`]
-    : [RECORDS_STORAGE_KEY, DRAFT_STORAGE_KEY, ...(userId ? [`${ACCOUNT_CACHE_PREFIX}${userId}`] : [])];
-  return Object.fromEntries(keys.map(key => [key, readStoredValue(key)]));
+    const values =
+      parsed.values && typeof parsed.values === "object" ? parsed.values : {};
+    const draftUpdatedAt =
+      typeof parsed.draftUpdatedAt === "string" ? parsed.draftUpdatedAt : null;
+
+    return {
+      records: parsed.records
+        .map(normalizeInspectionRecord)
+        .filter((record): record is InspectionRecord => record !== null),
+      values,
+      beltTab: isBeltId(parsed.beltTab) ? parsed.beltTab : "SZ101",
+      draftUpdatedAt,
+      hasDraft:
+        typeof parsed.hasDraft === "boolean"
+          ? parsed.hasDraft
+          : draftUpdatedAt !== null || Object.keys(values).length > 0,
+    };
+  } catch {
+    return null;
+  }
 }
 
 function emptyInspectionState(): StoredInspectionState {
