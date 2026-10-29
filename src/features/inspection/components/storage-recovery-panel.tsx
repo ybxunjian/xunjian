@@ -1,4 +1,4 @@
-import { Download, HardDrive, RefreshCw } from "lucide-react";
+import { HardDrive, RefreshCw, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -39,7 +39,7 @@ export function StorageRecoveryPanel({ error, userId, records, unsavedDraft, onR
         {unsavedDraft && <p className="text-body text-muted-foreground">刚才的输入暂存在当前页面，关闭或刷新前请重试保存或导出。</p>}
         <div className="flex flex-wrap gap-2">
           <Button onClick={onRetry}><RefreshCw size={17} />重试</Button>
-          <Button variant="ghost" onClick={exportRecovery}><Download size={17} />导出原始数据</Button>
+          <Button variant="ghost" onClick={exportRecovery}><Upload size={17} />导出原始数据</Button>
         </div>
         <p className="text-caption leading-5 text-muted-foreground">原始数据文件用于恢复排查，不是普通历史备份。空间不足时可先释放其他站点或设备空间，再重试。</p>
       </CardContent>
